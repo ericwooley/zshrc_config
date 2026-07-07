@@ -1,6 +1,6 @@
-# Sync this terminal setup to an SSH host.
-# Copies zsh, tmux, and Neovim config, then runs the remote helper script for
-# dependency bootstrap, Antidote/Lazy.nvim setup, and remote health checks.
+# Bootstrap this terminal setup on an SSH host from the published git repo.
+# The remote host clones or pulls the repo, then runs install.sh there so the
+# same dependency prompts, backups, and managed symlinks are used everywhere.
 zshsetup() {
   if (( $# != 1 )); then
     echo "usage: zshsetup <host>" >&2
@@ -9,68 +9,50 @@ zshsetup() {
 
   local host="$1"
   local config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
-  local remote_helper="${ZSHSETUP_REMOTE_SCRIPT:-$config_dir/scripts/zshsetup-remote.sh}"
-  local setup_status=0
+  local repo_url="${ZSHSETUP_REPO_URL:-}"
+  local repo_root=""
 
-  for cmd in ssh scp; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-      echo "zshsetup: missing local command: $cmd" >&2
+  if ! command -v ssh >/dev/null 2>&1; then
+    echo "zshsetup: missing local command: ssh" >&2
+    return 1
+  fi
+
+  if [[ -z "$repo_url" ]]; then
+    if ! command -v git >/dev/null 2>&1; then
+      echo "zshsetup: missing local command: git" >&2
       return 1
     fi
-  done
 
-  if [[ ! -f "$HOME/.zshrc" ]]; then
-    echo "zshsetup: missing $HOME/.zshrc" >&2
+    repo_root="$(git -C "$config_dir" rev-parse --show-toplevel 2>/dev/null)" || repo_root=""
+    if [[ -n "$repo_root" ]]; then
+      repo_url="$(git -C "$repo_root" config --get remote.origin.url 2>/dev/null)" || repo_url=""
+    fi
+  fi
+
+  if [[ -z "$repo_url" ]]; then
+    cat >&2 <<'EOF'
+zshsetup: no git remote URL found for this setup.
+zshsetup: add an origin remote, or run with:
+zshsetup:   ZSHSETUP_REPO_URL=https://github.com/<you>/<repo>.git zshsetup <host>
+EOF
     return 1
   fi
 
-  if [[ ! -d "$config_dir" ]]; then
-    echo "zshsetup: missing $config_dir" >&2
-    return 1
-  fi
+  local -a remote_steps=(
+    'set -eu'
+    'repo_url="$ZSHSETUP_REPO_URL"'
+    'repo_dir="$HOME/.zshrc_config"'
+    'run_apt() { if [ "$(id -u)" -eq 0 ]; then DEBIAN_FRONTEND=noninteractive apt-get "$@"; elif command -v sudo >/dev/null 2>&1; then sudo env DEBIAN_FRONTEND=noninteractive apt-get "$@"; else echo "zshsetup: sudo is required to install git with apt" >&2; return 1; fi; }'
+    'ensure_git() { if command -v git >/dev/null 2>&1; then return 0; fi; if ! command -v apt-get >/dev/null 2>&1; then echo "zshsetup: git is required before cloning $repo_url" >&2; echo "zshsetup: install git manually, then rerun zshsetup" >&2; return 1; fi; echo "zshsetup: git is required before cloning $repo_url"; echo "zshsetup: commands:"; echo "  apt-get update"; echo "  apt-get install -y git ca-certificates"; printf "zshsetup: install git with apt now? [y/N] "; read answer || answer=""; case "$answer" in y|Y|yes|YES) ;; *) echo "zshsetup: skipped git install"; return 1 ;; esac; run_apt update; run_apt install -y git ca-certificates; }'
+    'ensure_git'
+    'mkdir -p "$(dirname "$repo_dir")"'
+    'backup_config_dir() { backup_path="$HOME/.zsh_config.bak"; if [ -e "$backup_path" ] || [ -L "$backup_path" ]; then backup_path="$HOME/.zsh_config.bak_$(date +%Y%m%d_%H%M%S)"; fi; echo "zshsetup: moving existing $repo_dir to $backup_path"; mv "$repo_dir" "$backup_path"; }'
+    'if [ -d "$repo_dir/.git" ]; then echo "zshsetup: updating $repo_dir"; git -C "$repo_dir" pull --ff-only; else if [ -e "$repo_dir" ] || [ -L "$repo_dir" ]; then backup_config_dir; fi; echo "zshsetup: cloning $repo_url into $repo_dir"; git clone "$repo_url" "$repo_dir"; fi'
+    'cd "$repo_dir"'
+    'sh ./install.sh'
+  )
+  local remote_script="${(j:; :)remote_steps}"
 
-  if [[ ! -f "$remote_helper" ]]; then
-    echo "zshsetup: missing remote helper script: $remote_helper" >&2
-    return 1
-  fi
-
-  echo "zshsetup: preparing $host"
-  scp "$remote_helper" "$host:~/.zshsetup-remote.sh" || return
-  ssh -tt "$host" 'sh "$HOME/.zshsetup-remote.sh" prepare; setup_rc=$?; rm -f "$HOME/.zshsetup-remote.sh"; exit "$setup_rc"'
-  local prep_status=$?
-  if (( prep_status != 0 )); then
-    setup_status=$prep_status
-  fi
-
-  echo "zshsetup: syncing zsh config"
-  scp "$HOME/.zshrc" "$host:~/.zshrc" || return
-  scp -r "$config_dir"/. "$host:~/.zshrc_config/" || return
-
-  if [[ -d "$HOME/.config/nvim" ]]; then
-    echo "zshsetup: syncing nvim config"
-    scp -r "$HOME/.config/nvim" "$host:~/.config/" || return
-  else
-    echo "zshsetup: local nvim config not found at $HOME/.config/nvim" >&2
-    setup_status=1
-  fi
-
-  if [[ -f "$HOME/.tmux.conf" ]]; then
-    echo "zshsetup: syncing tmux config"
-    scp "$HOME/.tmux.conf" "$host:~/.tmux.conf" || return
-  fi
-
-  echo "zshsetup: checking remote tools and regenerating antidote plugin files"
-  ssh -tt "$host" 'sh "$HOME/.zshrc_config/scripts/zshsetup-remote.sh" finalize'
-  local check_status=$?
-  if (( check_status != 0 )); then
-    setup_status=$check_status
-  fi
-
-  if (( setup_status == 0 )); then
-    echo "zshsetup: complete"
-  else
-    echo "zshsetup: copied config, but one or more remote checks failed" >&2
-  fi
-
-  return "$setup_status"
+  echo "zshsetup: bootstrapping $host from $repo_url"
+  ssh -tt "$host" "ZSHSETUP_REPO_URL=${(q)repo_url} sh -lc ${(q)remote_script}"
 }

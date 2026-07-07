@@ -1,0 +1,19 @@
+.DS_Store
+*.log
+
+# Local/generated zsh cache files.
+.zshrc_config/generated-completions/
+
+# Scratch files from the Codex setup session.
+/lazy.lua
+outputs/
+tmux.conf
+work/
+zhsrc_config/
+zshrc.work
+zshrc.new
+zshrc_config/
+zsh_plugins_post.txt
+zsh_plugins_post.zsh
+zsh_plugins_pre.zsh
+nvim.log

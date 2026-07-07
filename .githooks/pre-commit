@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+# Block commits that introduce secrets.
+
+set -eu
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is required but was not found on PATH" >&2
+  echo "pre-commit: install it, or bypass once with: git commit --no-verify" >&2
+  exit 1
+fi
+
+echo "pre-commit: scanning staged changes with gitleaks"
+gitleaks git --pre-commit --staged --redact --no-color --no-banner
