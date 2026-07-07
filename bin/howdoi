@@ -4,6 +4,12 @@
 set -euo pipefail
 
 question_file=""
+question_from_editor=0
+new_session=0
+
+usage() {
+  echo "usage: howdoi [--new] [question about this zsh setup]" >&2
+}
 
 cleanup() {
   if [[ -n "${question_file:-}" && -f "$question_file" ]]; then
@@ -11,7 +17,45 @@ cleanup() {
   fi
 }
 
+print_editor_question() {
+  if [[ -t 2 ]]; then
+    printf '\n\033[1;36mhowdoi\033[0m \033[1mquestion\033[0m\n' >&2
+    printf '\033[2m----------------\033[0m\n' >&2
+  else
+    printf '\nhowdoi question\n----------------\n' >&2
+  fi
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    printf '  %s\n' "$line" >&2
+  done <<< "$question"
+
+  printf '\n' >&2
+}
+
 trap cleanup EXIT
+
+question_parts=()
+while (( $# > 0 )); do
+  case "$1" in
+    --new)
+      new_session=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      question_parts+=("$@")
+      break
+      ;;
+    *)
+      question_parts+=("$1")
+      shift
+      ;;
+  esac
+done
 
 if ! command -v fastAI >/dev/null 2>&1; then
   echo "howdoi: fastAI is not installed or not on PATH" >&2
@@ -23,8 +67,8 @@ if ! command -v glow >/dev/null 2>&1; then
   exit 1
 fi
 
-if (( $# > 0 )); then
-  question="$*"
+if (( ${#question_parts[@]} > 0 )); then
+  question="${question_parts[*]}"
 else
   editor="${EDITOR:-vi}"
   editor_cmd=("${(z)editor}")
@@ -35,9 +79,9 @@ else
   fi
 
   question_file="$(mktemp -t howdoi.XXXXXX)"
-  echo "howdoi: write your question, save, and exit ${editor_cmd[1]}" >&2
   "$editor_cmd[@]" "$question_file"
   question="$(< "$question_file")"
+  question_from_editor=1
 fi
 
 question="${question//$'\r'/}"
@@ -47,6 +91,10 @@ question="${question%"${question##*[![:space:]]}"}"
 if [[ -z "$question" ]]; then
   echo "howdoi: no question provided" >&2
   exit 2
+fi
+
+if (( question_from_editor )); then
+  print_editor_question
 fi
 
 config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
@@ -74,12 +122,18 @@ context="$(
       done
 )"
 
-prompt=$'You answer questions about this personal zsh setup.\n\nUse only the provided ~/.zshrc_config context. If the answer is not present in the context, say that it is not documented in the local zsh config.\n\nRules:\n- Output Markdown.\n- Be concise and practical.\n- Prefer exact commands, file paths, and key names when available.\n- Do not invent behavior that is not supported by the context.\n\nQuestion:\n'"$question"$'\n\n~/.zshrc_config context:\n'"$context"
+prompt=$'You answer questions about this personal zsh setup.\n\nUse fastAI session memory for follow-up context, and use the provided ~/.zshrc_config context for current facts. If the answer is not present in the session memory or local zsh config context, say that it is not documented locally.\n\nRules:\n- Output Markdown.\n- Be concise and practical.\n- Prefer exact commands, file paths, and key names when available.\n- Do not invent behavior that is not supported by the context.\n\nQuestion:\n'"$question"$'\n\n~/.zshrc_config context:\n'"$context"
+
+if (( new_session )); then
+  fastai_session_args=(--newGlobalSession)
+else
+  fastai_session_args=(--globalSession)
+fi
 
 fastAI \
   --provider "${FASTAI_DEFAULT_PROVIDER:-openrouter}" \
   --model "${FASTAI_DEFAULT_MODEL:-deepseek/deepseek-v4-flash}" \
   --permissions none \
-  --no-session \
+  "${fastai_session_args[@]}" \
   "$prompt" \
   | glow -
