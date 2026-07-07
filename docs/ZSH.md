@@ -351,6 +351,7 @@ Purpose:
 - clone the published config repo on first run
 - pull the remote clone on later runs
 - run the repo `install.sh` on the remote
+- ask whether to install the nightly update cron on the remote
 - use the same installer prompts, backups, and managed symlinks as local installs
 
 Local requirements:

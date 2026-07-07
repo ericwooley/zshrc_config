@@ -51,6 +51,7 @@ EOF
     'if [ -d "$repo_dir/.git" ]; then echo "zshsetup: updating $repo_dir"; stash_if_dirty; git -C "$repo_dir" pull --ff-only; else if [ -e "$repo_dir" ] || [ -L "$repo_dir" ]; then backup_config_dir; fi; echo "zshsetup: cloning $repo_url into $repo_dir"; git clone "$repo_url" "$repo_dir"; fi'
     'cd "$repo_dir"'
     'sh ./install.sh'
+    'printf "zshsetup: install nightly update cron on this remote? [y/N] "; read cron_answer || cron_answer=""; case "$cron_answer" in y|Y|yes|YES) ZSHRC_CONFIG_DIR="$repo_dir" zsh -lc "source \"$repo_dir/functions/zsh_install_nightly_update_cron.zsh\"; zsh_install_nightly_update_cron" ;; *) echo "zshsetup: skipped nightly update cron" ;; esac'
   )
   local remote_script="${(j:; :)remote_steps}"
 
