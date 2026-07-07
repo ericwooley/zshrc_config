@@ -1,0 +1,6 @@
+zsh-users/zsh-completions
+Aloxaf/fzf-tab
+https://github.com/zsh-users/zsh-autosuggestions
+zdharma-continuum/fast-syntax-highlighting kind:defer
+https://github.com/torifat/nnvm kind:defer conditional:zshrc_has_n
+zsh-users/zsh-history-substring-search
