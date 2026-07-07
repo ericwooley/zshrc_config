@@ -103,14 +103,17 @@ Usage:
 ```sh
 howdoi
 howdoi --new
-howdoi --new "update my nvim plugins?"
+howdoi --new update my nvim plugins
+howdoi create a file in nvim
+howdoi switch tmux windows
+howdoi do something useful
 howdoi "switch tmux windows"
-howdoi "make an AI commit"
-howdoi "where do aliases live?"
 ```
 
 Notes:
 
+- Arguments are joined with spaces, so `howdoi do something useful` and `howdoi "do something useful"` ask the same question.
+- Bare fragments are treated as implicit "How do I ...?" questions because punctuation and shell quoting are optional for quick use.
 - Running `howdoi` with no arguments opens `${EDITOR:-vi}` on a temporary Markdown file, prints a formatted question block after the editor exits, then uses it as the question.
 - Normal runs pass `--globalSession` to `fastAI` so follow-up questions remember prior context through fastAI's persisted session history.
 - Running `howdoi --new` passes `--newGlobalSession` to `fastAI`, which wipes the repository global session before asking the next question.

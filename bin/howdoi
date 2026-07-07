@@ -8,7 +8,7 @@ question_from_editor=0
 new_session=0
 
 usage() {
-  echo "usage: howdoi [--new] [question about this zsh setup]" >&2
+  echo "usage: howdoi [--new] [question words...]" >&2
 }
 
 cleanup() {
@@ -122,7 +122,7 @@ context="$(
       done
 )"
 
-prompt=$'You answer questions about this personal zsh setup.\n\nUse fastAI session memory for follow-up context, and use the provided ~/.zshrc_config context for current facts. If the answer is not present in the session memory or local zsh config context, say that it is not documented locally.\n\nRules:\n- Output Markdown.\n- Be concise and practical.\n- Prefer exact commands, file paths, and key names when available.\n- Do not invent behavior that is not supported by the context.\n\nQuestion:\n'"$question"$'\n\n~/.zshrc_config context:\n'"$context"
+prompt=$'You answer questions about this personal zsh setup.\n\nThe user input is meant to be a question, even when it is a bare fragment without punctuation because shell quoting is annoying. Interpret inputs like "create a file in nvim" or "do something useful" as "How do I create a file in nvim?" or "How do I do something useful with this setup?"\n\nUse fastAI session memory for follow-up context, and use the provided ~/.zshrc_config context for current facts. If the answer is not present in the session memory or local zsh config context, say that it is not documented locally.\n\nRules:\n- Output Markdown.\n- Be concise and practical.\n- Prefer exact commands, file paths, and key names when available.\n- Do not invent behavior that is not supported by the context.\n\nUser input to answer as a how-do-I question:\n'"$question"$'\n\n~/.zshrc_config context:\n'"$context"
 
 if (( new_session )); then
   fastai_session_args=(--newGlobalSession)
