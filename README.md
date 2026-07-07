@@ -86,7 +86,7 @@ of this repo.
 - npm, pnpm, yarn, and bun completion setup
 - directory jumping with zoxide
 - Starship prompt support
-- `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zsh_update_nightly`, Docker cleanup helpers, and utility aliases
+- `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zsh_install_nightly_update_cron`, Docker cleanup helpers, and utility aliases
 
 Read more in [docs/ZSH.md](docs/ZSH.md) and [docs/HELPERS.md](docs/HELPERS.md).
 

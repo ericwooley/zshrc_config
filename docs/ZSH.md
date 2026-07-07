@@ -148,7 +148,7 @@ Function files live in:
 - `dclean.zsh`
 - `dnuke.zsh`
 - `zshupdate.zsh`
-- `zsh_update_nightly.zsh`
+- `zsh_install_nightly_update_cron.zsh`
 - `zshsetup.zsh`
 
 Each file should define one public function.
@@ -177,7 +177,7 @@ source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dnuke.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshupdate.zsh"
-source "$ZSHRC_CONFIG_DIR/functions/zsh_update_nightly.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/zsh_install_nightly_update_cron.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshsetup.zsh"
 ```
 
@@ -315,12 +315,12 @@ Purpose:
 This is a shell function rather than a bin script so the final `source ~/.zshrc`
 applies to the current shell.
 
-### `functions/zsh_update_nightly.zsh`
+### `functions/zsh_install_nightly_update_cron.zsh`
 
 Public function:
 
 ```zsh
-zsh_update_nightly
+zsh_install_nightly_update_cron
 ```
 
 Purpose:
@@ -328,13 +328,13 @@ Purpose:
 - install a marked daily cron job for this user
 - ask for the timezone and daily hour interactively
 - run `git -C ~/.zshrc_config pull --ff-only` every day at minute `00`
-- write cron output to `~/.zsh_update_nightly.log`
-- replace an existing `# zsh_update_nightly` cron entry when rerun
+- write cron output to `~/.zsh_install_nightly_update_cron.log`
+- replace an existing nightly zsh update cron entry when rerun
 
 Example:
 
 ```sh
-zsh_update_nightly
+zsh_install_nightly_update_cron
 ```
 
 ### `functions/zshsetup.zsh`

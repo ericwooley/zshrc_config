@@ -1,24 +1,24 @@
-# Install a daily cron job that updates this zsh config repo.
-zsh_update_nightly() {
+# Install a nightly cron job that updates this zsh config repo.
+zsh_install_nightly_update_cron() {
   if (( $# != 0 )); then
-    echo "usage: zsh_update_nightly" >&2
+    echo "usage: zsh_install_nightly_update_cron" >&2
     return 2
   fi
 
   if ! command -v crontab >/dev/null 2>&1; then
-    echo "zsh_update_nightly: crontab is not installed or not on PATH" >&2
+    echo "zsh_install_nightly_update_cron: crontab is not installed or not on PATH" >&2
     return 1
   fi
 
   if ! command -v git >/dev/null 2>&1; then
-    echo "zsh_update_nightly: git is not installed or not on PATH" >&2
+    echo "zsh_install_nightly_update_cron: git is not installed or not on PATH" >&2
     return 1
   fi
 
   local zsh_bin
   zsh_bin="$(command -v zsh)"
   if [[ -z "$zsh_bin" ]]; then
-    echo "zsh_update_nightly: zsh is not installed or not on PATH" >&2
+    echo "zsh_install_nightly_update_cron: zsh is not installed or not on PATH" >&2
     return 1
   fi
 
@@ -50,7 +50,7 @@ zsh_update_nightly() {
     fi
   done
 
-  echo "Choose the timezone for the daily update:"
+  echo "Choose the timezone for the nightly update cron job:"
   local idx now_label
   for idx in {1..${#unique_tz_choices[@]}}; do
     choice="${unique_tz_choices[$idx]}"
@@ -75,13 +75,13 @@ zsh_update_nightly() {
   fi
 
   if ! TZ="$selected_tz" date +%Z >/dev/null 2>&1; then
-    echo "zsh_update_nightly: invalid timezone: $selected_tz" >&2
+    echo "zsh_install_nightly_update_cron: invalid timezone: $selected_tz" >&2
     return 1
   fi
 
   local selected_hour
   while true; do
-    printf 'Daily update hour in %s (0-23) [4]: ' "$selected_tz"
+    printf 'Nightly update hour in %s (0-23) [4]: ' "$selected_tz"
     read -r selected_hour
     selected_hour="${selected_hour:-4}"
 
@@ -89,36 +89,42 @@ zsh_update_nightly() {
       break
     fi
 
-    echo "zsh_update_nightly: use an hour from 0 to 23" >&2
+    echo "zsh_install_nightly_update_cron: use an hour from 0 to 23" >&2
   done
 
   local hour="$selected_hour"
   local minute=0
-  local begin_marker="# zsh_update_nightly begin"
-  local end_marker="# zsh_update_nightly end"
-  local old_marker="# zsh_update_nightly"
-  local log_file='$HOME/.zsh_update_nightly.log'
+  local begin_marker="# zsh_install_nightly_update_cron begin"
+  local end_marker="# zsh_install_nightly_update_cron end"
+  local old_begin_marker="# zsh_update_nightly begin"
+  local old_end_marker="# zsh_update_nightly end"
+  local old_line_marker="# zsh_update_nightly"
+  local log_file='$HOME/.zsh_install_nightly_update_cron.log'
   local cron_line="$minute $hour * * * $zsh_bin -lc 'git -C \"\${ZSHRC_CONFIG_DIR:-\$HOME/.zshrc_config}\" pull --ff-only' >> \"$log_file\" 2>&1"
   local tmp_file
-  tmp_file="$(mktemp -t zsh_update_nightly.XXXXXX)" || return
+  tmp_file="$(mktemp -t zsh_install_nightly_update_cron.XXXXXX)" || return
 
   {
     crontab -l 2>/dev/null \
-      | awk -v begin="$begin_marker" -v end="$end_marker" '
-          $0 == begin { skip = 1; next }
-          $0 == end { skip = 0; next }
+      | awk \
+          -v begin="$begin_marker" \
+          -v end="$end_marker" \
+          -v old_begin="$old_begin_marker" \
+          -v old_end="$old_end_marker" '
+          $0 == begin || $0 == old_begin { skip = 1; next }
+          $0 == end || $0 == old_end { skip = 0; next }
           !skip { print }
         ' \
-      | grep -vF "$old_marker" || true
+      | grep -vF "$old_line_marker" || true
     printf '%s\nCRON_TZ=%s\n%s\n%s\n' "$begin_marker" "$selected_tz" "$cron_line" "$end_marker"
   } > "$tmp_file"
 
   if crontab "$tmp_file"; then
     rm -f "$tmp_file"
-    echo "zsh_update_nightly: installed daily cron update"
-    echo "zsh_update_nightly: timezone: $selected_tz"
-    echo "zsh_update_nightly: time: ${hour}:00"
-    echo "zsh_update_nightly: log: ~/.zsh_update_nightly.log"
+    echo "zsh_install_nightly_update_cron: installed nightly cron update"
+    echo "zsh_install_nightly_update_cron: timezone: $selected_tz"
+    echo "zsh_install_nightly_update_cron: time: ${hour}:00"
+    echo "zsh_install_nightly_update_cron: log: ~/.zsh_install_nightly_update_cron.log"
   else
     local status=$?
     rm -f "$tmp_file"
