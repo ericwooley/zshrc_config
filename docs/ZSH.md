@@ -148,6 +148,7 @@ Function files live in:
 - `dclean.zsh`
 - `dnuke.zsh`
 - `zshupdate.zsh`
+- `zsh_update_nightly.zsh`
 - `zshsetup.zsh`
 
 Each file should define one public function.
@@ -176,6 +177,7 @@ source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dnuke.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshupdate.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/zsh_update_nightly.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshsetup.zsh"
 ```
 
@@ -312,6 +314,27 @@ Purpose:
 
 This is a shell function rather than a bin script so the final `source ~/.zshrc`
 applies to the current shell.
+
+### `functions/zsh_update_nightly.zsh`
+
+Public function:
+
+```zsh
+zsh_update_nightly
+```
+
+Purpose:
+
+- install a marked daily cron job for this user
+- run `git -C ~/.zshrc_config pull --ff-only` every day at 04:17
+- write cron output to `~/.zsh_update_nightly.log`
+- replace an existing `# zsh_update_nightly` cron entry when rerun
+
+Example:
+
+```sh
+zsh_update_nightly
+```
 
 ### `functions/zshsetup.zsh`
 
