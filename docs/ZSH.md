@@ -326,7 +326,8 @@ zsh_update_nightly
 Purpose:
 
 - install a marked daily cron job for this user
-- run `git -C ~/.zshrc_config pull --ff-only` every day at 04:17
+- ask for the timezone and daily hour interactively
+- run `git -C ~/.zshrc_config pull --ff-only` every day at minute `00`
 - write cron output to `~/.zsh_update_nightly.log`
 - replace an existing `# zsh_update_nightly` cron entry when rerun
 
