@@ -17,7 +17,7 @@ If a change affects users, assume the docs need to change.
 ## Safety Rules
 
 - Do not commit secrets, tokens, private keys, `.env` files, machine-local overrides, or generated caches.
-- Keep `~/.zsh_local` out of the repo.
+- Keep `~/.zshrc_local` out of the repo.
 - Keep generated completion files ignored.
 - Before publishing or after sensitive edits, run `gitleaks git` and `gitleaks dir` when available.
 - Keep `.githooks/pre-commit` aligned with the installed `gitleaks` CLI.

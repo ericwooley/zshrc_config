@@ -4,6 +4,28 @@ A fast, practical terminal setup for zsh, tmux, and Neovim. It is designed to be
 easy to install on a new machine, safe to publish, and boring in the places
 where dotfiles should be boring.
 
+## Dependencies
+
+The installer can install the common dependencies on macOS with Homebrew and on
+Ubuntu/Debian with apt. Core tools include:
+
+```text
+zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow go fastAI n node
+```
+
+### OpenRouter Key
+
+AI helpers use [`ericwooley/fastAI`](https://github.com/ericwooley/fastAI) and
+OpenRouter. To have `aiCommit` and `howdoi` work automatically, put your key in
+`~/.zshrc_local` before or after installing:
+
+```zsh
+export OPENROUTER_API_KEY='<openrouter key>'
+```
+
+`~/.zshrc_local` is loaded automatically by this setup and stays outside git.
+The older `~/.zsh_local` filename is still supported as a fallback.
+
 ## Copy/Paste Install
 
 ```sh
@@ -52,7 +74,7 @@ These paths are linked from that repo when present:
 ~/.config/nvim -> ~/.zshrc_config/.config/nvim
 ```
 
-Machine-local secrets and overrides belong in `~/.zsh_local`, which is not part
+Machine-local secrets and overrides belong in `~/.zshrc_local`, which is not part
 of this repo.
 
 ## Feature Tour
@@ -107,27 +129,6 @@ On the remote it clones into `~/.zshrc_config`, pulls on later runs, and runs
 
 Read more in [docs/REMOTE_SYNC.md](docs/REMOTE_SYNC.md).
 
-## Dependencies
-
-The installer can install the common dependencies on macOS with Homebrew and on
-Ubuntu/Debian with apt. Core tools include:
-
-```text
-zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow go fastAI n node
-```
-
-For AI features, install or configure:
-
-- [`ericwooley/fastAI`](https://github.com/ericwooley/fastAI), installed by the setup script into `~/.local/bin`
-- `glow`, used by `howdoi` for rendered Markdown output
-- `OPENROUTER_API_KEY`, stored outside the repo
-
-Recommended local secret setup:
-
-```zsh
-export OPENROUTER_API_KEY='<openrouter key>'
-```
-
 ## Docs
 
 - [Install](docs/INSTALL.md): bootstrap flow, local install, backups, dependencies, and uninstall
@@ -157,7 +158,7 @@ plugins*.txt                    Antidote plugin lists
 
 ## Publishing Safety
 
-This repo is intended to be public. Keep secrets in `~/.zsh_local`, not in git.
+This repo is intended to be public. Keep secrets in `~/.zshrc_local`, not in git.
 Before publishing or after sensitive edits, run:
 
 ```sh

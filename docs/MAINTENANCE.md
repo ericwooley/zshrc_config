@@ -53,7 +53,7 @@ The repo should not contain:
 - API tokens
 - SSH keys
 - machine-local credentials
-- `~/.zsh_local`
+- `~/.zshrc_local`
 
 ## Ignored Files
 

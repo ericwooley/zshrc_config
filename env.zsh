@@ -4,7 +4,9 @@ typeset -U path PATH
 path=("$ZSHRC_CONFIG_DIR/bin" "$N_PREFIX/bin" "$HOME/.local/go/bin" "$HOME/.local/bin" $path)
 export PATH
 
-if [[ -f "$HOME/.zsh_local" ]]; then
+if [[ -f "$HOME/.zshrc_local" ]]; then
+  source "$HOME/.zshrc_local"
+elif [[ -f "$HOME/.zsh_local" ]]; then
   source "$HOME/.zsh_local"
 fi
 

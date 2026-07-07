@@ -49,7 +49,7 @@ Dependencies:
 - [`ericwooley/fastAI`](https://github.com/ericwooley/fastAI) must be installed and available on `PATH`.
 - `OPENROUTER_API_KEY` should be set outside this repo.
 
-Recommended `~/.zsh_local` entry:
+Recommended `~/.zshrc_local` entry:
 
 ```zsh
 export OPENROUTER_API_KEY='<openrouter key>'
@@ -64,7 +64,7 @@ aiCommit
 Notes:
 
 - The command expects `fastAI` to be installed and available on `PATH`.
-- Keep the OpenRouter key in `~/.zsh_local`, not in this repo.
+- Keep the OpenRouter key in `~/.zshrc_local`, not in this repo.
 - It commits all tracked and staged changes after `git add --all`.
 - It intentionally requests only the commit message from `fastAI`.
 - It is an executable command, not a zsh function or alias.
@@ -92,7 +92,7 @@ Dependencies:
 - `glow` must be installed and available on `PATH`.
 - `OPENROUTER_API_KEY` should be set outside this repo.
 
-Recommended `~/.zsh_local` entry:
+Recommended `~/.zshrc_local` entry:
 
 ```zsh
 export OPENROUTER_API_KEY='<openrouter key>'

@@ -101,10 +101,10 @@ Missing optional tools are skipped rather than failing shell startup.
 It also sets defaults for `fastAI`, sets `EDITOR=nvim`, and sources:
 
 ```text
-~/.zsh_local
+~/.zshrc_local
 ```
 
-Use `~/.zsh_local` for machine-specific environment variables or secrets. Do not
+Use `~/.zshrc_local` for machine-specific environment variables or secrets. Do not
 commit that file.
 
 Example local secret for `aiCommit` through
