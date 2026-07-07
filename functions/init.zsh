@@ -3,6 +3,7 @@
 # to find, review, and sync to remote machines.
 
 source "$ZSHRC_CONFIG_DIR/functions/mkcd.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/resetmouse.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"

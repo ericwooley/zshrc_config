@@ -142,6 +142,7 @@ Function files live in:
 `functions/init.zsh` loads:
 
 - `mkcd.zsh`
+- `resetmouse.zsh`
 - `tmr.zsh`
 - `dstop.zsh`
 - `dclean.zsh`
@@ -169,6 +170,7 @@ Current load order:
 
 ```zsh
 source "$ZSHRC_CONFIG_DIR/functions/mkcd.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/resetmouse.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
@@ -195,6 +197,26 @@ Example:
 
 ```sh
 mkcd scratch/new-api
+```
+
+### `functions/resetmouse.zsh`
+
+Public function:
+
+```zsh
+resetmouse
+```
+
+Purpose:
+
+- reset terminal mouse reporting when a full-screen app exits badly
+- disable common xterm mouse, focus, and bracketed-paste modes
+- run `stty sane` to restore normal terminal line behavior
+
+Example:
+
+```sh
+resetmouse
 ```
 
 ### `functions/tmr.zsh`
