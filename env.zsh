@@ -1,5 +1,8 @@
 # Environment variables and local machine overrides.
 
+path=("$ZSHRC_CONFIG_DIR/bin" $path)
+export PATH
+
 if [[ -f "$HOME/.zsh_local" ]]; then
   source "$HOME/.zsh_local"
 fi

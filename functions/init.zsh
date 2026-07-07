@@ -3,5 +3,4 @@
 # to find, review, and sync to remote machines.
 
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
-source "$ZSHRC_CONFIG_DIR/functions/aicommit.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshsetup.zsh"
