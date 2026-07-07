@@ -1,0 +1,85 @@
+#!/usr/bin/env zsh
+# Ask fastAI how to use this zsh setup, then render the Markdown answer.
+
+set -euo pipefail
+
+question_file=""
+
+cleanup() {
+  if [[ -n "${question_file:-}" && -f "$question_file" ]]; then
+    rm -f "$question_file"
+  fi
+}
+
+trap cleanup EXIT
+
+if ! command -v fastAI >/dev/null 2>&1; then
+  echo "howdoi: fastAI is not installed or not on PATH" >&2
+  exit 1
+fi
+
+if ! command -v glow >/dev/null 2>&1; then
+  echo "howdoi: glow is not installed or not on PATH" >&2
+  exit 1
+fi
+
+if (( $# > 0 )); then
+  question="$*"
+else
+  editor="${EDITOR:-vi}"
+  editor_cmd=("${(z)editor}")
+
+  if (( ${#editor_cmd[@]} == 0 )) || ! command -v "$editor_cmd[1]" >/dev/null 2>&1; then
+    echo "howdoi: EDITOR is not usable: $editor" >&2
+    exit 1
+  fi
+
+  question_file="$(mktemp -t howdoi.XXXXXX)"
+  echo "howdoi: write your question, save, and exit ${editor_cmd[1]}" >&2
+  "$editor_cmd[@]" "$question_file"
+  question="$(< "$question_file")"
+fi
+
+question="${question//$'\r'/}"
+question="${question#"${question%%[![:space:]]*}"}"
+question="${question%"${question##*[![:space:]]}"}"
+
+if [[ -z "$question" ]]; then
+  echo "howdoi: no question provided" >&2
+  exit 2
+fi
+
+config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
+
+if [[ ! -d "$config_dir" ]]; then
+  echo "howdoi: config directory not found: $config_dir" >&2
+  exit 1
+fi
+
+context="$(
+  find "$config_dir" -type f \
+    ! -path '*/.git/*' \
+    ! -path '*/generated-completions/*' \
+    ! -name '*.zwc' \
+    ! -name '*.log' \
+    | sort \
+    | while IFS= read -r file; do
+        case "$file" in
+          *.zsh|*.sh|*.md|*.txt|*.conf|*/bin/*)
+            rel="${file#$config_dir/}"
+            printf '\n--- %s ---\n' "$rel"
+            sed -n '1,240p' "$file"
+            ;;
+        esac
+      done
+)"
+
+prompt=$'You answer questions about this personal zsh setup.\n\nUse only the provided ~/.zshrc_config context. If the answer is not present in the context, say that it is not documented in the local zsh config.\n\nRules:\n- Output Markdown.\n- Be concise and practical.\n- Prefer exact commands, file paths, and key names when available.\n- Do not invent behavior that is not supported by the context.\n\nQuestion:\n'"$question"$'\n\n~/.zshrc_config context:\n'"$context"
+
+fastAI \
+  --provider "${FASTAI_DEFAULT_PROVIDER:-openrouter}" \
+  --model "${FASTAI_DEFAULT_MODEL:-deepseek/deepseek-v4-flash}" \
+  --permissions none \
+  --no-session \
+  "$prompt" \
+  | glow -
