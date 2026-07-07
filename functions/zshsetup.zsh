@@ -47,7 +47,8 @@ EOF
     'ensure_git'
     'mkdir -p "$(dirname "$repo_dir")"'
     'backup_config_dir() { backup_path="$HOME/.zsh_config.bak"; if [ -e "$backup_path" ] || [ -L "$backup_path" ]; then backup_path="$HOME/.zsh_config.bak_$(date +%Y%m%d_%H%M%S)"; fi; echo "zshsetup: moving existing $repo_dir to $backup_path"; mv "$repo_dir" "$backup_path"; }'
-    'if [ -d "$repo_dir/.git" ]; then echo "zshsetup: updating $repo_dir"; git -C "$repo_dir" pull --ff-only; else if [ -e "$repo_dir" ] || [ -L "$repo_dir" ]; then backup_config_dir; fi; echo "zshsetup: cloning $repo_url into $repo_dir"; git clone "$repo_url" "$repo_dir"; fi'
+    'stash_if_dirty() { if [ -n "$(git -C "$repo_dir" status --porcelain)" ]; then stash_name="zshsetup auto-stash $(date +%Y%m%d_%H%M%S)"; echo "zshsetup: stashing local changes in $repo_dir: $stash_name"; git -C "$repo_dir" stash push -u -m "$stash_name"; fi; }'
+    'if [ -d "$repo_dir/.git" ]; then echo "zshsetup: updating $repo_dir"; stash_if_dirty; git -C "$repo_dir" pull --ff-only; else if [ -e "$repo_dir" ] || [ -L "$repo_dir" ]; then backup_config_dir; fi; echo "zshsetup: cloning $repo_url into $repo_dir"; git clone "$repo_url" "$repo_dir"; fi'
     'cd "$repo_dir"'
     'sh ./install.sh'
   )

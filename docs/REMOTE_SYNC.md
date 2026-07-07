@@ -21,6 +21,7 @@ zshsetup user@example.com
 - connects to the remote with `ssh`
 - installs `git` with apt when the remote is Debian/Ubuntu and `git` is missing
 - clones the repo on first run
+- stashes remote local changes before updating an existing clone
 - runs `git pull --ff-only` on later runs
 - runs the repo `install.sh` on the remote
 
@@ -84,6 +85,7 @@ Answer `y` to run a step. Anything else skips it.
 `zshsetup` is intended to be rerunnable. On an existing remote clone it runs:
 
 ```sh
+git -C ~/.zshrc_config stash push -u -m "zshsetup auto-stash <date>" # only when dirty
 git -C ~/.zshrc_config pull --ff-only
 sh ~/.zshrc_config/install.sh
 ```
