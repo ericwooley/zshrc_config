@@ -317,11 +317,13 @@ zshupdate
 Purpose:
 
 - run `git pull --ff-only` in `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}`
+- ask whether to run the updated repo `install.sh`
 - reload the current shell with `source ~/.zshrc`
 - return an error if the config directory is missing or is not inside a Git repository
 
 This is a shell function rather than a bin script so the final `source ~/.zshrc`
-applies to the current shell.
+applies to the current shell. If accepted, `install.sh` runs before the reload
+so newly pulled installer changes can apply immediately.
 
 ### `functions/zsh_install_nightly_update_cron.zsh`
 

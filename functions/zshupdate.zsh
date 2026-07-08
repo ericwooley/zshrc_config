@@ -32,6 +32,23 @@ zshupdate() {
   echo "zshupdate: pulling $config_dir"
   git -C "$config_dir" pull --ff-only || return
 
+  if [[ -x "$config_dir/install.sh" || -r "$config_dir/install.sh" ]]; then
+    local answer
+    printf "zshupdate: run install.sh now? [y/N] "
+    read -r answer
+    case "$answer" in
+      y|Y|yes|YES)
+        echo "zshupdate: running $config_dir/install.sh"
+        sh "$config_dir/install.sh" || return
+        ;;
+      *)
+        echo "zshupdate: skipped install.sh"
+        ;;
+    esac
+  else
+    echo "zshupdate: install.sh not found at $config_dir/install.sh"
+  fi
+
   echo "zshupdate: reloading $zshrc_file"
   source "$zshrc_file"
 }
