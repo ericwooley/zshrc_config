@@ -52,6 +52,7 @@ EOF
     'cd "$repo_dir"'
     'sh ./install.sh'
     'printf "zshsetup: install nightly update cron on this remote? [y/N] "; read cron_answer || cron_answer=""; case "$cron_answer" in y|Y|yes|YES) ZSHRC_CONFIG_DIR="$repo_dir" zsh -lc "source \"$repo_dir/functions/zsh_install_nightly_update_cron.zsh\"; zsh_install_nightly_update_cron" ;; *) echo "zshsetup: skipped nightly update cron" ;; esac'
+    'printf "zshsetup: install Neovim stable tarball update cron on this remote? [y/N] "; read nvim_cron_answer || nvim_cron_answer=""; case "$nvim_cron_answer" in y|Y|yes|YES) ZSHRC_CONFIG_DIR="$repo_dir" zsh -lc "source \"$repo_dir/functions/nvim_install_stable_update_cron.zsh\"; nvim_install_stable_update_cron" ;; *) echo "zshsetup: skipped Neovim update cron" ;; esac'
   )
   local remote_script="${(j:; :)remote_steps}"
 

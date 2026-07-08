@@ -302,25 +302,18 @@ install_eza_apt() {
   rm -rf "$tmp_dir"
 }
 
-install_neovim_apt() {
-  if command -v nvim >/dev/null 2>&1; then
+install_neovim_linux_tarball() {
+  if [ "$(uname -s)" != "Linux" ]; then
     return 0
   fi
 
-  os_id=""
-  if [ -r /etc/os-release ]; then
-    . /etc/os-release
-    os_id="${ID:-}"
+  installer="$repo_dir/scripts/install-neovim-linux-tarball.sh"
+  if [ ! -r "$installer" ]; then
+    echo "install.sh: warning: missing Neovim tarball installer at $installer" >&2
+    return 1
   fi
 
-  if [ "$os_id" = "ubuntu" ]; then
-    run_apt install -y software-properties-common
-    run_root add-apt-repository -y ppa:neovim-ppa/stable
-    run_apt update
-    run_apt install -y neovim
-  else
-    run_apt install -y neovim
-  fi
+  sh "$installer"
 }
 
 install_glow_apt() {
@@ -351,13 +344,21 @@ install_deps() {
     fi
 
     brew install antidote eza fzf git glow go lazygit neovim ripgrep starship tmux zoxide zsh
-  elif command -v apt-get >/dev/null 2>&1; then
-    run_apt update
-    run_apt install -y bash ca-certificates curl fzf git golang-go gpg ripgrep tar tmux zsh
-    install_neovim_apt
-    install_eza_apt
-    install_glow_apt
-    warn_missing_lazygit
+  elif [ "$uname_s" = "Linux" ]; then
+    if command -v apt-get >/dev/null 2>&1; then
+      run_apt update
+      run_apt install -y bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
+      install_neovim_linux_tarball
+      install_eza_apt
+      install_glow_apt
+      warn_missing_lazygit
+    else
+      echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
+      echo "install.sh: install zsh git curl go tmux fzf ripgrep zoxide eza starship glow lazygit fastAI manually" >&2
+      if ! install_neovim_linux_tarball; then
+        echo "install.sh: warning: Neovim tarball install failed; install Neovim manually" >&2
+      fi
+    fi
   else
     echo "install.sh: unsupported OS for automatic dependency install" >&2
     echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep zoxide eza starship glow lazygit fastAI manually" >&2

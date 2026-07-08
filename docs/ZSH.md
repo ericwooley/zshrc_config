@@ -345,6 +345,28 @@ Example:
 zsh_install_nightly_update_cron
 ```
 
+### `functions/nvim_install_stable_update_cron.zsh`
+
+Public function:
+
+```zsh
+nvim_install_stable_update_cron
+```
+
+Purpose:
+
+- install a marked daily root cron job on Linux
+- ask for the timezone and daily hour interactively
+- run the official stable Neovim Linux tarball installer every day at minute `00`
+- write cron output to `/var/log/nvim_install_stable_update_cron.log`
+- replace an existing Neovim tarball update cron entry when rerun
+
+Example:
+
+```sh
+nvim_install_stable_update_cron
+```
+
 ### `functions/zshsetup.zsh`
 
 Public function:
@@ -359,7 +381,8 @@ Purpose:
 - clone the published config repo on first run
 - pull the remote clone on later runs
 - run the repo `install.sh` on the remote
-- ask whether to install the nightly update cron on the remote
+- ask whether to install the nightly config update cron on the remote
+- ask whether to install the Neovim stable tarball update cron on the remote
 - use the same installer prompts, backups, and managed symlinks as local installs
 
 Local requirements:

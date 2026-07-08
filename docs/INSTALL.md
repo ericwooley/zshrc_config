@@ -84,13 +84,34 @@ antidote eza fzf git glow go lazygit neovim ripgrep starship tmux zoxide zsh
 On Ubuntu/Debian, the installer uses apt for stable dependencies:
 
 ```text
-bash ca-certificates curl fzf git golang-go gpg ripgrep tar tmux zsh
+bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
 ```
 
-It also handles Neovim, eza, zoxide, starship, `glow` when available from apt,
-Go 1.24.x when the packaged Go is too old, `fastAI` into `~/.local/bin`, `n`,
-Node LTS, and Antidote. On Ubuntu/Debian, `lazygit` is reported as a warning if
-it is missing so the Neovim `<leader>lg` binding has a clear next step.
+It also handles Neovim from the official stable Linux tarball, eza, zoxide,
+starship, `glow` when available from apt, Go 1.24.x when the packaged Go is too
+old, `fastAI` into `~/.local/bin`, `n`, Node LTS, and Antidote. On
+Ubuntu/Debian, `lazygit` is reported as a warning if it is missing so the Neovim
+`<leader>lg` binding has a clear next step.
+
+Linux Neovim installs use:
+
+```text
+https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
+```
+
+The archive is extracted under `/opt`, and `/usr/local/bin/nvim` is symlinked to
+the installed binary. On non-apt Linux systems, the installer still attempts this
+Neovim tarball path when `curl` and `tar` are already available, while the rest
+of the dependency bundle remains manual.
+
+To keep that tarball current on Linux, run:
+
+```sh
+nvim_install_stable_update_cron
+```
+
+That installs a marked root cron job that reruns the tarball installer daily.
 
 `fastAI` is installed with:
 
