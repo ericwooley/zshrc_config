@@ -44,6 +44,7 @@ If that backup already exists, a dated backup name is used instead.
 ## What You Get
 
 - **zsh**: Antidote-managed plugins, fast completions, flexible aliases, and one-function-per-file helpers.
+- **Starship**: versioned prompt config hard linked into `~/.config/starship.toml`.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, formatting, linting, sessions, and which-key.
 - **AI helpers**: `aiCommit` for short commit messages and `howdoi` for asking questions about this setup.
@@ -71,6 +72,7 @@ These paths are linked from that repo when present:
 
 ```text
 ~/.tmux.conf -> ~/.zshrc_config/.tmux.conf
+~/.config/starship.toml => ~/.zshrc_config/.config/starship.toml
 ~/.config/nvim -> ~/.zshrc_config/.config/nvim
 ```
 
@@ -152,6 +154,7 @@ functions/                      sourced zsh functions
 scripts/                        executable support scripts
 plugins*.txt                    Antidote plugin lists
 .config/nvim/                   Neovim config
+.config/starship.toml           Starship prompt config
 .tmux.conf                      tmux config
 .githooks/pre-commit            gitleaks pre-commit hook
 ```

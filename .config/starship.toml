@@ -1,0 +1,29 @@
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Inserts a blank line between shell prompts
+add_newline = true
+
+[localip]
+ssh_only = false
+disabled = false
+
+[memory_usage]
+disabled = false
+threshold = -1
+symbol = ' '
+style = 'bold dimmed green'
+
+
+[time]
+disabled = false
+time_format = '%T'
+utc_time_offset = 'America/Denver'
+
+[hostname]
+ssh_only = false
+disabled = false
+
+[username]
+disabled = false
+show_always = true

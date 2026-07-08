@@ -1,6 +1,6 @@
 # Install
 
-The repo installs zsh, tmux, and Neovim config into a home directory.
+The repo installs zsh, Starship, tmux, and Neovim config into a home directory.
 
 ## Copy/Paste Install
 
@@ -42,11 +42,14 @@ When config installation is accepted, these paths are managed:
 ~/.zshrc
 ~/.zshrc_config/
 ~/.tmux.conf
+~/.config/starship.toml
 ~/.config/nvim/
 ```
 
 `~/.zshrc_config` is the repo checkout. `~/.tmux.conf` and `~/.config/nvim`
 are symlinked from that repo when their source files are present.
+`~/.config/starship.toml` is hard linked from the repo when the filesystem
+allows it, with a symlink fallback.
 
 The managed `~/.zshrc` stays intentionally small:
 
@@ -140,7 +143,7 @@ backs up unmanaged paths that are in the way, and regenerates Antidote files.
 Remove the managed files:
 
 ```sh
-rm -rf ~/.zshrc_config ~/.config/nvim ~/.tmux.conf
+rm -rf ~/.zshrc_config ~/.config/nvim ~/.config/starship.toml ~/.tmux.conf
 ```
 
 Then restore a previous `.zshrc` backup if desired.
