@@ -46,6 +46,10 @@ The `n` and `m` bindings were chosen for left/right movement.
 | --- | --- |
 | `Ctrl-b "` | Split vertically in current pane directory |
 | `Ctrl-b %` | Split horizontally in current pane directory |
+| `Ctrl-b h` | Move to pane on the left |
+| `Ctrl-b j` | Move to pane below |
+| `Ctrl-b k` | Move to pane above |
+| `Ctrl-b l` | Move to pane on the right |
 
 New panes preserve the current pane's directory.
 
