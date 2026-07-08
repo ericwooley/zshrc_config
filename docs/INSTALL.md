@@ -78,7 +78,7 @@ dated backup name is used instead.
 On macOS, the installer expects Homebrew and can install:
 
 ```text
-antidote eza fzf git glow go neovim ripgrep starship tmux zoxide zsh
+antidote eza fzf git glow go lazygit neovim ripgrep starship tmux zoxide zsh
 ```
 
 On Ubuntu/Debian, the installer uses apt for stable dependencies:
@@ -89,7 +89,8 @@ bash ca-certificates curl fzf git golang-go gpg ripgrep tar tmux zsh
 
 It also handles Neovim, eza, zoxide, starship, `glow` when available from apt,
 Go 1.24.x when the packaged Go is too old, `fastAI` into `~/.local/bin`, `n`,
-Node LTS, and Antidote.
+Node LTS, and Antidote. On Ubuntu/Debian, `lazygit` is reported as a warning if
+it is missing so the Neovim `<leader>lg` binding has a clear next step.
 
 `fastAI` is installed with:
 

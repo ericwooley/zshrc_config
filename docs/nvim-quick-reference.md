@@ -180,15 +180,22 @@ Toggle lint-on-save:
 
 ## Git
 
-Powered by gitsigns.nvim.
+Powered by gitsigns.nvim and LazyGit.
 
 | Key | Action |
 | --- | --- |
+| `<leader>lg` | Open LazyGit |
 | `]h` | Next changed hunk |
 | `[h` | Previous changed hunk |
 | `<leader>hp` | Preview hunk |
 | `<leader>hr` | Reset hunk |
 | `<leader>hs` | Stage hunk |
+
+Useful command:
+
+```vim
+:LazyGit
+```
 
 ## Completion
 
@@ -230,4 +237,5 @@ black
 goimports
 gofmt
 staticcheck
+lazygit
 ```

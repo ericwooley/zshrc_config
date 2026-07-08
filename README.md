@@ -10,7 +10,7 @@ The installer can install the common dependencies on macOS with Homebrew and on
 Ubuntu/Debian with apt. Core tools include:
 
 ```text
-zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow go fastAI n node
+zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node
 ```
 
 ### OpenRouter Key
@@ -46,7 +46,7 @@ If that backup already exists, a dated backup name is used instead.
 - **zsh**: Antidote-managed plugins, fast completions, flexible aliases, and one-function-per-file helpers.
 - **Starship**: versioned prompt config hard linked into `~/.config/starship.toml`.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
-- **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, formatting, linting, sessions, and which-key.
+- **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key.
 - **AI helpers**: `aiCommit` for short commit messages and `howdoi` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
 - **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell.
@@ -100,6 +100,7 @@ Read more in [docs/ZSH.md](docs/ZSH.md) and [docs/HELPERS.md](docs/HELPERS.md).
 - LSP for TypeScript, Python, and Go
 - formatting on save through conform.nvim
 - linting through nvim-lint
+- LazyGit inside Neovim with `<leader>lg`
 - session restore through persistence.nvim
 - key discovery through which-key.nvim
 

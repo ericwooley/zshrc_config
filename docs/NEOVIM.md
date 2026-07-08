@@ -121,6 +121,21 @@ Telescope mappings:
 | `<leader>fh` | Help tags |
 | `<leader>fk` | Keymaps |
 
+## Git UI
+
+LazyGit is available inside Neovim through `kdheepak/lazygit.nvim`.
+It requires the `lazygit` binary on `PATH`.
+
+| Key | Action |
+| --- | --- |
+| `<leader>lg` | Open LazyGit |
+
+Useful command:
+
+```vim
+:LazyGit
+```
+
 ## File Tree
 
 `nvim-tree.lua` is mapped to:

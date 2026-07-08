@@ -223,6 +223,12 @@ install_glow_apt() {
   fi
 }
 
+warn_missing_lazygit() {
+  if ! command -v lazygit >/dev/null 2>&1; then
+    echo "install.sh: warning: lazygit is missing; install it manually for Neovim <leader>lg" >&2
+  fi
+}
+
 install_deps() {
   uname_s=$(uname -s)
 
@@ -232,16 +238,17 @@ install_deps() {
       return 1
     fi
 
-    brew install antidote eza fzf git glow go neovim ripgrep starship tmux zoxide zsh
+    brew install antidote eza fzf git glow go lazygit neovim ripgrep starship tmux zoxide zsh
   elif command -v apt-get >/dev/null 2>&1; then
     run_apt update
     run_apt install -y bash ca-certificates curl fzf git golang-go gpg ripgrep tar tmux zsh
     install_neovim_apt
     install_eza_apt
     install_glow_apt
+    warn_missing_lazygit
   else
     echo "install.sh: unsupported OS for automatic dependency install" >&2
-    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep zoxide eza starship glow fastAI manually" >&2
+    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep zoxide eza starship glow lazygit fastAI manually" >&2
   fi
 
   install_zoxide
