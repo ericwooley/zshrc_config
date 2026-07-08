@@ -10,7 +10,7 @@ export PATH="$HOME/.local/go/bin:$HOME/.local/bin:$PATH"
 
 confirm() {
   printf "%s [y/N] " "$1"
-  read answer
+  read answer || answer=""
   case "$answer" in
     y|Y|yes|YES) return 0 ;;
     *) return 1 ;;
@@ -37,6 +37,118 @@ run_apt() {
     echo "install.sh: sudo is required for apt-get" >&2
     return 1
   fi
+}
+
+detect_timezone() {
+  detected_timezone=""
+
+  if command -v timedatectl >/dev/null 2>&1; then
+    detected_timezone=$(timedatectl show -p Timezone --value 2>/dev/null || true)
+  fi
+
+  if [ -z "$detected_timezone" ] && [ -L /etc/localtime ]; then
+    localtime_target=$(readlink /etc/localtime 2>/dev/null || true)
+    case "$localtime_target" in
+      */zoneinfo/*) detected_timezone=${localtime_target#*/zoneinfo/} ;;
+    esac
+  fi
+
+  if [ -z "$detected_timezone" ] && [ "$(uname -s)" = "Darwin" ] && command -v systemsetup >/dev/null 2>&1; then
+    detected_timezone=$(systemsetup -gettimezone 2>/dev/null | sed 's/^Time Zone: //' || true)
+  fi
+
+  if [ -z "$detected_timezone" ] && [ -r /etc/timezone ]; then
+    detected_timezone=$(sed -n '1p' /etc/timezone 2>/dev/null || true)
+  fi
+
+  printf '%s\n' "$detected_timezone"
+}
+
+timezone_exists() {
+  timezone_name="$1"
+
+  case "$timezone_name" in
+    ""|/*|*..*) return 1 ;;
+  esac
+
+  [ -f "/usr/share/zoneinfo/$timezone_name" ] && return 0
+  [ -f "/var/db/timezone/zoneinfo/$timezone_name" ] && return 0
+
+  if [ "$(uname -s)" = "Darwin" ] && command -v systemsetup >/dev/null 2>&1; then
+    systemsetup -listtimezones 2>/dev/null | sed '1d' | grep -Fx "$timezone_name" >/dev/null 2>&1 && return 0
+  fi
+
+  if command -v timedatectl >/dev/null 2>&1; then
+    timedatectl list-timezones 2>/dev/null | grep -Fx "$timezone_name" >/dev/null 2>&1 && return 0
+  fi
+
+  [ -f "/usr/share/zoneinfo/$timezone_name" ]
+}
+
+set_system_timezone() {
+  timezone_name="$1"
+
+  if ! timezone_exists "$timezone_name"; then
+    echo "install.sh: warning: unknown timezone: $timezone_name" >&2
+    echo "install.sh: examples: America/Denver, America/New_York, Europe/London, UTC" >&2
+    return 1
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      if command -v systemsetup >/dev/null 2>&1; then
+        run_root systemsetup -settimezone "$timezone_name"
+      else
+        echo "install.sh: warning: systemsetup is required to set timezone on macOS" >&2
+        return 1
+      fi
+      ;;
+    Linux)
+      if command -v timedatectl >/dev/null 2>&1; then
+        run_root timedatectl set-timezone "$timezone_name"
+      elif [ -f "/usr/share/zoneinfo/$timezone_name" ]; then
+        run_root ln -sf "/usr/share/zoneinfo/$timezone_name" /etc/localtime
+        printf '%s\n' "$timezone_name" | run_root tee /etc/timezone >/dev/null
+      else
+        echo "install.sh: warning: no supported timezone setter found on this Linux system" >&2
+        return 1
+      fi
+      ;;
+    *)
+      echo "install.sh: warning: unsupported OS for automatic timezone setup" >&2
+      return 1
+      ;;
+  esac
+
+  echo "install.sh: timezone set to $timezone_name"
+}
+
+configure_timezone() {
+  current_timezone=$(detect_timezone)
+  default_timezone="${current_timezone:-America/Denver}"
+
+  echo "install.sh: current timezone: ${current_timezone:-unknown}"
+  echo "install.sh: common choices: America/Denver, America/New_York, America/Los_Angeles, UTC"
+  if command -v timedatectl >/dev/null 2>&1; then
+    echo "install.sh: search with: timedatectl list-timezones | grep -i denver"
+  elif [ "$(uname -s)" = "Darwin" ] && command -v systemsetup >/dev/null 2>&1; then
+    echo "install.sh: search with: find /usr/share/zoneinfo -type f | sed 's#^/usr/share/zoneinfo/##' | grep -i denver"
+  fi
+
+  while :; do
+    printf "Timezone to set [%s]: " "$default_timezone"
+    read timezone_answer || timezone_answer=""
+    timezone_name="${timezone_answer:-$default_timezone}"
+
+    if set_system_timezone "$timezone_name"; then
+      return 0
+    fi
+
+    if ! confirm "Try another timezone?"; then
+      echo "install.sh: skipped timezone setup"
+      return 0
+    fi
+  done
 }
 
 install_starship() {
@@ -394,6 +506,10 @@ install_configs() {
 
 if confirm "Install dependencies for this machine?"; then
   install_deps
+fi
+
+if confirm "Configure system timezone?"; then
+  configure_timezone
 fi
 
 if confirm "Install shell, tmux, Starship, and Neovim config into your home directory?"; then

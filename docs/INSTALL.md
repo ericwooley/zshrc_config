@@ -31,8 +31,8 @@ From the repo root:
 ./install.sh
 ```
 
-The installer asks before installing dependencies and asks before linking config
-into the home directory.
+The installer asks before installing dependencies, configuring the system
+timezone, and linking config into the home directory.
 
 ## What Gets Installed
 
@@ -99,6 +99,23 @@ GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@late
 ```
 
 Unsupported operating systems get warnings with the tools to install manually.
+
+## Timezone Setup
+
+The installer can configure the system timezone interactively. It shows the
+current detected timezone, defaults to that value or `America/Denver`, and lets
+you type any valid timezone such as:
+
+```text
+America/Denver
+America/New_York
+America/Los_Angeles
+UTC
+```
+
+On Linux, it uses `timedatectl set-timezone` when available and falls back to
+`/etc/localtime` plus `/etc/timezone` on minimal systems. On macOS, it uses
+`systemsetup -settimezone`.
 
 ## Antidote Regeneration
 

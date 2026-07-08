@@ -26,8 +26,8 @@ zshsetup user@example.com
 - runs the repo `install.sh` on the remote
 - asks whether to install the remote nightly update cron job
 
-The remote installer then handles dependency prompts, backups, and links for
-zsh, tmux, and Neovim config.
+The remote installer then handles dependency prompts, optional timezone setup,
+backups, and links for zsh, tmux, and Neovim config.
 
 ## Local Function
 
@@ -77,9 +77,10 @@ If an unmanaged path already exists, the installer moves it aside first:
 ## Interactive Prompts
 
 `zshsetup` only auto-prompts for the minimum git bootstrap needed before the repo
-can be cloned. After that, `install.sh` asks before installing dependencies and
-before writing managed config links. When install finishes, `zshsetup` asks
-whether to run `zsh_install_nightly_update_cron` on the remote.
+can be cloned. After that, `install.sh` asks before installing dependencies,
+configuring the system timezone, and writing managed config links. When install
+finishes, `zshsetup` asks whether to run `zsh_install_nightly_update_cron` on
+the remote.
 
 Answer `y` to run a step. Anything else skips it.
 

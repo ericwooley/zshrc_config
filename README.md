@@ -50,6 +50,7 @@ If that backup already exists, a dated backup name is used instead.
 - **AI helpers**: `aiCommit` for short commit messages and `howdoi` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
 - **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell.
+- **Timezone setup**: `install.sh` can interactively set the system timezone on macOS and Linux.
 - **Safety**: no Neovim project-open hooks that run repo-local scripts just because a file was opened.
 - **Docs**: quick references and maintenance notes live in [`./docs`](docs/INDEX.md).
 
