@@ -86,6 +86,9 @@ That directory is ignored by Git.
 - `starship`
 
 Missing optional tools are skipped rather than failing shell startup.
+The managed Starship prompt config enables the time module with local time;
+Starship does not accept named timezones such as `America/Denver` for
+`utc_time_offset`.
 
 ## Environment
 

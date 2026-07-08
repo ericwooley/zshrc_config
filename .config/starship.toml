@@ -18,7 +18,7 @@ style = 'bold dimmed green'
 [time]
 disabled = false
 time_format = '%T'
-utc_time_offset = 'America/Denver'
+utc_time_offset = 'local'
 
 [hostname]
 ssh_only = false
