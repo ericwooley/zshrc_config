@@ -107,6 +107,11 @@ It also sets defaults for `fastAI`, sets `EDITOR=nvim`, and sources:
 Use `~/.zshrc_local` for machine-specific environment variables or secrets. Do not
 commit that file.
 
+After local overrides, `env.zsh` detects an active TigerVNC display on `:1` and
+sets `DISPLAY=:1` when `DISPLAY` is otherwise unset. This makes GUI commands
+launched from SSH, such as headed Playwright browser runs, open in the VNC
+desktop by default.
+
 Example local secret for `aiCommit` through
 [`ericwooley/fastAI`](https://github.com/ericwooley/fastAI):
 
