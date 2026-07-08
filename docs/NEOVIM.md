@@ -147,6 +147,9 @@ Useful command:
 Inside the tree, use `a` to create, `d` to delete, `r` to rename, and `?` for
 the tree help.
 
+The file tree shows dotfiles and git-ignored files by default, including folders
+such as `.git`.
+
 ## LSP
 
 Language support targets:

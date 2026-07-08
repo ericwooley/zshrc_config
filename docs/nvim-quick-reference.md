@@ -48,6 +48,7 @@ Command form:
 ## File Tree
 
 Powered by nvim-tree.
+The tree shows dotfiles and git-ignored files by default.
 
 | Key | Action |
 | --- | --- |

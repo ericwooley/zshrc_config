@@ -36,7 +36,10 @@ return {
       hijack_netrw = true,
       view = { width = 34 },
       renderer = { group_empty = true },
-      filters = { dotfiles = false },
+      filters = {
+        dotfiles = false,
+        git_ignored = false,
+      },
       update_focused_file = { enable = true },
     },
   },
