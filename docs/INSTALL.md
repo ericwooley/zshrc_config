@@ -163,6 +163,53 @@ On Linux, it uses `timedatectl set-timezone` when available and falls back to
 `/etc/localtime` plus `/etc/timezone` on minimal systems. On macOS, it uses
 `systemsetup -settimezone`.
 
+## TigerVNC Setup
+
+On Ubuntu/Debian hosts, run:
+
+```sh
+setup-tight-vnc.sh
+```
+
+The helper installs XFCE, TigerVNC, and `dbus-x11`, removes conflicting
+TightVNC packages, and writes a persistent `vncserver.service` for display
+`:1`.
+
+The service is intentionally configured with:
+
+```text
+-localhost yes -SecurityTypes None -BlacklistTimeout 0 -BlacklistThreshold 100000
+```
+
+That means the VNC port is expected to be reachable only from the server itself,
+and remote access should go through SSH. From your local machine:
+
+```sh
+ssh -L 5901:localhost:5901 user@host
+```
+
+Then connect TigerVNC Viewer to:
+
+```text
+localhost:5901
+```
+
+The `Too many security failures` dialog comes from TigerVNC's auth blacklist
+after failed authentication attempts. The helper avoids the usual loop by
+running localhost-only with no VNC password authentication, stopping stale VNC
+units before writing its own service, and disabling the short blacklist timeout
+for this tunneled setup.
+
+If the warning still appears, check which address is listening:
+
+```sh
+ss -ltnp | grep -E '(:5901|:5900)'
+```
+
+The expected listener is loopback-only, such as `127.0.0.1:5901` or `::1:5901`.
+If you see `0.0.0.0:5901`, another VNC service is exposing the port publicly and
+should be stopped before rerunning `setup-tight-vnc.sh`.
+
 ## Antidote Regeneration
 
 After linking config, the installer regenerates:

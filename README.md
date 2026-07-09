@@ -53,6 +53,7 @@ If that backup already exists, a dated backup name is used instead.
 - **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.
 - **AI helpers**: `aiCommit` for short commit messages and `zshow` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
+- **TigerVNC helper**: `setup-tight-vnc.sh` configures an XFCE TigerVNC desktop for SSH-tunneled, localhost-only access.
 - **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell; `zsh_install_hourly_update_cron` can check for config updates hourly; `nvim_install_stable_update_cron` can keep the Linux Neovim tarball current.
 - **Timezone setup**: `install.sh` can interactively set the system timezone on macOS and Linux.
 - **Safety**: no Neovim project-open hooks that run repo-local scripts just because a file was opened.
@@ -138,6 +139,19 @@ On the remote it clones into `~/.zshrc_config`, pulls on later runs, and runs
 `install.sh`.
 
 Read more in [docs/REMOTE_SYNC.md](docs/REMOTE_SYNC.md).
+
+### TigerVNC
+
+On a Linux host, `setup-tight-vnc.sh` installs XFCE plus TigerVNC and configures
+display `:1` as a localhost-only service. Connect with an SSH tunnel:
+
+```sh
+ssh -L 5901:localhost:5901 user@host
+```
+
+Then point TigerVNC Viewer at `localhost:5901`.
+
+Read more in [docs/INSTALL.md](docs/INSTALL.md#tigervnc-setup).
 
 ## Docs
 

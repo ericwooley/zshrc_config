@@ -4,7 +4,7 @@ This directory contains the longer-form docs for the dotfiles repo.
 
 ## Start Here
 
-- [Install](INSTALL.md): one-line bootstrap, local install flow, backups, dependency setup, Neovim tarball updates, and uninstall notes
+- [Install](INSTALL.md): one-line bootstrap, local install flow, backups, dependency setup, TigerVNC setup, Neovim tarball updates, and uninstall notes
 - [Zsh](ZSH.md): shell load order, plugins, completions, functions, Multipass VM helpers, and local overrides
 - [Neovim](NEOVIM.md): plugin set, safety model, keymaps, formatting, linting, and sessions
 - [Tmux](TMUX.md): prefix, windows, panes, mouse, copy mode, and clipboard behavior
