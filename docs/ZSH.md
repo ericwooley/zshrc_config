@@ -411,23 +411,24 @@ Purpose:
 
 - create a Multipass VM from the requested image, defaulting to `lts`
 - print that Multipass needs to be installed first when it is missing
-- create a host-backed home directory at `~/vms/home/<name>`
+- create a shared host directory at `~/vms/shared`
 - collect the pinned public SSH key plus public keys from `~/.ssh/*.pub`
 - write a cloud-init file under `~/vms/cloud-init/<name>.yaml`
 - create the configured user, defaulting to `$USER`
 - install `zsh`, `git`, `curl`, `sudo`, `htop`, and certificates during cloud-init
-- clone this dotfiles repo into the host-backed home
+- clone this dotfiles repo into `~/.zshrc_config` inside the VM
 - continue setup when the VM already exists, which helps after a partial launch
 - wait for Multipass SSH/exec readiness before checking cloud-init
 - show heartbeat output while silent Multipass mount and install steps run
-- mount the host-backed home to `/home/<user>` in the VM
+- remove the older `/home/<user>` mount when rerunning against a VM from the previous layout
+- mount `~/vms/shared` to `~/shared` in the VM
 - run the normal `install.sh` inside the VM
 
 Useful environment overrides:
 
 ```zsh
 VM_USER=ericwooley
-VM_HOME_ROOT=$HOME/vms/home
+VM_SHARED_DIR=$HOME/vms/shared
 VM_IMAGE=lts
 VM_CPUS=2
 VM_MEMORY=4G
@@ -480,8 +481,7 @@ Purpose:
 
 - permanently delete a Multipass VM with `multipass delete --purge`
 - print that Multipass needs to be installed first when it is missing
-- ask whether to remove the matching host-backed home directory
-- keep `~/vms/home/<name>` unless you explicitly answer yes
+- leave the shared host directory at `~/vms/shared` alone
 
 Example:
 

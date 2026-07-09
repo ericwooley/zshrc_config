@@ -50,7 +50,7 @@ If that backup already exists, a dated backup name is used instead.
 - **Codex instructions**: global `~/.codex/AGENTS.md` hard linked from this repo.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
-- **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with host-backed homes under `~/vms/home`.
+- **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.
 - **AI helpers**: `aiCommit` for short commit messages and `zshow` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
 - **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell; `nvim_install_stable_update_cron` can keep the Linux Neovim tarball current.

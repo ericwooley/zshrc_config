@@ -143,8 +143,8 @@ GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@late
 
 Unsupported operating systems get warnings with the tools to install manually.
 When `multipass` is on `PATH`, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm`
-functions can create and manage local VMs with host-backed home directories
-under `~/vms/home`.
+functions can create and manage local VMs with `~/vms/shared` mounted at
+`~/shared` inside each VM.
 
 ## Timezone Setup
 

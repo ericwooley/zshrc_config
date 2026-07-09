@@ -44,11 +44,11 @@ _vmcreate_run_with_heartbeat() {
   return "$command_status"
 }
 
-# Create a Multipass VM with a host-backed home directory and this zsh setup.
+# Create a Multipass VM with this zsh setup and a host shared directory.
 vmcreate() {
   if (( $# < 1 || $# > 2 )); then
     echo "usage: vmcreate <name> [image]" >&2
-    echo "env: VM_USER VM_HOME_ROOT VM_IMAGE VM_CPUS VM_MEMORY VM_DISK VM_SSH_WAIT_SECONDS VM_MOUNT_WAIT_SECONDS VM_INSTALL_WAIT_SECONDS" >&2
+    echo "env: VM_USER VM_SHARED_DIR VM_IMAGE VM_CPUS VM_MEMORY VM_DISK VM_SSH_WAIT_SECONDS VM_MOUNT_WAIT_SECONDS VM_INSTALL_WAIT_SECONDS" >&2
     return 2
   fi
 
@@ -68,10 +68,10 @@ vmcreate() {
   local cpus="${VM_CPUS:-2}"
   local memory="${VM_MEMORY:-4G}"
   local disk="${VM_DISK:-20G}"
-  local home_root="${VM_HOME_ROOT:-$HOME/vms/home}"
+  local host_shared="${VM_SHARED_DIR:-$HOME/vms/shared}"
   local cloud_init_root="${VM_CLOUD_INIT_ROOT:-$HOME/vms/cloud-init}"
-  local host_home="$home_root/$name"
   local cloud_init="$cloud_init_root/$name.yaml"
+  local authorized_keys="$cloud_init_root/$name-authorized_keys"
   local config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
   local repo_url="${ZSHSETUP_REPO_URL:-}"
   local vm_exists=0
@@ -94,8 +94,7 @@ vmcreate() {
     echo "vmcreate: VM already exists; continuing setup: $name"
   fi
 
-  mkdir -p "$host_home/.ssh" "$cloud_init_root"
-  chmod 700 "$host_home/.ssh"
+  mkdir -p "$host_shared" "$cloud_init_root"
 
   local explicit_key='ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHllsKDjX0HDWubAMR/F0xW6UM2g2g8NqX5LcK8QI29j ericwooley@gmail.com'
   local key_file key_line
@@ -106,8 +105,8 @@ vmcreate() {
         [[ -n "$key_line" ]] && print -r -- "$key_line"
       done < "$key_file"
     done
-  } | awk '!seen[$0]++' > "$host_home/.ssh/authorized_keys"
-  chmod 600 "$host_home/.ssh/authorized_keys"
+  } | awk '!seen[$0]++' > "$authorized_keys"
+  chmod 600 "$authorized_keys"
 
   if [[ -z "$repo_url" && -d "$config_dir/.git" ]]; then
     repo_url="$(git -C "$config_dir" config --get remote.origin.url 2>/dev/null)" || repo_url=""
@@ -120,17 +119,6 @@ vmcreate() {
       repo_url="https://github.com/${repo_url#git@github.com:}"
       ;;
   esac
-
-  if [[ -d "$host_home/.zshrc_config/.git" ]]; then
-    echo "vmcreate: updating $host_home/.zshrc_config"
-    git -C "$host_home/.zshrc_config" pull --ff-only || return
-  elif [[ -e "$host_home/.zshrc_config" ]]; then
-    echo "vmcreate: $host_home/.zshrc_config exists but is not a git checkout" >&2
-    return 1
-  else
-    echo "vmcreate: cloning $repo_url into $host_home/.zshrc_config"
-    git clone "$repo_url" "$host_home/.zshrc_config" || return
-  fi
 
   {
     print -r -- "#cloud-config"
@@ -147,7 +135,7 @@ vmcreate() {
     while IFS= read -r key_line; do
       yaml_key="$(print -r -- "$key_line" | sed 's/\\/\\\\/g; s/"/\\"/g')"
       print -r -- "      - \"$yaml_key\""
-    done < "$host_home/.ssh/authorized_keys"
+    done < "$authorized_keys"
     print -r -- "packages:"
     print -r -- "  - ca-certificates"
     print -r -- "  - curl"
@@ -185,17 +173,46 @@ vmcreate() {
   echo "vmcreate: waiting for cloud-init"
   multipass exec "$name" -- cloud-init status --wait || return
 
-  echo "vmcreate: mounting $host_home to /home/$vm_user"
-  multipass exec "$name" -- sudo mkdir -p "/home/$vm_user" || return
-  if multipass info "$name" 2>/dev/null | grep -F -- "$host_home" >/dev/null 2>&1; then
-    echo "vmcreate: $host_home is already mounted"
-  else
-    _vmcreate_run_with_heartbeat \
-      "mounting host home (${mount_wait_seconds}s max)" \
-      "$mount_wait_seconds" \
-      multipass mount "$host_home" "$name:/home/$vm_user" || return
+  if multipass info "$name" 2>/dev/null | grep -F -- "/home/$vm_user" | grep -Fv -- "/home/$vm_user/shared" >/dev/null 2>&1; then
+    echo "vmcreate: removing old home mount at /home/$vm_user"
+    multipass umount "$name:/home/$vm_user" || return
   fi
-  multipass exec "$name" -- sudo chown -R "$vm_user:$vm_user" "/home/$vm_user" >/dev/null 2>&1 || true
+
+  echo "vmcreate: mounting $host_shared to /home/$vm_user/shared"
+  multipass exec "$name" -- sudo -u "$vm_user" mkdir -p "/home/$vm_user/shared" || return
+  if multipass info "$name" 2>/dev/null | grep -F -- "$host_shared" >/dev/null 2>&1; then
+    echo "vmcreate: $host_shared is already mounted"
+  else
+    local host_uid host_gid vm_uid vm_gid
+    host_uid="$(id -u)"
+    host_gid="$(id -g)"
+    vm_uid="$(multipass exec "$name" -- id -u "$vm_user" 2>/dev/null)" || vm_uid=""
+    vm_gid="$(multipass exec "$name" -- id -g "$vm_user" 2>/dev/null)" || vm_gid=""
+
+    local mount_args=()
+    if [[ -n "$vm_uid" && -n "$vm_gid" ]]; then
+      mount_args+=(--uid-map "$host_uid:$vm_uid" --gid-map "$host_gid:$vm_gid")
+    fi
+
+    _vmcreate_run_with_heartbeat \
+      "mounting shared directory (${mount_wait_seconds}s max)" \
+      "$mount_wait_seconds" \
+      multipass mount "${mount_args[@]}" "$host_shared" "$name:/home/$vm_user/shared" || return
+  fi
+
+  echo "vmcreate: preparing zsh setup inside $name"
+  multipass exec "$name" -- sudo -H -u "$vm_user" env ZSHSETUP_REPO_URL="$repo_url" sh -lc '
+    set -eu
+    repo_url="$ZSHSETUP_REPO_URL"
+    if [ -d "$HOME/.zshrc_config/.git" ]; then
+      git -C "$HOME/.zshrc_config" pull --ff-only
+    elif [ -e "$HOME/.zshrc_config" ]; then
+      echo "vmcreate: $HOME/.zshrc_config exists but is not a git checkout" >&2
+      exit 1
+    else
+      git clone "$repo_url" "$HOME/.zshrc_config"
+    fi
+  ' || return
 
   _vmcreate_run_with_heartbeat \
     "installing zsh setup inside $name (${install_wait_seconds}s max)" \
@@ -204,5 +221,5 @@ vmcreate() {
 
   echo "vmcreate: ready"
   echo "vmcreate: connect with: vmconnect $name"
-  echo "vmcreate: host home: $host_home"
+  echo "vmcreate: shared directory: $host_shared -> $name:/home/$vm_user/shared"
 }
