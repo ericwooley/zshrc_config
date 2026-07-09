@@ -367,6 +367,18 @@ install_multipass() {
   esac
 }
 
+maybe_install_multipass() {
+  if command -v multipass >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if confirm "Install Multipass for vm* helpers?"; then
+    install_multipass
+  else
+    echo "install.sh: skipped Multipass install; vm* helpers will ask for Multipass when used"
+  fi
+}
+
 install_deps() {
   uname_s=$(uname -s)
 
@@ -402,7 +414,7 @@ install_deps() {
   install_n
   install_fastai
   install_antidote
-  install_multipass
+  maybe_install_multipass
 }
 
 regenerate_antidote_files() {

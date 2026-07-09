@@ -90,11 +90,15 @@ bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
 
 It also handles Neovim from the official stable Linux tarball, eza, zoxide,
 starship, `glow` when available from apt, Go 1.24.x when the packaged Go is too
-old, `fastAI` into `~/.local/bin`, `n`, Node LTS, Antidote, and Multipass. On
+old, `fastAI` into `~/.local/bin`, `n`, Node LTS, and Antidote. On
 Ubuntu/Debian, `lazygit` is reported as a warning if it is missing so the Neovim
 `<leader>lg` binding has a clear next step.
 
-Multipass is installed with Homebrew on macOS:
+After the common dependencies, the installer asks before installing Multipass.
+If you skip it, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm` helpers stay
+available but print that Multipass needs to be installed first.
+
+When accepted, Multipass is installed with Homebrew on macOS:
 
 ```sh
 brew install --cask multipass

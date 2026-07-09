@@ -8,7 +8,8 @@ where dotfiles should be boring.
 
 The installer can install the common dependencies on macOS with Homebrew, on
 Ubuntu/Debian with apt, and Multipass through the official macOS cask or Linux
-snap path. Core tools include:
+snap path. Multipass is asked about separately because it is only needed for
+the `vm*` helpers. Core tools include:
 
 ```text
 zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node multipass

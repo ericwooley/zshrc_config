@@ -6,7 +6,7 @@ vmrm() {
   fi
 
   if ! command -v multipass >/dev/null 2>&1; then
-    echo "vmrm: multipass is not installed or not on PATH" >&2
+    echo "vmrm: Multipass needs to be installed first" >&2
     return 1
   fi
 

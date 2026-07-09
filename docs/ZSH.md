@@ -391,7 +391,7 @@ Purpose:
 
 - list Multipass instances with `multipass list`
 - pass any extra arguments through to Multipass
-- return a clear error if Multipass is not installed
+- print that Multipass needs to be installed first when it is missing
 
 Example:
 
@@ -410,6 +410,7 @@ vmcreate <name> [image]
 Purpose:
 
 - create a Multipass VM from the requested image, defaulting to `lts`
+- print that Multipass needs to be installed first when it is missing
 - create a host-backed home directory at `~/vms/home/<name>`
 - collect the pinned public SSH key plus public keys from `~/.ssh/*.pub`
 - write a cloud-init file under `~/vms/cloud-init/<name>.yaml`
@@ -454,6 +455,7 @@ vmconnect <name>
 Purpose:
 
 - open a shell in a managed Multipass VM
+- print that Multipass needs to be installed first when it is missing
 - switch to the configured VM user with `sudo -iu`
 - default the VM user to `$USER`
 
@@ -474,6 +476,7 @@ vmrm <name>
 Purpose:
 
 - permanently delete a Multipass VM with `multipass delete --purge`
+- print that Multipass needs to be installed first when it is missing
 - ask whether to remove the matching host-backed home directory
 - keep `~/vms/home/<name>` unless you explicitly answer yes
 

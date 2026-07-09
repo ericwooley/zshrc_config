@@ -7,7 +7,7 @@ vmcreate() {
   fi
 
   if ! command -v multipass >/dev/null 2>&1; then
-    echo "vmcreate: multipass is not installed or not on PATH" >&2
+    echo "vmcreate: Multipass needs to be installed first" >&2
     return 1
   fi
 
@@ -147,7 +147,7 @@ vmcreate() {
   multipass exec "$name" -- sudo chown -R "$vm_user:$vm_user" "/home/$vm_user" >/dev/null 2>&1 || true
 
   echo "vmcreate: installing zsh setup inside $name"
-  multipass exec "$name" -- sudo -H -u "$vm_user" sh -lc 'printf "y\nn\ny\n" | sh "$HOME/.zshrc_config/install.sh"' || return
+  multipass exec "$name" -- sudo -H -u "$vm_user" sh -lc 'printf "y\nn\nn\ny\n" | sh "$HOME/.zshrc_config/install.sh"' || return
 
   echo "vmcreate: ready"
   echo "vmcreate: connect with: vmconnect $name"
