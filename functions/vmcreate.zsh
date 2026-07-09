@@ -28,6 +28,7 @@ vmcreate() {
   local cloud_init="$cloud_init_root/$name.yaml"
   local config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
   local repo_url="${ZSHSETUP_REPO_URL:-}"
+  local vm_exists=0
   local yaml_key
 
   if [[ ! "$name" =~ '^[A-Za-z0-9][A-Za-z0-9-]*$' ]]; then
@@ -41,8 +42,8 @@ vmcreate() {
   fi
 
   if multipass info "$name" >/dev/null 2>&1; then
-    echo "vmcreate: VM already exists: $name" >&2
-    return 1
+    vm_exists=1
+    echo "vmcreate: VM already exists; continuing setup: $name"
   fi
 
   mkdir -p "$host_home/.ssh" "$cloud_init_root"
@@ -113,15 +114,36 @@ vmcreate() {
     print -r -- "  - echo 'VM initialized' > /tmp/init-status"
   } > "$cloud_init"
 
-  echo "vmcreate: launching $name from $image"
-  multipass launch "$image" --name "$name" --cpus "$cpus" --memory "$memory" --disk "$disk" --cloud-init "$cloud_init" || return
+  if (( ! vm_exists )); then
+    echo "vmcreate: launching $name from $image"
+    multipass launch "$image" --name "$name" --cpus "$cpus" --memory "$memory" --disk "$disk" --cloud-init "$cloud_init" || return
+  else
+    echo "vmcreate: starting $name if needed"
+    multipass start "$name" >/dev/null 2>&1 || true
+  fi
+
+  local wait_seconds="${VM_SSH_WAIT_SECONDS:-240}"
+  local wait_deadline=$((SECONDS + wait_seconds))
+  echo "vmcreate: waiting for Multipass SSH (${wait_seconds}s max)"
+  until multipass exec "$name" -- true >/dev/null 2>&1; do
+    if (( SECONDS >= wait_deadline )); then
+      echo "vmcreate: timed out waiting for Multipass SSH for $name" >&2
+      multipass info "$name" >&2 || true
+      return 1
+    fi
+    sleep 3
+  done
 
   echo "vmcreate: waiting for cloud-init"
   multipass exec "$name" -- cloud-init status --wait || return
 
   echo "vmcreate: mounting $host_home to /home/$vm_user"
   multipass exec "$name" -- sudo mkdir -p "/home/$vm_user" || return
-  multipass mount "$host_home" "$name:/home/$vm_user" || return
+  if multipass info "$name" 2>/dev/null | grep -F -- "$host_home" >/dev/null 2>&1; then
+    echo "vmcreate: $host_home is already mounted"
+  else
+    multipass mount "$host_home" "$name:/home/$vm_user" || return
+  fi
   multipass exec "$name" -- sudo chown -R "$vm_user:$vm_user" "/home/$vm_user" >/dev/null 2>&1 || true
 
   echo "vmcreate: installing zsh setup inside $name"

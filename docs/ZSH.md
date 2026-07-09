@@ -416,6 +416,8 @@ Purpose:
 - create the configured user, defaulting to `$USER`
 - install `zsh`, `git`, `curl`, `sudo`, `htop`, and certificates during cloud-init
 - clone this dotfiles repo into the host-backed home
+- continue setup when the VM already exists, which helps after a partial launch
+- wait for Multipass SSH/exec readiness before checking cloud-init
 - mount the host-backed home to `/home/<user>` in the VM
 - run the normal `install.sh` inside the VM
 
@@ -428,6 +430,7 @@ VM_IMAGE=lts
 VM_CPUS=2
 VM_MEMORY=4G
 VM_DISK=20G
+VM_SSH_WAIT_SECONDS=240
 VM_CLOUD_INIT_ROOT=$HOME/vms/cloud-init
 ZSHSETUP_REPO_URL=https://github.com/ericwooley/zshrc_config.git
 ```
