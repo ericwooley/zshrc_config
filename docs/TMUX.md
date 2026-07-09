@@ -29,6 +29,8 @@ Ctrl-b
 - RGB terminal color support is enabled
 - extended key support is enabled so modified keys such as `Ctrl-Left` and
   `Ctrl-Right` pass through to shells and editors
+- the config avoids newer `extended-keys-format` syntax so older Linux tmux
+  versions can still load it
 - copy mode uses vi keys
 
 ## Windows
