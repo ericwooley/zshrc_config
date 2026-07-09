@@ -188,7 +188,7 @@ Then verify:
 ```sh
 command -v zshsetup
 command -v aiCommit
-command -v howdoi
+command -v zshow
 tmux -V
 nvim --version
 ```

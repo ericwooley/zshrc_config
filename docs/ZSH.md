@@ -522,6 +522,6 @@ Executable helper commands live in:
 Current command:
 
 - `aiCommit`
-- `howdoi`
+- `zshow`
 
 See [Helper Commands](HELPERS.md) for details.

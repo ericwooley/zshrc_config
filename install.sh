@@ -324,7 +324,7 @@ install_glow_apt() {
   if command -v apt-cache >/dev/null 2>&1 && apt-cache show glow >/dev/null 2>&1; then
     run_apt install -y glow
   else
-    echo "install.sh: warning: glow is missing; install it manually for howdoi Markdown rendering" >&2
+    echo "install.sh: warning: glow is missing; install it manually for zshow Markdown rendering" >&2
   fi
 }
 

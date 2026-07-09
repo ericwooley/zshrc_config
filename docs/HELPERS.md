@@ -69,12 +69,12 @@ Notes:
 - It intentionally requests only the commit message from `fastAI`.
 - It is an executable command, not a zsh function or alias.
 
-## howdoi
+## zshow
 
 Path:
 
 ```text
-~/.zshrc_config/bin/howdoi
+~/.zshrc_config/bin/zshow
 ```
 
 Purpose:
@@ -101,22 +101,22 @@ export OPENROUTER_API_KEY='<openrouter key>'
 Usage:
 
 ```sh
-howdoi
-howdoi --new
-howdoi --new update my nvim plugins
-howdoi create a file in nvim
-howdoi switch tmux windows
-howdoi do something useful
-howdoi "switch tmux windows"
+zshow
+zshow --new
+zshow --new update my nvim plugins
+zshow create a file in nvim
+zshow switch tmux windows
+zshow do something useful
+zshow "switch tmux windows"
 ```
 
 Notes:
 
-- Arguments are joined with spaces, so `howdoi do something useful` and `howdoi "do something useful"` ask the same question.
+- Arguments are joined with spaces, so `zshow do something useful` and `zshow "do something useful"` ask the same question.
 - Bare fragments are treated as implicit "How do I ...?" questions because punctuation and shell quoting are optional for quick use.
-- Running `howdoi` with no arguments opens `${EDITOR:-vi}` on a temporary Markdown file, prints a formatted question block after the editor exits, then uses it as the question.
+- Running `zshow` with no arguments opens `${EDITOR:-vi}` on a temporary Markdown file, prints a formatted question block after the editor exits, then uses it as the question.
 - Normal runs pass `--globalSession` to `fastAI` so follow-up questions remember prior context through fastAI's persisted session history.
-- Running `howdoi --new` passes `--newGlobalSession` to `fastAI`, which wipes the repository global session before asking the next question.
+- Running `zshow --new` passes `--newGlobalSession` to `fastAI`, which wipes the repository global session before asking the next question.
 - This requires a `fastAI` version with global-session support.
 - The command sends only the contents of `~/.zshrc_config` text files that match the helper's allowlist.
 - Generated completion files are skipped.
