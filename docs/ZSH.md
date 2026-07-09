@@ -81,12 +81,15 @@ That directory is ignored by Git.
 
 ## Keybindings
 
-`keybindings.zsh` contains interactive zle keybindings.
+`keybindings.zsh` contains interactive zle keybindings. It uses zsh's emacs
+keymap, which matches standard bash/readline-style line editing.
 
 Current bindings:
 
 | Key | Action |
 | --- | --- |
+| `Ctrl-A` | move to the beginning of the line |
+| `Ctrl-E` | move to the end of the line |
 | `Ctrl-Left` | move one shell word left |
 | `Ctrl-Right` | move one shell word right |
 
