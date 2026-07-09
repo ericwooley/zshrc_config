@@ -27,6 +27,8 @@ Ctrl-b
 - windows and panes start at index `1`
 - windows are renumbered automatically
 - RGB terminal color support is enabled
+- extended key support is enabled so modified keys such as `Ctrl-Left` and
+  `Ctrl-Right` pass through to shells and editors
 - copy mode uses vi keys
 
 ## Windows
@@ -66,3 +68,11 @@ New panes preserve the current pane's directory.
 | `Ctrl-b P` | Load macOS clipboard with `pbpaste` and paste it |
 
 Clipboard bindings currently target macOS via `pbcopy` and `pbpaste`.
+
+## Reload Config
+
+After pulling tmux config changes, reload existing sessions with:
+
+```sh
+tmux source-file ~/.tmux.conf
+```
