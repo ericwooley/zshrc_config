@@ -156,7 +156,7 @@ Function files live in:
 - `dclean.zsh`
 - `dnuke.zsh`
 - `zshupdate.zsh`
-- `zsh_install_nightly_update_cron.zsh`
+- `zsh_install_hourly_update_cron.zsh`
 - `nvim_install_stable_update_cron.zsh`
 - `vmls.zsh`
 - `vmcreate.zsh`
@@ -190,7 +190,7 @@ source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dnuke.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshupdate.zsh"
-source "$ZSHRC_CONFIG_DIR/functions/zsh_install_nightly_update_cron.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/zsh_install_hourly_update_cron.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/nvim_install_stable_update_cron.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/vmls.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/vmcreate.zsh"
@@ -335,26 +335,25 @@ This is a shell function rather than a bin script so the final `source ~/.zshrc`
 applies to the current shell. If accepted, `install.sh` runs before the reload
 so newly pulled installer changes can apply immediately.
 
-### `functions/zsh_install_nightly_update_cron.zsh`
+### `functions/zsh_install_hourly_update_cron.zsh`
 
 Public function:
 
 ```zsh
-zsh_install_nightly_update_cron
+zsh_install_hourly_update_cron
 ```
 
 Purpose:
 
-- install a marked daily cron job for this user
-- ask for the timezone and daily hour interactively
-- run `git -C ~/.zshrc_config pull --ff-only` every day at minute `00`
-- write cron output to `~/.zsh_install_nightly_update_cron.log`
-- replace an existing nightly zsh update cron entry when rerun
+- install a marked hourly cron job for this user
+- run `git -C ~/.zshrc_config pull --ff-only` at minute `00` every hour
+- write cron output to `~/.zsh_install_hourly_update_cron.log`
+- replace an existing hourly or older nightly zsh update cron entry when rerun
 
 Example:
 
 ```sh
-zsh_install_nightly_update_cron
+zsh_install_hourly_update_cron
 ```
 
 ### `functions/nvim_install_stable_update_cron.zsh`
@@ -503,7 +502,7 @@ Purpose:
 - clone the published config repo on first run
 - pull the remote clone on later runs
 - run the repo `install.sh` on the remote
-- ask whether to install the nightly config update cron on the remote
+- ask whether to install the hourly zshupdate cron on the remote
 - ask whether to install the Neovim stable tarball update cron on the remote
 - use the same installer prompts, backups, and managed symlinks as local installs
 
