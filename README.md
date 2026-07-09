@@ -13,6 +13,10 @@ Ubuntu/Debian with apt. Core tools include:
 zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node
 ```
 
+Optional tools:
+
+- `multipass` enables the `vmcreate`, `vmconnect`, `vmls`, and `vmrm` helpers.
+
 ### OpenRouter Key
 
 AI helpers use [`ericwooley/fastAI`](https://github.com/ericwooley/fastAI) and
@@ -48,6 +52,7 @@ If that backup already exists, a dated backup name is used instead.
 - **Codex instructions**: global `~/.codex/AGENTS.md` hard linked from this repo.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
+- **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with host-backed homes under `~/vms/home`.
 - **AI helpers**: `aiCommit` for short commit messages and `howdoi` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
 - **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell; `nvim_install_stable_update_cron` can keep the Linux Neovim tarball current.
@@ -91,7 +96,7 @@ of this repo.
 - npm, pnpm, yarn, and bun completion setup
 - directory jumping with zoxide
 - Starship prompt support
-- `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zsh_install_nightly_update_cron`, `nvim_install_stable_update_cron`, Docker cleanup helpers, and utility aliases
+- `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zsh_install_nightly_update_cron`, `nvim_install_stable_update_cron`, Multipass VM helpers, Docker cleanup helpers, and utility aliases
 
 Read more in [docs/ZSH.md](docs/ZSH.md) and [docs/HELPERS.md](docs/HELPERS.md).
 

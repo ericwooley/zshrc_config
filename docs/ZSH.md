@@ -157,6 +157,11 @@ Function files live in:
 - `dnuke.zsh`
 - `zshupdate.zsh`
 - `zsh_install_nightly_update_cron.zsh`
+- `nvim_install_stable_update_cron.zsh`
+- `vmls.zsh`
+- `vmcreate.zsh`
+- `vmconnect.zsh`
+- `vmrm.zsh`
 - `zshsetup.zsh`
 
 Each file should define one public function.
@@ -186,6 +191,11 @@ source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dnuke.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshupdate.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zsh_install_nightly_update_cron.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/nvim_install_stable_update_cron.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/vmls.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/vmcreate.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/vmconnect.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/vmrm.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshsetup.zsh"
 ```
 
@@ -367,6 +377,107 @@ Example:
 
 ```sh
 nvim_install_stable_update_cron
+```
+
+### `functions/vmls.zsh`
+
+Public function:
+
+```zsh
+vmls [multipass-list-args...]
+```
+
+Purpose:
+
+- list Multipass instances with `multipass list`
+- pass any extra arguments through to Multipass
+- return a clear error if Multipass is not installed
+
+Example:
+
+```sh
+vmls
+```
+
+### `functions/vmcreate.zsh`
+
+Public function:
+
+```zsh
+vmcreate <name> [image]
+```
+
+Purpose:
+
+- create a Multipass VM from the requested image, defaulting to `lts`
+- create a host-backed home directory at `~/vms/home/<name>`
+- collect the pinned public SSH key plus public keys from `~/.ssh/*.pub`
+- write a cloud-init file under `~/vms/cloud-init/<name>.yaml`
+- create the configured user, defaulting to `$USER`
+- install `zsh`, `git`, `curl`, `sudo`, `htop`, and certificates during cloud-init
+- clone this dotfiles repo into the host-backed home
+- mount the host-backed home to `/home/<user>` in the VM
+- run the normal `install.sh` inside the VM
+
+Useful environment overrides:
+
+```zsh
+VM_USER=ericwooley
+VM_HOME_ROOT=$HOME/vms/home
+VM_IMAGE=lts
+VM_CPUS=2
+VM_MEMORY=4G
+VM_DISK=20G
+VM_CLOUD_INIT_ROOT=$HOME/vms/cloud-init
+ZSHSETUP_REPO_URL=https://github.com/ericwooley/zshrc_config.git
+```
+
+Examples:
+
+```sh
+vmcreate test-thing
+vmcreate test-thing 24.04
+VM_MEMORY=8G VM_CPUS=4 vmcreate heavier-box
+```
+
+### `functions/vmconnect.zsh`
+
+Public function:
+
+```zsh
+vmconnect <name>
+```
+
+Purpose:
+
+- open a shell in a managed Multipass VM
+- switch to the configured VM user with `sudo -iu`
+- default the VM user to `$USER`
+
+Example:
+
+```sh
+vmconnect test-thing
+```
+
+### `functions/vmrm.zsh`
+
+Public function:
+
+```zsh
+vmrm <name>
+```
+
+Purpose:
+
+- permanently delete a Multipass VM with `multipass delete --purge`
+- ask whether to remove the matching host-backed home directory
+- keep `~/vms/home/<name>` unless you explicitly answer yes
+
+Example:
+
+```sh
+vmrm test-thing
 ```
 
 ### `functions/zshsetup.zsh`
