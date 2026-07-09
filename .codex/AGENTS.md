@@ -1,4 +1,10 @@
+# Github interactions
+
 when interacting with github, you may be on a VM with different access permissions. `gh` command should always work. The github connection often won't. Prefer gh cli.
+
+# jira interactions
+
+If I tell you to interact with jira, use the acli cli tool. Only interact with jira when I tell you, do not make updates to jira unless explicitly asked.
 
 
 # Testing / Coding Best Practices
