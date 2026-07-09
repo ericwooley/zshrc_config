@@ -31,5 +31,6 @@ functions/                      sourced zsh functions
 scripts/                        executable support scripts
 .config/nvim/                   Neovim config
 .config/starship.toml           Starship prompt config
+.codex/AGENTS.md                global Codex instructions
 .tmux.conf                      tmux config
 ```

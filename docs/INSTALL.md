@@ -44,12 +44,13 @@ When config installation is accepted, these paths are managed:
 ~/.tmux.conf
 ~/.config/starship.toml
 ~/.config/nvim/
+~/.codex/AGENTS.md
 ```
 
 `~/.zshrc_config` is the repo checkout. `~/.tmux.conf` and `~/.config/nvim`
 are symlinked from that repo when their source files are present.
-`~/.config/starship.toml` is hard linked from the repo when the filesystem
-allows it, with a symlink fallback.
+`~/.config/starship.toml` and `~/.codex/AGENTS.md` are hard linked from the repo
+when the filesystem allows it, with a symlink fallback.
 
 The managed `~/.zshrc` stays intentionally small:
 
@@ -182,7 +183,7 @@ backs up unmanaged paths that are in the way, and regenerates Antidote files.
 Remove the managed files:
 
 ```sh
-rm -rf ~/.zshrc_config ~/.config/nvim ~/.config/starship.toml ~/.tmux.conf
+rm -rf ~/.zshrc_config ~/.config/nvim ~/.config/starship.toml ~/.tmux.conf ~/.codex/AGENTS.md
 ```
 
 Then restore a previous `.zshrc` backup if desired.

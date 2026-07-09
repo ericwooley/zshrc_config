@@ -487,6 +487,10 @@ install_configs() {
     hardlink_managed_file "$repo_dir/.config/starship.toml" "$HOME/.config/starship.toml" "Starship config"
   fi
 
+  if [ -f "$repo_dir/.codex/AGENTS.md" ]; then
+    hardlink_managed_file "$repo_dir/.codex/AGENTS.md" "$HOME/.codex/AGENTS.md" "Codex global AGENTS.md"
+  fi
+
   if [ -f "$repo_dir/.tmux.conf" ]; then
     link_managed_path "$repo_dir/.tmux.conf" "$HOME/.tmux.conf" "tmux config"
   fi

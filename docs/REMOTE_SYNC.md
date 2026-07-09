@@ -66,6 +66,7 @@ After `install.sh` runs, these remote paths are managed:
 ~/.zshrc_config
 ~/.tmux.conf -> ~/.zshrc_config/.tmux.conf
 ~/.config/starship.toml => ~/.zshrc_config/.config/starship.toml
+~/.codex/AGENTS.md => ~/.zshrc_config/.codex/AGENTS.md
 ~/.config/nvim -> ~/.zshrc_config/.config/nvim
 ```
 
