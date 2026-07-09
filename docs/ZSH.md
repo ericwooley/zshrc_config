@@ -419,6 +419,7 @@ Purpose:
 - clone this dotfiles repo into the host-backed home
 - continue setup when the VM already exists, which helps after a partial launch
 - wait for Multipass SSH/exec readiness before checking cloud-init
+- show heartbeat output while silent Multipass mount and install steps run
 - mount the host-backed home to `/home/<user>` in the VM
 - run the normal `install.sh` inside the VM
 
@@ -432,6 +433,8 @@ VM_CPUS=2
 VM_MEMORY=4G
 VM_DISK=20G
 VM_SSH_WAIT_SECONDS=240
+VM_MOUNT_WAIT_SECONDS=180
+VM_INSTALL_WAIT_SECONDS=900
 VM_CLOUD_INIT_ROOT=$HOME/vms/cloud-init
 ZSHSETUP_REPO_URL=https://github.com/ericwooley/zshrc_config.git
 ```

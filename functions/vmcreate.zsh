@@ -1,8 +1,54 @@
+_vmcreate_run_with_heartbeat() {
+  local label="$1"
+  local timeout_seconds="$2"
+  shift 2
+
+  echo "vmcreate: $label"
+  "$@" &
+
+  local command_pid=$!
+  local started_at=$SECONDS
+  local elapsed=0
+  local command_status=0
+  local next_heartbeat=5
+
+  while kill -0 "$command_pid" >/dev/null 2>&1; do
+    elapsed=$((SECONDS - started_at))
+    if (( elapsed >= timeout_seconds )); then
+      echo "vmcreate: timed out while $label after ${timeout_seconds}s" >&2
+      kill "$command_pid" >/dev/null 2>&1 || true
+      sleep 1
+      kill -9 "$command_pid" >/dev/null 2>&1 || true
+      wait "$command_pid" >/dev/null 2>&1 || true
+      return 124
+    fi
+
+    sleep 1
+    elapsed=$((SECONDS - started_at))
+    if (( elapsed >= next_heartbeat )) && kill -0 "$command_pid" >/dev/null 2>&1; then
+      next_heartbeat=$((next_heartbeat + 5))
+      elapsed=$((SECONDS - started_at))
+      echo "vmcreate: still $label (${elapsed}s elapsed)"
+    fi
+  done
+
+  wait "$command_pid"
+  command_status=$?
+
+  if (( command_status == 0 )); then
+    echo "vmcreate: finished $label"
+  else
+    echo "vmcreate: failed while $label (exit $command_status)" >&2
+  fi
+
+  return "$command_status"
+}
+
 # Create a Multipass VM with a host-backed home directory and this zsh setup.
 vmcreate() {
   if (( $# < 1 || $# > 2 )); then
     echo "usage: vmcreate <name> [image]" >&2
-    echo "env: VM_USER VM_HOME_ROOT VM_IMAGE VM_CPUS VM_MEMORY VM_DISK" >&2
+    echo "env: VM_USER VM_HOME_ROOT VM_IMAGE VM_CPUS VM_MEMORY VM_DISK VM_SSH_WAIT_SECONDS VM_MOUNT_WAIT_SECONDS VM_INSTALL_WAIT_SECONDS" >&2
     return 2
   fi
 
@@ -30,6 +76,8 @@ vmcreate() {
   local repo_url="${ZSHSETUP_REPO_URL:-}"
   local vm_exists=0
   local yaml_key
+  local mount_wait_seconds="${VM_MOUNT_WAIT_SECONDS:-180}"
+  local install_wait_seconds="${VM_INSTALL_WAIT_SECONDS:-900}"
 
   if [[ ! "$name" =~ '^[A-Za-z0-9][A-Za-z0-9-]*$' ]]; then
     echo "vmcreate: VM name must use letters, numbers, and dashes, and must not start with a dash" >&2
@@ -142,12 +190,17 @@ vmcreate() {
   if multipass info "$name" 2>/dev/null | grep -F -- "$host_home" >/dev/null 2>&1; then
     echo "vmcreate: $host_home is already mounted"
   else
-    multipass mount "$host_home" "$name:/home/$vm_user" || return
+    _vmcreate_run_with_heartbeat \
+      "mounting host home (${mount_wait_seconds}s max)" \
+      "$mount_wait_seconds" \
+      multipass mount "$host_home" "$name:/home/$vm_user" || return
   fi
   multipass exec "$name" -- sudo chown -R "$vm_user:$vm_user" "/home/$vm_user" >/dev/null 2>&1 || true
 
-  echo "vmcreate: installing zsh setup inside $name"
-  multipass exec "$name" -- sudo -H -u "$vm_user" sh -lc 'printf "y\nn\nn\ny\n" | sh "$HOME/.zshrc_config/install.sh"' || return
+  _vmcreate_run_with_heartbeat \
+    "installing zsh setup inside $name (${install_wait_seconds}s max)" \
+    "$install_wait_seconds" \
+    multipass exec "$name" -- sudo -H -u "$vm_user" sh -lc 'printf "y\nn\nn\ny\n" | sh "$HOME/.zshrc_config/install.sh"' || return
 
   echo "vmcreate: ready"
   echo "vmcreate: connect with: vmconnect $name"
