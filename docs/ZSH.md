@@ -25,6 +25,7 @@ The config root is:
 options.zsh
 plugins.zsh
 completions.zsh
+keybindings.zsh
 tools.zsh
 env.zsh
 aliases.zsh
@@ -77,6 +78,20 @@ Generated completion files are written under:
 ```
 
 That directory is ignored by Git.
+
+## Keybindings
+
+`keybindings.zsh` contains interactive zle keybindings.
+
+Current bindings:
+
+| Key | Action |
+| --- | --- |
+| `Ctrl-Left` | move one shell word left |
+| `Ctrl-Right` | move one shell word right |
+
+The config binds common xterm-style Ctrl-arrow escape sequences so terminals
+that send sequences like `^[[1;5D` do not print fragments such as `;5D`.
 
 ## Tools
 

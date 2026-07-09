@@ -25,6 +25,7 @@ bootstrap.sh                    one-line installer target
 install.sh                      local installer
 init.zsh                        zsh config root
 aliases.zsh                     shared aliases
+keybindings.zsh                 shell keybindings
 bin/                            executable helper commands
 docs/                           installed reference docs
 functions/                      sourced zsh functions

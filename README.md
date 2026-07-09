@@ -92,6 +92,7 @@ of this repo.
 - plugin management through Antidote
 - `~/.local/bin` and `~/.zshrc_config/bin` on `PATH`
 - npm, pnpm, yarn, and bun completion setup
+- Ctrl-Left/Ctrl-Right word movement in the shell
 - directory jumping with zoxide
 - Starship prompt support
 - `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zsh_install_hourly_update_cron`, `nvim_install_stable_update_cron`, Multipass VM helpers, Docker cleanup helpers, and utility aliases
@@ -155,6 +156,7 @@ bootstrap.sh                    one-line installer target
 install.sh                      local installer
 init.zsh                        zsh config entrypoint
 aliases.zsh                     shared aliases
+keybindings.zsh                 shell keybindings
 bin/                            executable helper commands
 docs/                           full documentation and quick references
 functions/                      sourced zsh functions
