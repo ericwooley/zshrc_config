@@ -334,6 +334,39 @@ warn_missing_lazygit() {
   fi
 }
 
+install_multipass() {
+  if command -v multipass >/dev/null 2>&1; then
+    return 0
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      if command -v brew >/dev/null 2>&1; then
+        brew install --cask multipass
+      else
+        echo "install.sh: warning: Homebrew is required to install Multipass on macOS" >&2
+      fi
+      ;;
+    Linux)
+      if ! command -v snap >/dev/null 2>&1; then
+        if command -v apt-get >/dev/null 2>&1; then
+          run_apt install -y snapd
+        else
+          echo "install.sh: warning: snap is required to install Multipass on Linux" >&2
+          return 0
+        fi
+      fi
+
+      if command -v snap >/dev/null 2>&1; then
+        run_root snap install multipass || echo "install.sh: warning: Multipass snap install failed; install it manually" >&2
+      fi
+      ;;
+    *)
+      echo "install.sh: warning: unsupported OS for automatic Multipass install" >&2
+      ;;
+  esac
+}
+
 install_deps() {
   uname_s=$(uname -s)
 
@@ -354,14 +387,14 @@ install_deps() {
       warn_missing_lazygit
     else
       echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
-      echo "install.sh: install zsh git curl go tmux fzf ripgrep zoxide eza starship glow lazygit fastAI manually" >&2
+      echo "install.sh: install zsh git curl go tmux fzf ripgrep zoxide eza starship glow lazygit fastAI multipass manually" >&2
       if ! install_neovim_linux_tarball; then
         echo "install.sh: warning: Neovim tarball install failed; install Neovim manually" >&2
       fi
     fi
   else
     echo "install.sh: unsupported OS for automatic dependency install" >&2
-    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep zoxide eza starship glow lazygit fastAI manually" >&2
+    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep zoxide eza starship glow lazygit fastAI multipass manually" >&2
   fi
 
   install_zoxide
@@ -369,6 +402,7 @@ install_deps() {
   install_n
   install_fastai
   install_antidote
+  install_multipass
 }
 
 regenerate_antidote_files() {

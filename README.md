@@ -6,16 +6,13 @@ where dotfiles should be boring.
 
 ## Dependencies
 
-The installer can install the common dependencies on macOS with Homebrew and on
-Ubuntu/Debian with apt. Core tools include:
+The installer can install the common dependencies on macOS with Homebrew, on
+Ubuntu/Debian with apt, and Multipass through the official macOS cask or Linux
+snap path. Core tools include:
 
 ```text
-zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node
+zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node multipass
 ```
-
-Optional tools:
-
-- `multipass` enables the `vmcreate`, `vmconnect`, `vmls`, and `vmrm` helpers.
 
 ### OpenRouter Key
 

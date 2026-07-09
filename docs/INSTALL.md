@@ -79,7 +79,7 @@ dated backup name is used instead.
 On macOS, the installer expects Homebrew and can install:
 
 ```text
-antidote eza fzf git glow go lazygit neovim ripgrep starship tmux zoxide zsh
+antidote eza fzf git glow go lazygit multipass neovim ripgrep starship tmux zoxide zsh
 ```
 
 On Ubuntu/Debian, the installer uses apt for stable dependencies:
@@ -90,9 +90,26 @@ bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
 
 It also handles Neovim from the official stable Linux tarball, eza, zoxide,
 starship, `glow` when available from apt, Go 1.24.x when the packaged Go is too
-old, `fastAI` into `~/.local/bin`, `n`, Node LTS, and Antidote. On
+old, `fastAI` into `~/.local/bin`, `n`, Node LTS, Antidote, and Multipass. On
 Ubuntu/Debian, `lazygit` is reported as a warning if it is missing so the Neovim
 `<leader>lg` binding has a clear next step.
+
+Multipass is installed with Homebrew on macOS:
+
+```sh
+brew install --cask multipass
+```
+
+On Linux, Multipass is installed with snap, matching the official installer
+recommendation:
+
+```sh
+sudo snap install multipass
+```
+
+On Ubuntu/Debian, the installer installs `snapd` first if `snap` is not already
+available. Minimal servers without a working snap service may still need manual
+Multipass setup.
 
 Linux Neovim installs use:
 
@@ -121,10 +138,9 @@ GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@late
 ```
 
 Unsupported operating systems get warnings with the tools to install manually.
-
-Multipass is optional and is not installed automatically. When `multipass` is on
-`PATH`, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm` functions can create and
-manage local VMs with host-backed home directories under `~/vms/home`.
+When `multipass` is on `PATH`, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm`
+functions can create and manage local VMs with host-backed home directories
+under `~/vms/home`.
 
 ## Timezone Setup
 
