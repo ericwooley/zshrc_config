@@ -134,9 +134,10 @@ After installing locally:
 zshsetup user@host
 ```
 
-`zshsetup` uses the repo URL from `ZSHSETUP_REPO_URL` or the local git `origin`.
-On the remote it clones into `~/.zshrc_config`, pulls on later runs, and runs
-`install.sh`.
+`zshsetup` uses `ZSHSETUP_REPO_URL` or the local git `origin`, normalizes GitHub
+SSH remotes to HTTPS, and falls back to
+`https://github.com/ericwooley/zshrc_config.git`. On the remote it clones into
+`~/.zshrc_config`, pulls on later runs, and runs `install.sh`.
 
 Read more in [docs/REMOTE_SYNC.md](docs/REMOTE_SYNC.md).
 

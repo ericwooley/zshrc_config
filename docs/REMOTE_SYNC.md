@@ -18,6 +18,7 @@ zshsetup user@example.com
 `zshsetup` bootstraps the setup from this git repo on an SSH host:
 
 - finds the repo URL from `ZSHSETUP_REPO_URL` or the local repo `origin`
+- normalizes GitHub SSH URLs to HTTPS so remote hosts do not need GitHub SSH keys
 - connects to the remote with `ssh`
 - installs `git` with apt when the remote is Debian/Ubuntu and `git` is missing
 - clones the repo on first run
@@ -41,13 +42,23 @@ The local zsh function lives at:
 Local requirements:
 
 - `ssh`
-- a published git remote, or `ZSHSETUP_REPO_URL`
+- a published HTTPS git remote, or `ZSHSETUP_REPO_URL`
 
-If the local clone does not have an `origin` remote yet, run:
+If the local clone does not have an `origin` remote yet, `zshsetup` falls back
+to:
+
+```text
+https://github.com/ericwooley/zshrc_config.git
+```
+
+You can override it with:
 
 ```zsh
 ZSHSETUP_REPO_URL=https://github.com/<you>/<repo>.git zshsetup <host>
 ```
+
+When an existing remote checkout has an SSH origin, `zshsetup` resets that
+remote `origin` URL to the HTTPS URL before pulling.
 
 ## Remote Clone Location
 

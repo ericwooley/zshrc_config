@@ -118,6 +118,9 @@ vmcreate() {
     git@github.com:*)
       repo_url="https://github.com/${repo_url#git@github.com:}"
       ;;
+    ssh://git@github.com/*)
+      repo_url="https://github.com/${repo_url#ssh://git@github.com/}"
+      ;;
   esac
 
   {
@@ -205,6 +208,7 @@ vmcreate() {
     set -eu
     repo_url="$ZSHSETUP_REPO_URL"
     if [ -d "$HOME/.zshrc_config/.git" ]; then
+      git -C "$HOME/.zshrc_config" remote set-url origin "$repo_url" 2>/dev/null || true
       git -C "$HOME/.zshrc_config" pull --ff-only
     elif [ -e "$HOME/.zshrc_config" ]; then
       echo "vmcreate: $HOME/.zshrc_config exists but is not a git checkout" >&2

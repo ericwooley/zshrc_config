@@ -529,6 +529,7 @@ Purpose:
 - bootstrap this zsh, tmux, and Neovim setup on an SSH host
 - clone the published config repo on first run
 - pull the remote clone on later runs
+- normalize GitHub SSH repo URLs to HTTPS before cloning or pulling
 - run the repo `install.sh` on the remote
 - ask whether to install the hourly zshupdate cron on the remote
 - ask whether to install the Neovim stable tarball update cron on the remote
@@ -538,6 +539,12 @@ Local requirements:
 
 - `ssh`
 - a local config repo with an `origin` remote, or `ZSHSETUP_REPO_URL`
+
+If neither is set, it falls back to:
+
+```text
+https://github.com/ericwooley/zshrc_config.git
+```
 
 Optional repo URL override:
 

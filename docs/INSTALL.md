@@ -158,7 +158,7 @@ FASTAI_INSTALL_DIR="$HOME/.local/bin" ~/.local/src/fastAI/scripts/install.sh
 Override the source repo or checkout path with:
 
 ```sh
-FASTAI_REPO_URL='git@github.com:ericwooley/fastAI.git'
+FASTAI_REPO_URL='https://github.com/ericwooley/fastAI.git'
 FASTAI_SOURCE_DIR="$HOME/src/fastAI"
 ```
 

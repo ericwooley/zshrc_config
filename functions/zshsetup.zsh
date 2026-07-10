@@ -12,6 +12,21 @@ zshsetup() {
   local repo_url="${ZSHSETUP_REPO_URL:-}"
   local repo_root=""
 
+  _zshsetup_https_url() {
+    local url="$1"
+    case "$url" in
+      git@github.com:*)
+        print -r -- "https://github.com/${url#git@github.com:}"
+        ;;
+      ssh://git@github.com/*)
+        print -r -- "https://github.com/${url#ssh://git@github.com/}"
+        ;;
+      *)
+        print -r -- "$url"
+        ;;
+    esac
+  }
+
   if ! command -v ssh >/dev/null 2>&1; then
     echo "zshsetup: missing local command: ssh" >&2
     return 1
@@ -30,13 +45,11 @@ zshsetup() {
   fi
 
   if [[ -z "$repo_url" ]]; then
-    cat >&2 <<'EOF'
-zshsetup: no git remote URL found for this setup.
-zshsetup: add an origin remote, or run with:
-zshsetup:   ZSHSETUP_REPO_URL=https://github.com/<you>/<repo>.git zshsetup <host>
-EOF
-    return 1
+    repo_url="https://github.com/ericwooley/zshrc_config.git"
   fi
+
+  repo_url="$(_zshsetup_https_url "$repo_url")"
+  unfunction _zshsetup_https_url
 
   local -a remote_steps=(
     'set -eu'
@@ -48,7 +61,7 @@ EOF
     'mkdir -p "$(dirname "$repo_dir")"'
     'backup_config_dir() { backup_path="$HOME/.zsh_config.bak"; if [ -e "$backup_path" ] || [ -L "$backup_path" ]; then backup_path="$HOME/.zsh_config.bak_$(date +%Y%m%d_%H%M%S)"; fi; echo "zshsetup: moving existing $repo_dir to $backup_path"; mv "$repo_dir" "$backup_path"; }'
     'stash_if_dirty() { if [ -n "$(git -C "$repo_dir" status --porcelain)" ]; then stash_name="zshsetup auto-stash $(date +%Y%m%d_%H%M%S)"; echo "zshsetup: stashing local changes in $repo_dir: $stash_name"; git -C "$repo_dir" stash push -u -m "$stash_name"; fi; }'
-    'if [ -d "$repo_dir/.git" ]; then echo "zshsetup: updating $repo_dir"; stash_if_dirty; git -C "$repo_dir" pull --ff-only; else if [ -e "$repo_dir" ] || [ -L "$repo_dir" ]; then backup_config_dir; fi; echo "zshsetup: cloning $repo_url into $repo_dir"; git clone "$repo_url" "$repo_dir"; fi'
+    'if [ -d "$repo_dir/.git" ]; then echo "zshsetup: updating $repo_dir"; git -C "$repo_dir" remote set-url origin "$repo_url" 2>/dev/null || true; stash_if_dirty; git -C "$repo_dir" pull --ff-only; else if [ -e "$repo_dir" ] || [ -L "$repo_dir" ]; then backup_config_dir; fi; echo "zshsetup: cloning $repo_url into $repo_dir"; git clone "$repo_url" "$repo_dir"; fi'
     'cd "$repo_dir"'
     'sh ./install.sh'
     'printf "zshsetup: install hourly zshupdate cron on this remote? [y/N] "; read cron_answer || cron_answer=""; case "$cron_answer" in y|Y|yes|YES) ZSHRC_CONFIG_DIR="$repo_dir" zsh -lc "source \"$repo_dir/functions/zsh_install_hourly_update_cron.zsh\"; zsh_install_hourly_update_cron" ;; *) echo "zshsetup: skipped hourly zshupdate cron" ;; esac'
