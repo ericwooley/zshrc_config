@@ -33,6 +33,30 @@ local function executable(cmd)
   return type(cmd) == "string" and vim.fn.executable(cmd) == 1
 end
 
+local function readable(path)
+  return type(path) == "string" and path ~= "" and vim.fn.filereadable(path) == 1
+end
+
+local function global_tsserver_path()
+  if readable(vim.env.TSSERVER_PATH) then
+    return vim.env.TSSERVER_PATH
+  end
+
+  if vim.fn.executable("npm") ~= 1 then
+    return nil
+  end
+
+  local roots = vim.fn.systemlist({ "npm", "root", "-g" })
+  if vim.v.shell_error ~= 0 or not roots[1] then
+    return nil
+  end
+
+  local tsserver = roots[1] .. "/typescript/lib/tsserver.js"
+  if readable(tsserver) then
+    return tsserver
+  end
+end
+
 local function server_for_filetype(filetype)
   for name, config in pairs(servers) do
     if vim.tbl_contains(config.filetypes, filetype) then
@@ -62,6 +86,23 @@ function M.start_for_buffer()
   config.name = name
   config.root_dir = root_for(base_config)
   config.root_markers = nil
+
+  if name == "ts_ls" then
+    local tsserver = global_tsserver_path()
+    if not tsserver then
+      vim.notify(
+        "TypeScript package not found globally; run: npm install -g typescript typescript-language-server",
+        vim.log.levels.WARN
+      )
+      return
+    end
+
+    config.init_options = vim.tbl_deep_extend("force", config.init_options or {}, {
+      tsserver = {
+        path = tsserver,
+      },
+    })
+  end
 
   local ok, blink = pcall(require, "blink.cmp")
   if ok then

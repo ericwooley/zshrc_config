@@ -180,6 +180,23 @@ Expected language-server binaries:
 | Python | `pyright-langserver` |
 | Go | `gopls` |
 
+TypeScript also needs the global npm `typescript` package. The config points
+`typescript-language-server` at global `typescript/lib/tsserver.js` so it does
+not fall back to running a workspace-local TypeScript install just because a
+file was opened.
+
+Install the TypeScript LSP pair with:
+
+```sh
+npm install -g typescript typescript-language-server
+```
+
+If your `tsserver.js` lives somewhere unusual, set this in `~/.zshrc_local`:
+
+```zsh
+export TSSERVER_PATH='/path/to/typescript/lib/tsserver.js'
+```
+
 ## Completion
 
 Completion is powered by `blink.cmp`.

@@ -115,6 +115,15 @@ Expected language server binaries:
 | Python | `pyright-langserver` |
 | Go | `gopls` |
 
+TypeScript also needs the global npm `typescript` package:
+
+```sh
+npm install -g typescript typescript-language-server
+```
+
+The config passes global `typescript/lib/tsserver.js` to the LSP. To override
+the path, set `TSSERVER_PATH` in `~/.zshrc_local`.
+
 ## Formatting
 
 Powered by conform.nvim.
@@ -230,6 +239,7 @@ These need to exist on `PATH` for the full setup to work:
 
 ```text
 typescript-language-server
+typescript
 pyright-langserver
 gopls
 biome
