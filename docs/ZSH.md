@@ -165,6 +165,7 @@ Current aliases:
 | `l` | `ls -CF` | compact column listing with file type markers |
 | `ports` | `lsof -i -P -n \| grep LISTEN` | show processes listening on ports |
 | `rzsh` | `source ~/.zshrc` | reload the managed zsh config in the current shell |
+| `zh` | `zshow` | short alias for asking about this zsh setup |
 
 ## Functions
 

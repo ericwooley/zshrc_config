@@ -108,13 +108,17 @@ zshow create a file in nvim
 zshow switch tmux windows
 zshow do something useful
 zshow "switch tmux windows"
+zh create a file in nvim
 ```
 
 Notes:
 
 - Arguments are joined with spaces, so `zshow do something useful` and `zshow "do something useful"` ask the same question.
+- `zh` is an alias for `zshow`.
 - Bare fragments are treated as implicit "How do I ...?" questions because punctuation and shell quoting are optional for quick use.
 - Running `zshow` with no arguments opens `${EDITOR:-vi}` on a temporary Markdown file, prints a formatted question block after the editor exits, then uses it as the question.
+- The editor buffer includes the last five saved zshow question/answer pairs as `#` comments when session history exists.
+- Comment lines are ignored, so you can leave the history in place and type the new question below it.
 - Normal runs pass `--globalSession` to `fastAI` so follow-up questions remember prior context through fastAI's persisted session history.
 - Running `zshow --new` passes `--newGlobalSession` to `fastAI`, which wipes the repository global session before asking the next question.
 - This requires a `fastAI` version with global-session support.

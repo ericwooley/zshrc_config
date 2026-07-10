@@ -32,6 +32,128 @@ print_editor_question() {
   printf '\n' >&2
 }
 
+strip_editor_comments() {
+  awk '
+    {
+      line = $0
+      sub(/^[[:space:]]+/, "", line)
+      if (substr(line, 1, 1) == "#") {
+        next
+      }
+      print
+    }
+  ' "$1"
+}
+
+zshow_history_comments() {
+  if ! command -v node >/dev/null 2>&1 || ! command -v git >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local repo_root
+  repo_root="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
+  if [[ -z "$repo_root" ]]; then
+    return 0
+  fi
+
+  node - "$repo_root" <<'NODE'
+const crypto = require("crypto");
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+
+const repoRoot = process.argv[2];
+
+function userConfigDir() {
+  if (process.env.XDG_CONFIG_HOME) {
+    return process.env.XDG_CONFIG_HOME;
+  }
+  if (process.platform === "darwin") {
+    return path.join(os.homedir(), "Library", "Application Support");
+  }
+  if (process.platform === "win32") {
+    return process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming");
+  }
+  return path.join(os.homedir(), ".config");
+}
+
+function repoKey(repo) {
+  let clean = path.resolve(repo);
+  if (process.platform === "win32") {
+    clean = clean.slice(0, 1).toLowerCase() + clean.slice(1);
+  }
+  return crypto.createHash("sha256").update(clean).digest("hex").slice(0, 32);
+}
+
+function oneLine(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function extractQuestion(prompt) {
+  const patterns = [
+    /User input to answer as a how-do-I question:\n([\s\S]*?)\n\n~\/\.zshrc_config context:/,
+    /User input:\n([\s\S]*?)\n\n~\/\.zshrc_config context:/,
+    /Question:\s*\n?([\s\S]*?)\n\n?~\/\.zshrc_config context:/,
+  ];
+  for (const pattern of patterns) {
+    const match = String(prompt || "").match(pattern);
+    if (match && oneLine(match[1])) {
+      return oneLine(match[1]);
+    }
+  }
+  return oneLine(prompt);
+}
+
+function printWrapped(label, value) {
+  const text = oneLine(value) || "(empty)";
+  const width = 84;
+  let rest = `${label}: ${text}`.slice(0, 700);
+  while (rest.length > width) {
+    let splitAt = rest.lastIndexOf(" ", width);
+    if (splitAt < 20) {
+      splitAt = width;
+    }
+    console.log(`# ${rest.slice(0, splitAt)}`);
+    rest = `  ${rest.slice(splitAt).trimStart()}`;
+  }
+  console.log(`# ${rest}`);
+}
+
+const historyPath = path.join(userConfigDir(), "fastAI", "sessions", repoKey(repoRoot), "global.json");
+if (!fs.existsSync(historyPath)) {
+  process.exit(0);
+}
+
+const record = JSON.parse(fs.readFileSync(historyPath, "utf8"));
+const runs = Array.isArray(record.runs) ? record.runs.slice(-5) : [];
+if (runs.length === 0) {
+  process.exit(0);
+}
+
+console.log(`# Recent zshow history: last ${runs.length} question/answer pair${runs.length === 1 ? "" : "s"}`);
+console.log("# Lines starting with # are ignored when zshow reads your question.");
+runs.forEach((run, index) => {
+  console.log("#");
+  printWrapped(`Q${index + 1}`, extractQuestion(run.prompt));
+  printWrapped(`A${index + 1}`, run.summary);
+});
+NODE
+}
+
+write_editor_template() {
+  {
+    print -r -- "# zshow question"
+    print -r -- "# Type your question below. Lines starting with # are ignored."
+    print -r -- "#"
+    if (( new_session )); then
+      print -r -- "# --new is set, so the previous zshow session will be reset."
+    else
+      zshow_history_comments || true
+    fi
+    print -r -- ""
+  } > "$question_file"
+}
+
 trap cleanup EXIT
 
 question_parts=()
@@ -67,6 +189,8 @@ if ! command -v glow >/dev/null 2>&1; then
   exit 1
 fi
 
+config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
+
 if (( ${#question_parts[@]} > 0 )); then
   question="${question_parts[*]}"
 else
@@ -79,8 +203,9 @@ else
   fi
 
   question_file="$(mktemp -t zshow.XXXXXX)"
+  write_editor_template
   "$editor_cmd[@]" "$question_file"
-  question="$(< "$question_file")"
+  question="$(strip_editor_comments "$question_file")"
   question_from_editor=1
 fi
 
@@ -96,8 +221,6 @@ fi
 if (( question_from_editor )); then
   print_editor_question
 fi
-
-config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
 
 if [[ ! -d "$config_dir" ]]; then
   echo "zshow: config directory not found: $config_dir" >&2

@@ -10,3 +10,6 @@ alias ports='lsof -i -P -n | grep LISTEN'
 
 # Reload the managed zsh config in the current shell.
 alias rzsh='source ~/.zshrc'
+
+# Short alias for asking about this zsh setup.
+alias zh='zshow'
