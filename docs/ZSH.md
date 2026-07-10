@@ -110,16 +110,24 @@ Starship does not accept named timezones such as `America/Denver` for
 
 ## Environment
 
-`env.zsh` de-duplicates `PATH` and prepends:
+`env.zsh` sources machine-local overrides first so `~/.zshrc_local` can set
+values such as `N_PREFIX`. It defaults `N_PREFIX` to:
+
+```text
+~/.local/n
+```
+
+Then it de-duplicates `PATH` and prepends:
 
 ```text
 ~/.zshrc_config/bin
-~/.local/n/bin
+$N_PREFIX/bin
 ~/.local/go/bin
 ~/.local/bin
 ```
 
-It also sets defaults for `fastAI`, sets `EDITOR=nvim`, and sources:
+It also sets defaults for `fastAI` and sets `EDITOR=nvim`. Machine-local
+overrides are sourced from:
 
 ```text
 ~/.zshrc_local

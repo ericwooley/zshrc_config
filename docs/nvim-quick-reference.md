@@ -250,3 +250,10 @@ gofmt
 staticcheck
 lazygit
 ```
+
+Neovim prepends `$N_PREFIX/bin` to its own `PATH` on startup. With the default
+`n` setup, global npm tools should live under:
+
+```text
+~/.local/n/bin
+```

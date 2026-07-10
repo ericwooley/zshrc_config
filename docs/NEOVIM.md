@@ -51,6 +51,12 @@ safe_format_on_save = true
 safe_lint_on_save = true
 ```
 
+At startup it also normalizes the process environment for global tools managed
+by `n`: `N_PREFIX` defaults to `~/.local/n`, and `$N_PREFIX/bin` plus
+`~/.local/bin` are prepended to Neovim's `PATH` if they exist. This keeps
+global npm tools visible to LSP, formatting, and linting even when Neovim was
+launched from a stale tmux server or shell.
+
 Then it loads:
 
 ```text

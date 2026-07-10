@@ -6,7 +6,8 @@ config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
 zshrc_file="$HOME/.zshrc"
 managed_marker="# zshsetup-managed"
 
-export PATH="$HOME/.local/go/bin:$HOME/.local/bin:$PATH"
+export N_PREFIX="${N_PREFIX:-$HOME/.local/n}"
+export PATH="$N_PREFIX/bin:$HOME/.local/go/bin:$HOME/.local/bin:$PATH"
 
 confirm() {
   printf "%s [y/N] " "$1"

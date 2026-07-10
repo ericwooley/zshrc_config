@@ -13,6 +13,27 @@ vim.g.safe_lsp_autostart = true
 vim.g.safe_format_on_save = true
 vim.g.safe_lint_on_save = true
 
+local function prepend_path(path_entry)
+  if not path_entry or path_entry == "" or vim.fn.isdirectory(path_entry) ~= 1 then
+    return
+  end
+
+  local separator = package.config:sub(1, 1) == "\\" and ";" or ":"
+  local current_path = vim.env.PATH or ""
+  for entry in string.gmatch(current_path, "([^" .. separator .. "]+)") do
+    if entry == path_entry then
+      return
+    end
+  end
+
+  vim.env.PATH = path_entry .. separator .. current_path
+end
+
+local home = vim.env.HOME or vim.fn.expand("~")
+vim.env.N_PREFIX = vim.env.N_PREFIX or (home .. "/.local/n")
+prepend_path(vim.env.N_PREFIX .. "/bin")
+prepend_path(home .. "/.local/bin")
+
 require("config.options")
 require("config.keymaps")
 require("config.autocmds")
