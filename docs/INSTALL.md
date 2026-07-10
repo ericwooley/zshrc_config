@@ -89,10 +89,13 @@ bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
 ```
 
 It also handles Neovim from the official stable Linux tarball, eza, zoxide,
-starship, `glow` when available from apt, Go 1.24.x when the packaged Go is too
-old, `fastAI` into `~/.local/bin`, `n`, Node LTS, and Antidote. On
-Ubuntu/Debian, `lazygit` is reported as a warning if it is missing so the Neovim
-`<leader>lg` binding has a clear next step.
+starship, Go 1.24.x when the packaged Go is too old, `glow` and `lazygit` into
+`~/.local/bin` when they are missing, `fastAI` into `~/.local/bin`, `n`, Node
+LTS, and Antidote.
+
+After dependency installation, the installer sets the current user's default
+login shell to `zsh` with `chsh` when it is not already set. Log out and back in
+for that shell change to show up in new sessions.
 
 After the common dependencies, the installer asks before installing Multipass.
 If you skip it, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm` helpers stay
@@ -152,7 +155,8 @@ https://github.com/ericwooley/fastAI.git
 Then it runs the fastAI repo installer with:
 
 ```sh
-FASTAI_INSTALL_DIR="$HOME/.local/bin" ~/.local/src/fastAI/scripts/install.sh
+cd ~/.local/src/fastAI
+FASTAI_INSTALL_DIR="$HOME/.local/bin" ./scripts/install.sh
 ```
 
 Override the source repo or checkout path with:

@@ -206,7 +206,7 @@ install_go_linux_user() {
   fi
 
   if ! command -v curl >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then
-    echo "install.sh: warning: curl and tar are required to install Go 1.24 for fastAI" >&2
+    echo "install.sh: warning: curl and tar are required to install Go 1.24 for Go-built tools" >&2
     return 1
   fi
 
@@ -231,7 +231,7 @@ install_go_linux_user() {
     && tar -C "$HOME/.local" -xzf "$tmp_dir/$go_archive"; then
     export PATH="$HOME/.local/go/bin:$PATH"
   else
-    echo "install.sh: warning: Go $go_version install failed; install Go 1.24.x manually for fastAI" >&2
+    echo "install.sh: warning: Go $go_version install failed; install Go 1.24.x manually for Go-built tools" >&2
     rm -rf "$tmp_dir"
     return 1
   fi
@@ -240,7 +240,7 @@ install_go_linux_user() {
   go_at_least_1_24
 }
 
-ensure_go_for_fastai() {
+ensure_go_for_tools() {
   if go_at_least_1_24; then
     return 0
   fi
@@ -248,8 +248,33 @@ ensure_go_for_fastai() {
   if [ "$(uname -s)" = "Linux" ]; then
     install_go_linux_user
   else
-    echo "install.sh: warning: Go 1.24.x is required for fastAI; install or upgrade Go manually" >&2
+    echo "install.sh: warning: Go 1.24.x is required for Go-built tools; install or upgrade Go manually" >&2
     return 1
+  fi
+}
+
+ensure_go_for_fastai() {
+  ensure_go_for_tools
+}
+
+install_go_binary() {
+  binary_name="$1"
+  module_path="$2"
+  purpose="$3"
+
+  if command -v "$binary_name" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if ! ensure_go_for_tools; then
+    echo "install.sh: warning: skipped $binary_name install because Go 1.24.x is unavailable; install it manually for $purpose" >&2
+    return 0
+  fi
+
+  mkdir -p "$HOME/.local/bin"
+  echo "install.sh: installing $binary_name into $HOME/.local/bin"
+  if ! GOBIN="$HOME/.local/bin" go install "$module_path"; then
+    echo "install.sh: warning: $binary_name install failed; install it manually for $purpose" >&2
   fi
 }
 
@@ -286,9 +311,9 @@ install_fastai() {
   fi
 
   if [ -x "$fastai_source_dir/scripts/install.sh" ]; then
-    FASTAI_INSTALL_DIR="$HOME/.local/bin" "$fastai_source_dir/scripts/install.sh"
+    (cd "$fastai_source_dir" && FASTAI_INSTALL_DIR="$HOME/.local/bin" ./scripts/install.sh)
   elif [ -r "$fastai_source_dir/scripts/install.sh" ] && command -v bash >/dev/null 2>&1; then
-    FASTAI_INSTALL_DIR="$HOME/.local/bin" bash "$fastai_source_dir/scripts/install.sh"
+    (cd "$fastai_source_dir" && FASTAI_INSTALL_DIR="$HOME/.local/bin" bash ./scripts/install.sh)
   else
     echo "install.sh: warning: fastAI installer not found; falling back to go install @latest" >&2
     GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@latest
@@ -348,7 +373,7 @@ install_neovim_linux_tarball() {
   sh "$installer"
 }
 
-install_glow_apt() {
+install_glow() {
   if command -v glow >/dev/null 2>&1; then
     return 0
   fi
@@ -356,14 +381,12 @@ install_glow_apt() {
   if command -v apt-cache >/dev/null 2>&1 && apt-cache show glow >/dev/null 2>&1; then
     run_apt install -y glow
   else
-    echo "install.sh: warning: glow is missing; install it manually for zshow Markdown rendering" >&2
+    install_go_binary glow github.com/charmbracelet/glow@latest "zshow Markdown rendering"
   fi
 }
 
-warn_missing_lazygit() {
-  if ! command -v lazygit >/dev/null 2>&1; then
-    echo "install.sh: warning: lazygit is missing; install it manually for Neovim <leader>lg" >&2
-  fi
+install_lazygit() {
+  install_go_binary lazygit github.com/jesseduffield/lazygit@latest "Neovim <leader>lg"
 }
 
 install_multipass() {
@@ -411,6 +434,53 @@ maybe_install_multipass() {
   fi
 }
 
+set_default_shell_to_zsh() {
+  if ! command -v zsh >/dev/null 2>&1; then
+    echo "install.sh: warning: zsh is not installed; cannot set it as the default shell" >&2
+    return 0
+  fi
+
+  target_user=$(id -un)
+  zsh_path=$(command -v zsh)
+  current_shell=""
+
+  if command -v getent >/dev/null 2>&1; then
+    current_shell=$(getent passwd "$target_user" 2>/dev/null | awk -F: '{print $7}' || true)
+  fi
+
+  if [ -z "$current_shell" ] && [ "$(uname -s)" = "Darwin" ] && command -v dscl >/dev/null 2>&1; then
+    current_shell=$(dscl . -read "/Users/$target_user" UserShell 2>/dev/null | awk '{print $2}' || true)
+  fi
+
+  if [ -z "$current_shell" ]; then
+    current_shell="${SHELL:-}"
+  fi
+
+  if [ "$current_shell" = "$zsh_path" ]; then
+    echo "install.sh: default shell is already $zsh_path"
+    return 0
+  fi
+
+  if [ -r /etc/shells ] && ! grep -Fx "$zsh_path" /etc/shells >/dev/null 2>&1; then
+    echo "install.sh: adding $zsh_path to /etc/shells"
+    if ! printf '%s\n' "$zsh_path" | run_root tee -a /etc/shells >/dev/null; then
+      echo "install.sh: warning: could not add $zsh_path to /etc/shells" >&2
+      return 0
+    fi
+  fi
+
+  if command -v chsh >/dev/null 2>&1; then
+    echo "install.sh: setting default shell for $target_user to $zsh_path"
+    if run_root chsh -s "$zsh_path" "$target_user"; then
+      echo "install.sh: default shell updated; log out and back in for it to take effect"
+    else
+      echo "install.sh: warning: failed to set default shell to $zsh_path" >&2
+    fi
+  else
+    echo "install.sh: warning: chsh is not available; set your shell to $zsh_path manually" >&2
+  fi
+}
+
 install_deps() {
   uname_s=$(uname -s)
 
@@ -427,8 +497,8 @@ install_deps() {
       run_apt install -y bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
       install_neovim_linux_tarball
       install_eza_apt
-      install_glow_apt
-      warn_missing_lazygit
+      install_glow
+      install_lazygit
     else
       echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
       echo "install.sh: install zsh git curl go tmux fzf ripgrep zoxide eza starship glow lazygit fastAI multipass manually" >&2
@@ -446,6 +516,7 @@ install_deps() {
   install_n
   install_fastai
   install_antidote
+  set_default_shell_to_zsh
   maybe_install_multipass
 }
 

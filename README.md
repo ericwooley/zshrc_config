@@ -7,9 +7,10 @@ where dotfiles should be boring.
 ## Dependencies
 
 The installer can install the common dependencies on macOS with Homebrew, on
-Ubuntu/Debian with apt, and Multipass through the official macOS cask or Linux
-snap path. Multipass is asked about separately because it is only needed for
-the `vm*` helpers. Core tools include:
+Ubuntu/Debian with apt plus user-local Go installs for a few CLI tools, and
+Multipass through the official macOS cask or Linux snap path. Multipass is asked
+about separately because it is only needed for the `vm*` helpers. Dependency
+setup also sets your login shell to `zsh` when needed. Core tools include:
 
 ```text
 zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node multipass
