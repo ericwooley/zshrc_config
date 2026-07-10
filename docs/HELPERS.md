@@ -82,7 +82,7 @@ Purpose:
 1. Accept a natural-language question about this zsh setup from arguments or `$EDITOR`.
 2. Read text files from `~/.zshrc_config`, excluding generated completions.
 3. Ask `fastAI` to answer using only that local config context.
-4. Keep follow-up history in the repository global `fastAI` session.
+4. Keep follow-up history in the `.zshrc_config` repository global `fastAI` session.
 5. Require Markdown output.
 6. Render the answer through `glow`.
 
@@ -117,10 +117,10 @@ Notes:
 - `zh` is an alias for `zshow`.
 - Bare fragments are treated as implicit "How do I ...?" questions because punctuation and shell quoting are optional for quick use.
 - Running `zshow` with no arguments opens `${EDITOR:-vi}` on a temporary Markdown file, prints a formatted question block after the editor exits, then uses it as the question.
-- The editor buffer includes the last five saved zshow question/answer pairs as `#` comments when session history exists.
+- The editor buffer includes the last five saved zshow question/answer pairs from the `.zshrc_config` fastAI global session as `#` comments when session history exists.
 - Comment lines are ignored, so you can leave the history in place and type the new question below it.
-- Normal runs pass `--globalSession` to `fastAI` so follow-up questions remember prior context through fastAI's persisted session history.
-- Running `zshow --new` passes `--newGlobalSession` to `fastAI`, which wipes the repository global session before asking the next question.
+- Normal runs pass `--globalSession` to `fastAI` from inside `~/.zshrc_config` so follow-up questions always use the same zshow-specific global session, no matter where you run `zshow`.
+- Running `zshow --new` passes `--newGlobalSession` to `fastAI`, which wipes the `.zshrc_config` global session before asking the next question.
 - This requires a `fastAI` version with global-session support.
 - The command sends only the contents of `~/.zshrc_config` text files that match the helper's allowlist.
 - Generated completion files are skipped.

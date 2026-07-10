@@ -51,7 +51,7 @@ zshow_history_comments() {
   fi
 
   local repo_root
-  repo_root="$(git -C "$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
+  repo_root="$(git -C "$config_dir" rev-parse --show-toplevel 2>/dev/null || true)"
   if [[ -z "$repo_root" ]]; then
     return 0
   fi
@@ -191,6 +191,11 @@ fi
 
 config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
 
+if [[ ! -d "$config_dir" ]]; then
+  echo "zshow: config directory not found: $config_dir" >&2
+  exit 1
+fi
+
 if (( ${#question_parts[@]} > 0 )); then
   question="${question_parts[*]}"
 else
@@ -222,11 +227,6 @@ if (( question_from_editor )); then
   print_editor_question
 fi
 
-if [[ ! -d "$config_dir" ]]; then
-  echo "zshow: config directory not found: $config_dir" >&2
-  exit 1
-fi
-
 context="$(
   find "$config_dir" -type f \
     ! -path '*/.git/*' \
@@ -253,10 +253,12 @@ else
   fastai_session_args=(--globalSession)
 fi
 
-fastAI \
-  --provider "${FASTAI_DEFAULT_PROVIDER:-openrouter}" \
-  --model "${FASTAI_DEFAULT_MODEL:-deepseek/deepseek-v4-flash}" \
-  --permissions none \
-  "${fastai_session_args[@]}" \
-  "$prompt" \
-  | glow -
+(
+  cd "$config_dir"
+  fastAI \
+    --provider "${FASTAI_DEFAULT_PROVIDER:-openrouter}" \
+    --model "${FASTAI_DEFAULT_MODEL:-deepseek/deepseek-v4-flash}" \
+    --permissions none \
+    "${fastai_session_args[@]}" \
+    "$prompt"
+) | glow -
