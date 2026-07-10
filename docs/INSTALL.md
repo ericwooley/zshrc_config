@@ -254,6 +254,11 @@ Those are generated from:
 ~/.zshrc_config/plugins_post.txt
 ```
 
+The generated `.zsh` files are ignored by Git because Antidote writes absolute
+cache paths into them. Shell startup also regenerates them automatically when
+they are missing, older than the source lists, or copied from another OS cache
+layout.
+
 ## After Install
 
 Open a new shell, or run:

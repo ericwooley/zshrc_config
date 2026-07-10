@@ -57,8 +57,11 @@ plugins_pre.zsh
 plugins_post.zsh
 ```
 
-`plugins.zsh` locates Antidote from Homebrew or `~/.antidote`, loads generated
-plugin files when present, and warns when generated files are missing.
+These generated loader files are machine-local and ignored by Git because they
+contain Antidote cache paths for the current home directory and OS. `plugins.zsh`
+locates Antidote from Homebrew or `~/.antidote`, regenerates the loader files
+when they are missing, older than the source lists, or copied from another OS
+cache layout, then sources them.
 
 ## Completions
 

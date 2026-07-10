@@ -3,6 +3,8 @@
 
 # Local/generated zsh cache files.
 .zshrc_config/generated-completions/
+/plugins_pre.zsh
+/plugins_post.zsh
 
 # Scratch files from the Codex setup session.
 /lazy.lua
