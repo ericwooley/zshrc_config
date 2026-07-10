@@ -46,44 +46,21 @@ strip_editor_comments() {
 }
 
 zshow_history_comments() {
-  if ! command -v node >/dev/null 2>&1 || ! command -v git >/dev/null 2>&1; then
+  if ! command -v node >/dev/null 2>&1; then
     return 0
   fi
 
-  local repo_root
-  repo_root="$(git -C "$config_dir" rev-parse --show-toplevel 2>/dev/null || true)"
-  if [[ -z "$repo_root" ]]; then
+  local history_text
+  history_text="$(
+    cd "$config_dir" && fastAI --history 5 2>/dev/null
+  )" || return 0
+
+  if [[ -z "$history_text" || "$history_text" == *"No conversation history."* ]]; then
     return 0
   fi
 
-  node - "$repo_root" <<'NODE'
-const crypto = require("crypto");
-const fs = require("fs");
-const os = require("os");
-const path = require("path");
-
-const repoRoot = process.argv[2];
-
-function userConfigDir() {
-  if (process.env.XDG_CONFIG_HOME) {
-    return process.env.XDG_CONFIG_HOME;
-  }
-  if (process.platform === "darwin") {
-    return path.join(os.homedir(), "Library", "Application Support");
-  }
-  if (process.platform === "win32") {
-    return process.env.APPDATA || path.join(os.homedir(), "AppData", "Roaming");
-  }
-  return path.join(os.homedir(), ".config");
-}
-
-function repoKey(repo) {
-  let clean = path.resolve(repo);
-  if (process.platform === "win32") {
-    clean = clean.slice(0, 1).toLowerCase() + clean.slice(1);
-  }
-  return crypto.createHash("sha256").update(clean).digest("hex").slice(0, 32);
-}
+  ZSHOW_HISTORY_TEXT="$history_text" node <<'NODE'
+const history = process.env.ZSHOW_HISTORY_TEXT || "";
 
 function oneLine(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
@@ -119,23 +96,31 @@ function printWrapped(label, value) {
   console.log(`# ${rest}`);
 }
 
-const historyPath = path.join(userConfigDir(), "fastAI", "sessions", repoKey(repoRoot), "global.json");
-if (!fs.existsSync(historyPath)) {
+const conversations = history
+  .split(/\n--- Conversation \d+ ---\n/g)
+  .slice(1)
+  .map((block) => {
+    const match = block.match(/\nInput:\n([\s\S]*?)\n\nOutput:\n([\s\S]*)$/);
+    if (!match) {
+      return null;
+    }
+    return {
+      question: extractQuestion(match[1]),
+      answer: oneLine(match[2]),
+    };
+  })
+  .filter((item) => item && (item.question || item.answer));
+
+if (conversations.length === 0) {
   process.exit(0);
 }
 
-const record = JSON.parse(fs.readFileSync(historyPath, "utf8"));
-const runs = Array.isArray(record.runs) ? record.runs.slice(-5) : [];
-if (runs.length === 0) {
-  process.exit(0);
-}
-
-console.log(`# Recent zshow history: last ${runs.length} question/answer pair${runs.length === 1 ? "" : "s"}`);
+console.log(`# Recent zshow history: last ${conversations.length} question/answer pair${conversations.length === 1 ? "" : "s"}`);
 console.log("# Lines starting with # are ignored when zshow reads your question.");
-runs.forEach((run, index) => {
+conversations.forEach((conversation, index) => {
   console.log("#");
-  printWrapped(`Q${index + 1}`, extractQuestion(run.prompt));
-  printWrapped(`A${index + 1}`, run.summary);
+  printWrapped(`Q${index + 1}`, conversation.question);
+  printWrapped(`A${index + 1}`, conversation.answer);
 });
 NODE
 }

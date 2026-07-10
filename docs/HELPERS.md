@@ -117,11 +117,11 @@ Notes:
 - `zh` is an alias for `zshow`.
 - Bare fragments are treated as implicit "How do I ...?" questions because punctuation and shell quoting are optional for quick use.
 - Running `zshow` with no arguments opens `${EDITOR:-vi}` on a temporary Markdown file, prints a formatted question block after the editor exits, then uses it as the question.
-- The editor buffer includes the last five saved zshow question/answer pairs from the `.zshrc_config` fastAI global session as `#` comments when session history exists.
+- The editor buffer calls `fastAI --history 5` from inside `~/.zshrc_config`, then includes those saved zshow question/answer pairs as `#` comments when session history exists.
 - Comment lines are ignored, so you can leave the history in place and type the new question below it.
 - Normal runs pass `--globalSession` to `fastAI` from inside `~/.zshrc_config` so follow-up questions always use the same zshow-specific global session, no matter where you run `zshow`.
 - Running `zshow --new` passes `--newGlobalSession` to `fastAI`, which wipes the `.zshrc_config` global session before asking the next question.
-- This requires a `fastAI` version with global-session support.
+- This requires a `fastAI` version with global-session and `--history` support.
 - The command sends only the contents of `~/.zshrc_config` text files that match the helper's allowlist.
 - Generated completion files are skipped.
 - It asks `fastAI` to say when behavior is not documented locally.
