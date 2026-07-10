@@ -259,9 +259,40 @@ install_fastai() {
     return 0
   fi
 
+  if ! command -v git >/dev/null 2>&1; then
+    echo "install.sh: warning: git is required to install fastAI from the latest source" >&2
+    return 0
+  fi
+
   mkdir -p "$HOME/.local/bin"
+  fastai_repo_url="${FASTAI_REPO_URL:-https://github.com/ericwooley/fastAI.git}"
+  fastai_source_dir="${FASTAI_SOURCE_DIR:-$HOME/.local/src/fastAI}"
+
   echo "install.sh: installing fastAI into $HOME/.local/bin"
-  GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@latest
+  echo "install.sh: fastAI source: $fastai_repo_url"
+
+  if [ -d "$fastai_source_dir/.git" ]; then
+    echo "install.sh: updating fastAI source at $fastai_source_dir"
+    git -C "$fastai_source_dir" pull --ff-only
+  else
+    if [ -e "$fastai_source_dir" ] || [ -L "$fastai_source_dir" ]; then
+      echo "install.sh: warning: $fastai_source_dir exists but is not a git repo; skipping fastAI install" >&2
+      return 0
+    fi
+
+    mkdir -p "$(dirname "$fastai_source_dir")"
+    echo "install.sh: cloning fastAI into $fastai_source_dir"
+    git clone "$fastai_repo_url" "$fastai_source_dir"
+  fi
+
+  if [ -x "$fastai_source_dir/scripts/install.sh" ]; then
+    FASTAI_INSTALL_DIR="$HOME/.local/bin" "$fastai_source_dir/scripts/install.sh"
+  elif [ -r "$fastai_source_dir/scripts/install.sh" ] && command -v bash >/dev/null 2>&1; then
+    FASTAI_INSTALL_DIR="$HOME/.local/bin" bash "$fastai_source_dir/scripts/install.sh"
+  else
+    echo "install.sh: warning: fastAI installer not found; falling back to go install @latest" >&2
+    GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@latest
+  fi
 }
 
 install_antidote() {

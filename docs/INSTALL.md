@@ -135,11 +135,35 @@ nvim_install_stable_update_cron
 
 That installs a marked root cron job that reruns the tarball installer daily.
 
-`fastAI` is installed with:
+`fastAI` is installed from source so rerunning `install.sh` can pull new CLI
+features such as session history support. By default the installer clones or
+updates:
+
+```text
+~/.local/src/fastAI
+```
+
+from:
 
 ```sh
-GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@latest
+https://github.com/ericwooley/fastAI.git
 ```
+
+Then it runs the fastAI repo installer with:
+
+```sh
+FASTAI_INSTALL_DIR="$HOME/.local/bin" ~/.local/src/fastAI/scripts/install.sh
+```
+
+Override the source repo or checkout path with:
+
+```sh
+FASTAI_REPO_URL='git@github.com:ericwooley/fastAI.git'
+FASTAI_SOURCE_DIR="$HOME/src/fastAI"
+```
+
+The latest fastAI code must be pushed to the configured repo URL before a
+remote machine can pull and build it.
 
 Unsupported operating systems get warnings with the tools to install manually.
 When `multipass` is on `PATH`, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm`
