@@ -27,9 +27,11 @@ Purpose:
 1. Verify the current directory is inside a Git repository.
 2. Run `git add --all`.
 3. Read the staged diff with `git diff --cached --no-ext-diff --no-color`.
-4. Ask `fastAI` for an imperative commit subject under 50 characters.
-5. Strip risky shell quoting and extra lines.
-6. Run `git commit -am "<message>"`.
+4. Write the commit prompt and diff to a temporary file so large diffs are not
+   passed as shell arguments.
+5. Ask `fastAI` for an imperative commit subject under 50 characters.
+6. Strip risky shell quoting and extra lines.
+7. Run `git commit -am "<message>"`.
 
 Environment defaults:
 
@@ -67,6 +69,9 @@ Notes:
 - Keep the OpenRouter key in `~/.zshrc_local`, not in this repo.
 - It commits all tracked and staged changes after `git add --all`.
 - It intentionally requests only the commit message from `fastAI`.
+- It sends the generated prompt through a temporary editor shim instead of a
+  positional argument, which avoids `argument list too long` errors on large
+  diffs.
 - It is an executable command, not a zsh function or alias.
 
 ## zshow

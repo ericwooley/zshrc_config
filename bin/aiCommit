@@ -10,21 +10,55 @@ fi
 
 git add --all || exit
 
-diff="$(git diff --cached --no-ext-diff --no-color)"
-if [[ -z "$diff" ]]; then
+if git diff --cached --quiet --exit-code --no-ext-diff; then
   echo "aiCommit: nothing to commit" >&2
   exit 1
 fi
 
-prompt=$'Write a concise git commit subject for this staged diff.\n\nRules:\n- Output only the commit message.\n- Use imperative mood.\n- Keep it under 50 characters.\n- No quotes, markdown, bullets, explanations, or trailing period.\n\nDiff:\n'"$diff"
+prompt_file="$(mktemp "${TMPDIR:-/tmp}/aiCommit-prompt.XXXXXX")" || exit
+editor_file="$(mktemp "${TMPDIR:-/tmp}/aiCommit-editor.XXXXXX")" || {
+  rm -f "$prompt_file"
+  exit 1
+}
+
+cleanup() {
+  rm -f "$prompt_file" "$editor_file"
+}
+trap cleanup EXIT INT TERM
+
+{
+  print -r -- "Write a concise git commit subject for this staged diff."
+  print -r -- ""
+  print -r -- "Rules:"
+  print -r -- "- Output only the commit message."
+  print -r -- "- Use imperative mood."
+  print -r -- "- Keep it under 50 characters."
+  print -r -- "- No quotes, markdown, bullets, explanations, or trailing period."
+  print -r -- ""
+  print -r -- "Diff:"
+  git diff --cached --no-ext-diff --no-color
+} >| "$prompt_file" || exit
+
+cat >| "$editor_file" <<'EOF' || exit
+#!/bin/sh
+if [ "$#" -lt 1 ]; then
+  echo "aiCommit editor shim: prompt path is required" >&2
+  exit 2
+fi
+
+cat "$FASTAI_PROMPT_FILE" > "$1"
+EOF
+chmod +x "$editor_file" || exit
 
 message="$(
-  fastAI \
+  FASTAI_PROMPT_FILE="$prompt_file" \
+  VISUAL="$editor_file" \
+  EDITOR="$editor_file" \
+    fastAI \
     --provider "${FASTAI_DEFAULT_PROVIDER:-openrouter}" \
     --model "${FASTAI_DEFAULT_MODEL:-deepseek/deepseek-v4-flash}" \
     --permissions none \
-    --no-session \
-    "$prompt"
+    --no-session
 )" || exit
 
 message="${message%%$'\n'*}"
