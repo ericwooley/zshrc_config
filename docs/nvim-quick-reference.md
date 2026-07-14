@@ -207,6 +207,26 @@ Useful command:
 :LazyGit
 ```
 
+## Sessions
+
+Powered by persistence.nvim.
+
+| Key | Action |
+| --- | --- |
+| `<leader>qs` | Restore session for the current directory |
+| `<leader>qS` | Select session |
+| `<leader>ql` | Restore last session |
+| `<leader>qd` | Stop saving this session |
+
+Usual restore flow:
+
+```sh
+cd your/project
+nvim
+```
+
+Then press `Space q s`.
+
 ## Completion
 
 Powered by blink.cmp.

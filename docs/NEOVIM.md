@@ -273,10 +273,23 @@ Keymaps:
 
 | Key | Action |
 | --- | --- |
-| `<leader>qs` | Save session |
+| `<leader>qs` | Restore session for the current directory |
 | `<leader>qS` | Select session |
-| `<leader>ql` | Load last session |
+| `<leader>ql` | Restore last session |
 | `<leader>qd` | Stop session tracking |
+
+Usual restore flow:
+
+```sh
+cd your/project
+nvim
+```
+
+Then press:
+
+```text
+Space q s
+```
 
 ## Which-key
 
