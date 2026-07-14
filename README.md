@@ -13,7 +13,7 @@ about separately because it is only needed for the `vm*` helpers. Dependency
 setup also sets your login shell to `zsh` when needed. Core tools include:
 
 ```text
-zsh git curl tmux nvim fzf ripgrep zoxide eza starship antidote glow lazygit go fastAI n node multipass
+zsh git curl tmux nvim fzf ripgrep lsof zoxide eza starship antidote glow lazygit go fastAI n node multipass
 ```
 
 ### OpenRouter Key

@@ -490,25 +490,25 @@ install_deps() {
       return 1
     fi
 
-    brew install antidote eza fzf git glow go lazygit neovim ripgrep starship tmux zoxide zsh
+    brew install antidote eza fzf git glow go lazygit lsof neovim ripgrep starship tmux zoxide zsh
   elif [ "$uname_s" = "Linux" ]; then
     if command -v apt-get >/dev/null 2>&1; then
       run_apt update
-      run_apt install -y bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
+      run_apt install -y bash ca-certificates curl fzf git golang-go gpg gzip lsof ripgrep tar tmux zsh
       install_neovim_linux_tarball
       install_eza_apt
       install_glow
       install_lazygit
     else
       echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
-      echo "install.sh: install zsh git curl go tmux fzf ripgrep zoxide eza starship glow lazygit fastAI multipass manually" >&2
+      echo "install.sh: install zsh git curl go tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI multipass manually" >&2
       if ! install_neovim_linux_tarball; then
         echo "install.sh: warning: Neovim tarball install failed; install Neovim manually" >&2
       fi
     fi
   else
     echo "install.sh: unsupported OS for automatic dependency install" >&2
-    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep zoxide eza starship glow lazygit fastAI multipass manually" >&2
+    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI multipass manually" >&2
   fi
 
   install_zoxide

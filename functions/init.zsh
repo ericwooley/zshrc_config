@@ -5,6 +5,7 @@
 source "$ZSHRC_CONFIG_DIR/functions/mkcd.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/resetmouse.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/killport.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dnuke.zsh"

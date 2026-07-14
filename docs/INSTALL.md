@@ -79,13 +79,13 @@ dated backup name is used instead.
 On macOS, the installer expects Homebrew and can install:
 
 ```text
-antidote eza fzf git glow go lazygit multipass neovim ripgrep starship tmux zoxide zsh
+antidote eza fzf git glow go lazygit lsof multipass neovim ripgrep starship tmux zoxide zsh
 ```
 
 On Ubuntu/Debian, the installer uses apt for stable dependencies:
 
 ```text
-bash ca-certificates curl fzf git golang-go gpg gzip ripgrep tar tmux zsh
+bash ca-certificates curl fzf git golang-go gpg gzip lsof ripgrep tar tmux zsh
 ```
 
 It also handles Neovim from the official stable Linux tarball, eza, zoxide,

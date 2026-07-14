@@ -183,6 +183,7 @@ Function files live in:
 - `mkcd.zsh`
 - `resetmouse.zsh`
 - `tmr.zsh`
+- `killport.zsh`
 - `dstop.zsh`
 - `dclean.zsh`
 - `dnuke.zsh`
@@ -217,6 +218,7 @@ Current load order:
 source "$ZSHRC_CONFIG_DIR/functions/mkcd.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/resetmouse.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/killport.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dnuke.zsh"
@@ -298,6 +300,27 @@ Examples:
 tmr
 tmr work
 tmr api
+```
+
+### `functions/killport.zsh`
+
+Public function:
+
+```zsh
+killport <port>
+```
+
+Purpose:
+
+- find the process listening on a TCP port with `lsof`
+- print the matching listener details
+- send `TERM`, then `KILL` if the process is still alive after a short wait
+- validate that the port is a number from `1` to `65535`
+
+Example:
+
+```sh
+killport 18080
 ```
 
 ### `functions/dstop.zsh`
