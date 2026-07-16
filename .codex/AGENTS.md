@@ -347,3 +347,7 @@ This mixes calculation, environment access, client construction, and network I/O
 - Favor deterministic tests. Control time, randomness, concurrency, and external state.
 - Add regression tests for bugs before or alongside fixes.
 - If test setup becomes complex, consider whether the production code has too many responsibilities.
+
+# Important Rules
+
+Never merge a PR unless I explicitly tell you too. You can and should commit frequently, you may push to update a PR or whatever if the context allows, but do NOT MERGE THINGS, unless I explicitly tell you too.
