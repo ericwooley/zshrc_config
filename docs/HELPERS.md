@@ -74,6 +74,43 @@ Notes:
   diffs.
 - It is an executable command, not a zsh function or alias.
 
+## zshpush
+
+Path:
+
+```text
+~/.zshrc_config/bin/zshpush
+```
+
+Purpose:
+
+1. Open `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` as the managed config repo.
+2. If that repo has dirty files, run `aiCommit` from inside it.
+3. Push the current branch.
+4. If the branch has no upstream, push to `origin/<branch>` and set upstream.
+
+Dependencies:
+
+- `git`
+- `aiCommit`
+- [`ericwooley/fastAI`](https://github.com/ericwooley/fastAI), through `aiCommit`
+- `OPENROUTER_API_KEY` should be set outside this repo.
+
+Usage:
+
+```sh
+zshpush
+```
+
+Notes:
+
+- This is meant for publishing dotfile changes from any current directory.
+- It commits all dirty files in `~/.zshrc_config`, including untracked files,
+  because `aiCommit` runs `git add --all`.
+- If there are no dirty files, it still runs `git push` so already-created
+  local commits can be uploaded.
+- It is an executable command, not a zsh function or alias.
+
 ## zshow
 
 Path:

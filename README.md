@@ -52,7 +52,7 @@ If that backup already exists, a dated backup name is used instead.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
 - **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.
-- **AI helpers**: `aiCommit` for short commit messages and `zshow` for asking questions about this setup.
+- **AI helpers**: `aiCommit` for short commit messages, `zshpush` for publishing dotfile changes, and `zshow` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
 - **TigerVNC helper**: `setup-tight-vnc.sh` configures an XFCE TigerVNC desktop for SSH-tunneled, localhost-only access.
 - **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell; `zsh_install_hourly_update_cron` can check for config updates hourly; `nvim_install_stable_update_cron` can keep the Linux Neovim tarball current.
@@ -97,7 +97,7 @@ of this repo.
 - Ctrl-Left/Ctrl-Right word movement in the shell
 - directory jumping with zoxide
 - Starship prompt support
-- `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zsh_install_hourly_update_cron`, `nvim_install_stable_update_cron`, Multipass VM helpers, Docker cleanup helpers, and utility aliases
+- `mkcd`, `tmr`, `resetmouse`, `zshsetup`, `zshupdate`, `zshpush`, `zsh_install_hourly_update_cron`, `nvim_install_stable_update_cron`, Multipass VM helpers, Docker cleanup helpers, and utility aliases
 
 Read more in [docs/ZSH.md](docs/ZSH.md) and [docs/HELPERS.md](docs/HELPERS.md).
 
