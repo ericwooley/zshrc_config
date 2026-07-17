@@ -350,4 +350,6 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Important Rules
 
-Never merge a PR unless I explicitly tell you too. You can and should commit frequently, you may push to update a PR or whatever if the context allows, but do NOT MERGE THINGS, unless I explicitly tell you too.
+- Never merge a PR unless I explicitly tell you too. You can and should commit frequently, you may push to update a PR or whatever if the context allows, but do NOT MERGE THINGS, unless I explicitly tell you too.
+- Do not start a CODEX SECURITY SCAN unless i explicitly ask for a codex security scan. Sometimes i ask you to check for security of something. That means i want you to investigate it manually, not a codex security scan.
+
