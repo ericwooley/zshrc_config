@@ -163,6 +163,7 @@ Language support targets:
 - TypeScript/JavaScript
 - Python
 - Go
+- JSON / JSONC
 
 LSP configuration lives in:
 
@@ -185,6 +186,7 @@ Expected language-server binaries:
 | TypeScript / JavaScript | `typescript-language-server` |
 | Python | `pyright-langserver` |
 | Go | `gopls` |
+| JSON / JSONC | `vscode-json-language-server` |
 
 TypeScript also needs the global npm `typescript` package. The config points
 `typescript-language-server` at global `typescript/lib/tsserver.js` so it does
@@ -195,6 +197,12 @@ Install the TypeScript LSP pair with:
 
 ```sh
 npm install -g typescript typescript-language-server
+```
+
+Install the JSON LSP with:
+
+```sh
+npm install -g vscode-langservers-extracted
 ```
 
 If your `tsserver.js` lives somewhere unusual, set this in `~/.zshrc_local`:

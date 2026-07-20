@@ -86,7 +86,7 @@ Useful commands:
 
 ## LSP
 
-Configured for TypeScript/JavaScript, Python, and Go.
+Configured for TypeScript/JavaScript, Python, Go, and JSON/JSONC.
 
 LSP starts automatically when you open supported files if the language server is
 installed globally and available on `PATH`.
@@ -114,11 +114,18 @@ Expected language server binaries:
 | TypeScript / JavaScript | `typescript-language-server` |
 | Python | `pyright-langserver` |
 | Go | `gopls` |
+| JSON / JSONC | `vscode-json-language-server` |
 
 TypeScript also needs the global npm `typescript` package:
 
 ```sh
 npm install -g typescript typescript-language-server
+```
+
+JSON LSP comes from:
+
+```sh
+npm install -g vscode-langservers-extracted
 ```
 
 The config passes global `typescript/lib/tsserver.js` to the LSP. To override
@@ -260,6 +267,7 @@ These need to exist on `PATH` for the full setup to work:
 ```text
 typescript-language-server
 typescript
+vscode-json-language-server
 pyright-langserver
 gopls
 biome
