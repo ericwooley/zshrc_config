@@ -595,35 +595,6 @@ link_managed_path() {
   echo "install.sh: linked $label to $target_path"
 }
 
-hardlink_managed_file() {
-  source_path="$1"
-  target_path="$2"
-  label="$3"
-
-  if [ ! -f "$source_path" ]; then
-    echo "install.sh: warning: missing $label source at $source_path" >&2
-    return 0
-  fi
-
-  mkdir -p "$(dirname "$target_path")"
-
-  if [ -e "$target_path" ] || [ -L "$target_path" ]; then
-    if [ "$source_path" -ef "$target_path" ] 2>/dev/null; then
-      echo "install.sh: $label already hard linked at $target_path"
-      return 0
-    fi
-    backup_existing_path "$target_path"
-  fi
-
-  if ln "$source_path" "$target_path" 2>/dev/null; then
-    echo "install.sh: hard linked $label to $target_path"
-  else
-    echo "install.sh: warning: hard link failed for $label; using symlink" >&2
-    ln -s "$source_path" "$target_path"
-    echo "install.sh: linked $label to $target_path"
-  fi
-}
-
 install_configs() {
   mkdir -p "$HOME/.config"
   link_managed_path "$repo_dir" "$config_dir" "zsh config"
@@ -633,11 +604,11 @@ install_configs() {
   fi
 
   if [ -f "$repo_dir/.config/starship.toml" ]; then
-    hardlink_managed_file "$repo_dir/.config/starship.toml" "$HOME/.config/starship.toml" "Starship config"
+    link_managed_path "$repo_dir/.config/starship.toml" "$HOME/.config/starship.toml" "Starship config"
   fi
 
   if [ -f "$repo_dir/.codex/AGENTS.md" ]; then
-    hardlink_managed_file "$repo_dir/.codex/AGENTS.md" "$HOME/.codex/AGENTS.md" "Codex global AGENTS.md"
+    link_managed_path "$repo_dir/.codex/AGENTS.md" "$HOME/.codex/AGENTS.md" "Codex global AGENTS.md"
   fi
 
   if [ -f "$repo_dir/.tmux.conf" ]; then

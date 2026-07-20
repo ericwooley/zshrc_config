@@ -49,8 +49,8 @@ When config installation is accepted, these paths are managed:
 
 `~/.zshrc_config` is the repo checkout. `~/.tmux.conf` and `~/.config/nvim`
 are symlinked from that repo when their source files are present.
-`~/.config/starship.toml` and `~/.codex/AGENTS.md` are hard linked from the repo
-when the filesystem allows it, with a symlink fallback.
+`~/.config/starship.toml` and `~/.codex/AGENTS.md` are symlinked from the repo
+so they keep following the managed paths after Git pulls replace files.
 
 The managed `~/.zshrc` stays intentionally small:
 

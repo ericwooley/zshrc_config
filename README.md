@@ -47,8 +47,8 @@ If that backup already exists, a dated backup name is used instead.
 ## What You Get
 
 - **zsh**: Antidote-managed plugins, fast completions, flexible aliases, and one-function-per-file helpers.
-- **Starship**: versioned prompt config hard linked into `~/.config/starship.toml`.
-- **Codex instructions**: global `~/.codex/AGENTS.md` hard linked from this repo.
+- **Starship**: versioned prompt config symlinked into `~/.config/starship.toml`.
+- **Codex instructions**: global `~/.codex/AGENTS.md` symlinked from this repo.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
 - **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.
@@ -79,8 +79,8 @@ These paths are linked from that repo when present:
 
 ```text
 ~/.tmux.conf -> ~/.zshrc_config/.tmux.conf
-~/.config/starship.toml => ~/.zshrc_config/.config/starship.toml
-~/.codex/AGENTS.md => ~/.zshrc_config/.codex/AGENTS.md
+~/.config/starship.toml -> ~/.zshrc_config/.config/starship.toml
+~/.codex/AGENTS.md -> ~/.zshrc_config/.codex/AGENTS.md
 ~/.config/nvim -> ~/.zshrc_config/.config/nvim
 ```
 

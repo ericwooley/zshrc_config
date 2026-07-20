@@ -1,4 +1,47 @@
 # Pull the managed zsh config repo and reload the current shell.
+_zshupdate_symlink_managed_file() {
+  local source_path="$1"
+  local target_path="$2"
+  local label="$3"
+
+  if [[ ! -f "$source_path" ]]; then
+    return 0
+  fi
+
+  mkdir -p "${target_path:h}" || return
+
+  if [[ -L "$target_path" ]]; then
+    local current_target
+    current_target="$(readlink "$target_path" || true)"
+    if [[ "$current_target" == "$source_path" ]]; then
+      return 0
+    fi
+  fi
+
+  if [[ -e "$target_path" || -L "$target_path" ]]; then
+    local backup_path="${target_path}_backup_$(date +%Y%m%d_%H%M%S).bak"
+    echo "zshupdate: backing up stale $label at $target_path to $backup_path"
+    mv "$target_path" "$backup_path" || return
+  fi
+
+  ln -s "$source_path" "$target_path" || return
+  echo "zshupdate: linked $label to $target_path"
+}
+
+_zshupdate_refresh_managed_links() {
+  local config_dir="$1"
+
+  _zshupdate_symlink_managed_file \
+    "$config_dir/.config/starship.toml" \
+    "$HOME/.config/starship.toml" \
+    "Starship config"
+
+  _zshupdate_symlink_managed_file \
+    "$config_dir/.codex/AGENTS.md" \
+    "$HOME/.codex/AGENTS.md" \
+    "Codex global AGENTS.md"
+}
+
 zshupdate() {
   if (( $# != 0 )); then
     echo "usage: zshupdate" >&2
@@ -31,6 +74,7 @@ zshupdate() {
 
   echo "zshupdate: pulling $config_dir"
   git -C "$config_dir" pull --ff-only || return
+  _zshupdate_refresh_managed_links "$config_dir" || return
 
   if [[ -x "$config_dir/install.sh" || -r "$config_dir/install.sh" ]]; then
     local answer
