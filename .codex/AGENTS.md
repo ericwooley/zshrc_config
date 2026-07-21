@@ -354,3 +354,4 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not start a CODEX SECURITY SCAN unless i explicitly ask for a codex security scan. Sometimes i ask you to check for security of something. That means i want you to investigate it manually, not a codex security scan.
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - On comments and interactions in gh, prefix your comment with `AI: <whatever comment you want to make>` so I can tell which comments are from you
+- Whenever you are fixing a bug, use red green testing
