@@ -355,3 +355,9 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - On comments and interactions in gh, prefix your comment with `AI: <whatever comment you want to make>` so I can tell which comments are from you
 - Whenever you are fixing a bug, use red green testing
+
+# Reviewing your code
+
+- When you are done and ready to push, or create a PR, first have claude review your code with `claude -p --model claude-opus-5 "<your prompt>"`. Tell it to be adversarial to you, and to call you out when you overdo things, or make amatuer mistakes, like testing that code was removed, and doing more than was requested. Make sure the agent has enough information to know the original ask from me. Don't paraphrase, give claude the exact instructions i gave you.
+- When you are doing design tasks, ask claude for ideas in `tmp/prototypes/<my idea>`. Tell it to create ui prototypes in pure html, which you can choose between and use the code from. claude is much better at UI than you are. `claude -p --model claude-opus-5 "<your prompt>"`. When in doubt, ask me which prototype result I like more. 
+
