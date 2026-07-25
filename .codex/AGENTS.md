@@ -436,7 +436,7 @@ This mixes calculation, environment access, client construction, and network I/O
 <base branch, intended scope, tests run, red-green evidence when applicable,
 and unresolved concerns>
 CLAUDE_TASK_CONTEXT_EOF
-  } | claude -p --model claude-opus-5 \
+  } | claude -p --model claude-sonnet-5 \
     "$claude_session_flag" "$claude_session_id" \
     --permission-mode dontAsk \
     --allowedTools \
@@ -507,7 +507,7 @@ codex -a never exec --ephemeral -m gpt-5.5 -s read-only -
 
 <existing UI context, relevant constraints, and unresolved design choices>
 CLAUDE_PROTOTYPE_CONTEXT_EOF
-  } | claude -p --model claude-opus-5 \
+  } | claude -p --model claude-sonnet-5 \
     "$claude_session_flag" "$claude_session_id" \
     --permission-mode dontAsk \
     --allowedTools \
