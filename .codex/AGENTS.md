@@ -374,13 +374,47 @@ This mixes calculation, environment access, client construction, and network I/O
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
+- Use exactly one Claude session for the lifespan of each Codex conversation.
+  When the conversation first needs Claude, generate one UUID with
+  `uuidgen | tr '[:upper:]' '[:lower:]'` and remember that exact value. Use
+  `--session-id <uuid>` for the first successful Claude request. Use
+  `--resume <uuid>` for every later Claude request in the same Codex
+  conversation, including when switching between code review and prototype
+  work. Do not generate a second UUID or reuse the UUID in another Codex
+  conversation.
+- A Claude usage or quota failure does not advance this lifecycle. If no Claude
+  request has succeeded yet, keep using `--session-id` when Claude becomes
+  available. If Claude reports that the UUID is already in use, switch to
+  `--resume` with that same UUID instead of generating a new one. If a previous
+  request succeeded, keep using `--resume`. The Codex fallback does not create
+  or resume the Claude session.
 - Compose the reusable prompt and task context through stdin using the command
   shape below. Add narrowly scoped `--allowedTools` entries for the project's
   test commands when Claude should rerun them.
+- If Claude explicitly reports that its account is out of usage or quota, do
+  not skip the review. Rerun the identical assembled prompt with GPT-5.5 through
+  the Codex fallback shown below. Use the fallback only for usage or quota
+  exhaustion, not for review findings, permission failures, or other command
+  errors. In the final summary, quote the exact Claude usage or quota error and
+  state that GPT-5.5 performed the fallback review instead of Claude.
+- The installed Codex CLI version verified for this workflow
+  (`0.146.0-alpha.3.1`) uses `codex exec` for non-interactive stdin. Its `-p`
+  flag selects a configuration profile, so do not use `codex -p` for this
+  fallback.
 
 ```sh
 (
   claude_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/code-review.md"
+  claude_session_id="<UUID generated once for this Codex conversation>"
+  claude_session_flag="<--session-id for the first Claude request; --resume afterward>"
+
+  case "$claude_session_flag" in
+    --session-id|--resume) ;;
+    *)
+      printf 'Set claude_session_flag to --session-id or --resume\n' >&2
+      exit 1
+      ;;
+  esac
 
   if [ ! -r "$claude_prompt_file" ]; then
     printf 'Claude review prompt not found: %s\n' "$claude_prompt_file" >&2
@@ -403,6 +437,7 @@ This mixes calculation, environment access, client construction, and network I/O
 and unresolved concerns>
 CLAUDE_TASK_CONTEXT_EOF
   } | claude -p --model claude-opus-5 \
+    "$claude_session_flag" "$claude_session_id" \
     --permission-mode dontAsk \
     --allowedTools \
       'Read' \
@@ -418,6 +453,13 @@ CLAUDE_TASK_CONTEXT_EOF
 )
 ```
 
+For a Claude usage or quota failure, keep the review prompt assembly unchanged
+and replace the complete `claude ...` pipeline command with:
+
+```sh
+codex -a never exec --ephemeral -m gpt-5.5 -s read-only -
+```
+
 - When you are doing design tasks, use
   `.codex/prompts/ui-prototypes.md` with the write-scoped pattern below. Include
   the exact original request and the same `tmp/prototypes/<idea>` destination in
@@ -428,7 +470,17 @@ CLAUDE_TASK_CONTEXT_EOF
 ```sh
 (
   claude_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/ui-prototypes.md"
+  claude_session_id="<same UUID used throughout this Codex conversation>"
+  claude_session_flag="<--session-id for the first Claude request; --resume afterward>"
   prototype_dir="tmp/prototypes/<idea>"
+
+  case "$claude_session_flag" in
+    --session-id|--resume) ;;
+    *)
+      printf 'Set claude_session_flag to --session-id or --resume\n' >&2
+      exit 1
+      ;;
+  esac
 
   if [ ! -r "$claude_prompt_file" ]; then
     printf 'Claude prototype prompt not found: %s\n' "$claude_prompt_file" >&2
@@ -456,6 +508,7 @@ CLAUDE_TASK_CONTEXT_EOF
 <existing UI context, relevant constraints, and unresolved design choices>
 CLAUDE_PROTOTYPE_CONTEXT_EOF
   } | claude -p --model claude-opus-5 \
+    "$claude_session_flag" "$claude_session_id" \
     --permission-mode dontAsk \
     --allowedTools \
       'Read' \
@@ -463,4 +516,15 @@ CLAUDE_PROTOTYPE_CONTEXT_EOF
       'Glob' \
       "Edit(./${prototype_dir}/**)"
 )
+```
+
+For a Claude usage or quota failure during prototype generation, keep the
+prototype prompt content unchanged except for converting the `Prototype
+directory` field and any repository paths in the agent notes to absolute paths.
+Replace the complete `claude ...` pipeline command with the command below.
+`-C "$prototype_dir"` makes the prototype directory the fallback workspace;
+keep all requested writes there.
+
+```sh
+codex -a never exec --ephemeral -C "$prototype_dir" -m gpt-5.5 -s workspace-write -
 ```
