@@ -181,6 +181,7 @@ plugins*.txt                    Antidote plugin lists
 .config/nvim/                   Neovim config
 .config/starship.toml           Starship prompt config
 .codex/AGENTS.md                global Codex instructions
+.codex/prompts/                 reusable Claude review and design prompts
 .tmux.conf                      tmux config
 .githooks/pre-commit            gitleaks pre-commit hook
 ```

@@ -359,6 +359,108 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Reviewing your code
 
-- When you are done and ready to push, or create a PR, first have claude review your code with `claude -p --model claude-opus-5 "<your prompt>"`. Tell it to be adversarial to you, and to call you out when you overdo things, or make amatuer mistakes, like testing that code was removed, and doing more than was requested. Make sure the agent has enough information to know the original ask from me. Don't paraphrase, give claude the exact instructions i gave you. It should also review all copy you write. All language should be customer/consumer centric and not leak business logic or technical requirements. It also shouldn't say what it doesn't do which is a weird quirk you should not do.
-- When you are doing design tasks, ask claude for ideas in `tmp/prototypes/<my idea>`. Tell it to create ui prototypes in pure html, which you can choose between and use the code from. claude is much better at UI than you are. `claude -p --model claude-opus-5 "<your prompt>"`. When in doubt, ask me which prototype result I like more. 
+- When you are done and ready to push or create a PR, first have Claude review
+  the code. Use `.codex/prompts/code-review.md`, or
+  `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
+  from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
+  working in any repository.
+- Append the exact instructions I gave you under `Original user request
+  (verbatim)`. Do not paraphrase them. Add only concrete task-specific context
+  that helps Claude inspect the right changes, such as the base branch, intended
+  scope, tests run, and unresolved concerns. For bug fixes, include the exact
+  test command, the failing output from before the fix, and the passing output
+  after the fix.
+- The reusable prompts already require review of all copy as
+  customer/consumer-centric language that does not leak business logic or
+  technical requirements and does not describe what the product does not do.
+  Write copy this way yourself; do not rely on the review to catch it.
+- Compose the reusable prompt and task context through stdin using the command
+  shape below. Add narrowly scoped `--allowedTools` entries for the project's
+  test commands when Claude should rerun them.
 
+```sh
+(
+  claude_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/code-review.md"
+
+  if [ ! -r "$claude_prompt_file" ]; then
+    printf 'Claude review prompt not found: %s\n' "$claude_prompt_file" >&2
+    exit 1
+  fi
+
+  {
+    cat "$claude_prompt_file"
+    cat <<'CLAUDE_TASK_CONTEXT_EOF'
+
+## Task-specific context
+
+### Original user request (verbatim)
+
+<exact instructions from the user>
+
+### Agent notes
+
+<base branch, intended scope, tests run, red-green evidence when applicable,
+and unresolved concerns>
+CLAUDE_TASK_CONTEXT_EOF
+  } | claude -p --model claude-opus-5 \
+    --permission-mode dontAsk \
+    --allowedTools \
+      'Read' \
+      'Grep' \
+      'Glob' \
+      'Bash(git status *)' \
+      'Bash(git diff *)' \
+      'Bash(git log *)' \
+      'Bash(git show *)' \
+      'Bash(git rev-parse *)' \
+      'Bash(git merge-base *)' \
+      'Bash(git branch --show-current)'
+)
+```
+
+- When you are doing design tasks, use
+  `.codex/prompts/ui-prototypes.md` with the write-scoped pattern below. Include
+  the exact original request and the same `tmp/prototypes/<idea>` destination in
+  the appended context and `prototype_dir`. Review the resulting pure HTML
+  options before using any of them. When in doubt, ask me which prototype I
+  prefer.
+
+```sh
+(
+  claude_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/ui-prototypes.md"
+  prototype_dir="tmp/prototypes/<idea>"
+
+  if [ ! -r "$claude_prompt_file" ]; then
+    printf 'Claude prototype prompt not found: %s\n' "$claude_prompt_file" >&2
+    exit 1
+  fi
+
+  mkdir -p "$prototype_dir" || exit 1
+
+  {
+    cat "$claude_prompt_file"
+    cat <<'CLAUDE_PROTOTYPE_CONTEXT_EOF'
+
+## Task-specific context
+
+### Original user request (verbatim)
+
+<exact instructions from the user>
+
+### Prototype directory
+
+<exact tmp/prototypes/<idea> path matching prototype_dir>
+
+### Agent notes
+
+<existing UI context, relevant constraints, and unresolved design choices>
+CLAUDE_PROTOTYPE_CONTEXT_EOF
+  } | claude -p --model claude-opus-5 \
+    --permission-mode dontAsk \
+    --allowedTools \
+      'Read' \
+      'Grep' \
+      'Glob' \
+      "Edit(./${prototype_dir}/**)"
+)
+```
