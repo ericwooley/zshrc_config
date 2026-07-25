@@ -152,6 +152,92 @@ configure_timezone() {
   done
 }
 
+find_homebrew() {
+  if command -v brew >/dev/null 2>&1; then
+    command -v brew
+    return 0
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      for homebrew_path in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+        if [ -x "$homebrew_path" ]; then
+          printf '%s\n' "$homebrew_path"
+          return 0
+        fi
+      done
+      ;;
+    Linux)
+      if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+        printf '%s\n' /home/linuxbrew/.linuxbrew/bin/brew
+        return 0
+      fi
+      ;;
+  esac
+
+  return 1
+}
+
+activate_homebrew() {
+  homebrew_path=$(find_homebrew) || return 1
+  homebrew_environment=$("$homebrew_path" shellenv) || return 1
+  eval "$homebrew_environment"
+  command -v brew >/dev/null 2>&1
+}
+
+install_homebrew() {
+  if activate_homebrew; then
+    return 0
+  fi
+
+  case "$(uname -s)" in
+    Darwin|Linux) ;;
+    *)
+      echo "install.sh: Homebrew installation is only supported on macOS and Linux" >&2
+      return 1
+      ;;
+  esac
+
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "install.sh: curl is required to install Homebrew" >&2
+    return 1
+  fi
+
+  if [ ! -x /bin/bash ]; then
+    echo "install.sh: /bin/bash is required to install Homebrew" >&2
+    return 1
+  fi
+
+  homebrew_tmp_dir=$(mktemp -d)
+  homebrew_installer="$homebrew_tmp_dir/install.sh"
+  homebrew_install_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+
+  echo "install.sh: installing Homebrew"
+  if ! curl -fsSL "$homebrew_install_url" -o "$homebrew_installer"; then
+    echo "install.sh: failed to download the Homebrew installer" >&2
+    rm -f "$homebrew_installer"
+    rmdir "$homebrew_tmp_dir"
+    return 1
+  fi
+
+  if ! /bin/bash "$homebrew_installer"; then
+    echo "install.sh: Homebrew installation failed" >&2
+    rm -f "$homebrew_installer"
+    rmdir "$homebrew_tmp_dir"
+    return 1
+  fi
+
+  rm -f "$homebrew_installer"
+  rmdir "$homebrew_tmp_dir"
+
+  if ! activate_homebrew; then
+    echo "install.sh: Homebrew was installed but brew could not be added to PATH" >&2
+    return 1
+  fi
+
+  echo "install.sh: Homebrew is ready"
+}
+
 install_starship() {
   if ! command -v starship >/dev/null 2>&1 && command -v curl >/dev/null 2>&1; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
@@ -253,10 +339,6 @@ ensure_go_for_tools() {
   fi
 }
 
-ensure_go_for_fastai() {
-  ensure_go_for_tools
-}
-
 install_go_binary() {
   binary_name="$1"
   module_path="$2"
@@ -279,45 +361,13 @@ install_go_binary() {
 }
 
 install_fastai() {
-  if ! ensure_go_for_fastai; then
-    echo "install.sh: warning: skipped fastAI install because Go 1.24.x is unavailable" >&2
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "install.sh: warning: skipped fastAI install because Homebrew is unavailable" >&2
     return 0
   fi
 
-  if ! command -v git >/dev/null 2>&1; then
-    echo "install.sh: warning: git is required to install fastAI from the latest source" >&2
-    return 0
-  fi
-
-  mkdir -p "$HOME/.local/bin"
-  fastai_repo_url="${FASTAI_REPO_URL:-https://github.com/ericwooley/fastAI.git}"
-  fastai_source_dir="${FASTAI_SOURCE_DIR:-$HOME/.local/src/fastAI}"
-
-  echo "install.sh: installing fastAI into $HOME/.local/bin"
-  echo "install.sh: fastAI source: $fastai_repo_url"
-
-  if [ -d "$fastai_source_dir/.git" ]; then
-    echo "install.sh: updating fastAI source at $fastai_source_dir"
-    git -C "$fastai_source_dir" pull --ff-only
-  else
-    if [ -e "$fastai_source_dir" ] || [ -L "$fastai_source_dir" ]; then
-      echo "install.sh: warning: $fastai_source_dir exists but is not a git repo; skipping fastAI install" >&2
-      return 0
-    fi
-
-    mkdir -p "$(dirname "$fastai_source_dir")"
-    echo "install.sh: cloning fastAI into $fastai_source_dir"
-    git clone "$fastai_repo_url" "$fastai_source_dir"
-  fi
-
-  if [ -x "$fastai_source_dir/scripts/install.sh" ]; then
-    (cd "$fastai_source_dir" && FASTAI_INSTALL_DIR="$HOME/.local/bin" ./scripts/install.sh)
-  elif [ -r "$fastai_source_dir/scripts/install.sh" ] && command -v bash >/dev/null 2>&1; then
-    (cd "$fastai_source_dir" && FASTAI_INSTALL_DIR="$HOME/.local/bin" bash ./scripts/install.sh)
-  else
-    echo "install.sh: warning: fastAI installer not found; falling back to go install @latest" >&2
-    GOBIN="$HOME/.local/bin" go install github.com/ericwooley/fastAI/cmd/fastAI@latest
-  fi
+  echo "install.sh: installing fastAI with Homebrew"
+  brew install ericwooley/apps/fastai
 }
 
 install_antidote() {
@@ -485,21 +535,19 @@ install_deps() {
   uname_s=$(uname -s)
 
   if [ "$uname_s" = "Darwin" ]; then
-    if ! command -v brew >/dev/null 2>&1; then
-      echo "install.sh: Homebrew is required on macOS" >&2
-      return 1
-    fi
-
+    install_homebrew
     brew install antidote eza fzf git glow go lazygit lsof neovim ripgrep starship tmux zoxide zsh
   elif [ "$uname_s" = "Linux" ]; then
     if command -v apt-get >/dev/null 2>&1; then
       run_apt update
-      run_apt install -y bash ca-certificates curl fzf git golang-go gpg gzip lsof ripgrep tar tmux zsh
+      run_apt install -y bash build-essential ca-certificates curl file fzf git golang-go gpg gzip lsof procps ripgrep tar tmux zsh
+      install_homebrew
       install_neovim_linux_tarball
       install_eza_apt
       install_glow
       install_lazygit
     else
+      install_homebrew
       echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
       echo "install.sh: install zsh git curl go tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI multipass manually" >&2
       if ! install_neovim_linux_tarball; then
@@ -629,17 +677,23 @@ install_configs() {
   regenerate_antidote_files
 }
 
-if confirm "Install dependencies for this machine?"; then
-  install_deps
-fi
+main() {
+  if confirm "Install Homebrew and dependencies for this machine?"; then
+    install_deps
+  fi
 
-if confirm "Configure system timezone?"; then
-  configure_timezone
-fi
+  if confirm "Configure system timezone?"; then
+    configure_timezone
+  fi
 
-if confirm "Install shell, tmux, Starship, and Neovim config into your home directory?"; then
-  install_configs
-  echo "install.sh: installed. Open a new shell or run: source ~/.zshrc"
-else
-  echo "install.sh: skipped config install"
+  if confirm "Install shell, tmux, Starship, and Neovim config into your home directory?"; then
+    install_configs
+    echo "install.sh: installed. Open a new shell or run: source ~/.zshrc"
+  else
+    echo "install.sh: skipped config install"
+  fi
+}
+
+if [ "${ZSHRC_INSTALL_SOURCE_ONLY:-0}" != "1" ]; then
+  main
 fi

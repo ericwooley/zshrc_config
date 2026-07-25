@@ -23,6 +23,7 @@ The config root is:
 
 ```text
 options.zsh
+homebrew.zsh
 plugins.zsh
 completions.zsh
 keybindings.zsh
@@ -40,6 +41,13 @@ directory navigation options.
 
 One notable behavior is directory navigation without typing `cd` first. Typing a
 directory name, `..`, or similar directory path changes into it.
+
+## Homebrew
+
+`homebrew.zsh` runs before plugin loading. It detects Homebrew on `PATH` or in
+the supported macOS and Linux prefixes, then loads `brew shellenv`. This makes
+Homebrew-installed commands available in managed zsh sessions, including on
+Linux where `/home/linuxbrew/.linuxbrew/bin` is not normally on `PATH`.
 
 ## Plugins
 

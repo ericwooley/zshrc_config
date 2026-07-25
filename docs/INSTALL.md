@@ -31,8 +31,8 @@ From the repo root:
 ./install.sh
 ```
 
-The installer asks before installing dependencies, configuring the system
-timezone, and linking config into the home directory.
+The installer asks before installing Homebrew and other dependencies,
+configuring the system timezone, and linking config into the home directory.
 
 ## What Gets Installed
 
@@ -76,22 +76,28 @@ dated backup name is used instead.
 
 ## Dependency Install
 
-On macOS, the installer expects Homebrew and can install:
+On macOS and Linux, the installer first installs Homebrew with its official
+installer when `brew` is not already available. It uses Homebrew's supported
+default prefix for the current platform and makes `brew` available to the
+current install process and future managed zsh sessions.
+
+On macOS, Homebrew installs:
 
 ```text
-antidote eza fzf git glow go lazygit lsof multipass neovim ripgrep starship tmux zoxide zsh
+antidote eza fastAI fzf git glow go lazygit lsof multipass neovim ripgrep starship tmux zoxide zsh
 ```
 
-On Ubuntu/Debian, the installer uses apt for stable dependencies:
+On Ubuntu/Debian, the installer continues to use apt for stable dependencies
+and the packages needed by Homebrew:
 
 ```text
-bash ca-certificates curl fzf git golang-go gpg gzip lsof ripgrep tar tmux zsh
+bash build-essential ca-certificates curl file fzf git golang-go gpg gzip lsof procps ripgrep tar tmux zsh
 ```
 
 It also handles Neovim from the official stable Linux tarball, eza, zoxide,
 starship, Go 1.24.x when the packaged Go is too old, `glow` and `lazygit` into
-`~/.local/bin` when they are missing, `fastAI` into `~/.local/bin`, `n`, Node
-LTS, and Antidote.
+`~/.local/bin` when they are missing, `fastAI` from Homebrew, `n`, Node LTS, and
+Antidote.
 
 After dependency installation, the installer sets the current user's default
 login shell to `zsh` with `chsh` when it is not already set. Log out and back in
@@ -138,36 +144,15 @@ nvim_install_stable_update_cron
 
 That installs a marked root cron job that reruns the tarball installer daily.
 
-`fastAI` is installed from source so rerunning `install.sh` can pull new CLI
-features such as session history support. By default the installer clones or
-updates:
-
-```text
-~/.local/src/fastAI
-```
-
-from:
+`fastAI` is installed from its Homebrew tap:
 
 ```sh
-https://github.com/ericwooley/fastAI.git
+brew install ericwooley/apps/fastai
 ```
 
-Then it runs the fastAI repo installer with:
-
-```sh
-cd ~/.local/src/fastAI
-FASTAI_INSTALL_DIR="$HOME/.local/bin" ./scripts/install.sh
-```
-
-Override the source repo or checkout path with:
-
-```sh
-FASTAI_REPO_URL='https://github.com/ericwooley/fastAI.git'
-FASTAI_SOURCE_DIR="$HOME/src/fastAI"
-```
-
-The latest fastAI code must be pushed to the configured repo URL before a
-remote machine can pull and build it.
+On other Linux distributions, the installer still installs Homebrew when its
+`bash`, `curl`, and system prerequisites are already available, then warns that
+the remaining dependency bundle needs manual installation.
 
 Unsupported operating systems get warnings with the tools to install manually.
 When `multipass` is on `PATH`, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm`

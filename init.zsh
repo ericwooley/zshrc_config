@@ -3,6 +3,7 @@
 export ZSHRC_CONFIG_DIR="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
 
 source "$ZSHRC_CONFIG_DIR/options.zsh"
+source "$ZSHRC_CONFIG_DIR/homebrew.zsh"
 source "$ZSHRC_CONFIG_DIR/plugins.zsh"
 source "$ZSHRC_CONFIG_DIR/completions.zsh"
 source "$ZSHRC_CONFIG_DIR/keybindings.zsh"
