@@ -33,6 +33,8 @@ From the repo root:
 
 The installer asks before installing Homebrew and other dependencies,
 configuring the system timezone, and linking config into the home directory.
+If Homebrew setup fails, the installer reports the problem and continues to the
+timezone and config prompts so those steps remain available.
 
 ## What Gets Installed
 

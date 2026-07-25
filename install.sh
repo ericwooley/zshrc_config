@@ -152,30 +152,47 @@ configure_timezone() {
   done
 }
 
+homebrew_candidates_for_os() {
+  homebrew_root="${2:-}"
+
+  case "$1" in
+    Darwin)
+      printf '%s\n' "$homebrew_root/opt/homebrew/bin/brew" "$homebrew_root/usr/local/bin/brew"
+      ;;
+    Linux)
+      printf '%s\n' "$homebrew_root/home/linuxbrew/.linuxbrew/bin/brew"
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+find_homebrew_in_paths() {
+  homebrew_candidate_paths="$1"
+
+  while IFS= read -r homebrew_path; do
+    if [ -n "$homebrew_path" ] && [ -x "$homebrew_path" ]; then
+      printf '%s\n' "$homebrew_path"
+      return 0
+    fi
+  done <<EOF
+$homebrew_candidate_paths
+EOF
+
+  return 1
+}
+
+find_homebrew_for_os() {
+  homebrew_candidate_paths=$(homebrew_candidates_for_os "$1" "${2:-}") || return 1
+  find_homebrew_in_paths "$homebrew_candidate_paths"
+}
+
 find_homebrew() {
   if command -v brew >/dev/null 2>&1; then
     command -v brew
     return 0
   fi
 
-  case "$(uname -s)" in
-    Darwin)
-      for homebrew_path in /opt/homebrew/bin/brew /usr/local/bin/brew; do
-        if [ -x "$homebrew_path" ]; then
-          printf '%s\n' "$homebrew_path"
-          return 0
-        fi
-      done
-      ;;
-    Linux)
-      if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
-        printf '%s\n' /home/linuxbrew/.linuxbrew/bin/brew
-        return 0
-      fi
-      ;;
-  esac
-
-  return 1
+  find_homebrew_for_os "$(uname -s)"
 }
 
 activate_homebrew() {
@@ -236,6 +253,15 @@ install_homebrew() {
   fi
 
   echo "install.sh: Homebrew is ready"
+}
+
+prepare_homebrew_dependencies() {
+  if install_homebrew; then
+    return 0
+  fi
+
+  echo "install.sh: warning: Homebrew setup failed; continuing to timezone and config setup" >&2
+  return 1
 }
 
 install_starship() {
@@ -535,19 +561,20 @@ install_deps() {
   uname_s=$(uname -s)
 
   if [ "$uname_s" = "Darwin" ]; then
-    install_homebrew
-    brew install antidote eza fzf git glow go lazygit lsof neovim ripgrep starship tmux zoxide zsh
+    if prepare_homebrew_dependencies; then
+      brew install antidote eza fzf git glow go lazygit lsof neovim ripgrep starship tmux zoxide zsh
+    fi
   elif [ "$uname_s" = "Linux" ]; then
     if command -v apt-get >/dev/null 2>&1; then
       run_apt update
       run_apt install -y bash build-essential ca-certificates curl file fzf git golang-go gpg gzip lsof procps ripgrep tar tmux zsh
-      install_homebrew
+      prepare_homebrew_dependencies || :
       install_neovim_linux_tarball
       install_eza_apt
       install_glow
       install_lazygit
     else
-      install_homebrew
+      prepare_homebrew_dependencies || :
       echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
       echo "install.sh: install zsh git curl go tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI multipass manually" >&2
       if ! install_neovim_linux_tarball; then
