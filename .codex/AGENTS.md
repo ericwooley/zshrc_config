@@ -355,7 +355,7 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - If I previously asked you to open a PR and you opened it, treat my later feedback
   on that work as authorization to update the same open PR. Implement and test the
-  feedback, complete the Codex review process below, resolve its findings, then
+  feedback, complete the subagent review process below, resolve its findings, then
   commit and push the changes to the PR's branch without waiting for a separate
   request to update or push. Do not open a replacement PR or merge the existing PR
   unless I explicitly ask.
@@ -366,58 +366,31 @@ This mixes calculation, environment access, client construction, and network I/O
 # Reviewing your code
 
 - When you are done and ready to push, update an existing PR, or create a PR,
-  first have Codex review the code. Never use Claude for code review. Follow-up
-  changes based on my feedback to an open PR require a new Codex review before
-  each push. Use
+  first launch a dedicated code-review subagent. Do not use Claude or invoke the
+  Codex CLI for code review. Follow-up changes based on my feedback to an open
+  PR require a new subagent review before each push.
+- Tell the review subagent to read and follow
   `.codex/prompts/code-review.md`, or
   `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
   from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
   working in any repository.
-- Append the exact instructions I gave you under `Original user request
-  (verbatim)`. Do not paraphrase them. Add only concrete task-specific context
-  that helps Codex inspect the right changes, such as the base branch, intended
-  scope, tests run, and unresolved concerns. For bug fixes, include the exact
-  test command, the failing output from before the fix, and the passing output
-  after the fix.
+- Include the exact instructions I gave you in the subagent task under
+  `Original user request (verbatim)`. Do not paraphrase them. Add only concrete
+  task-specific context that helps the review subagent inspect the right changes,
+  such as the base branch, intended scope, tests run, and unresolved concerns.
+  For bug fixes, include the exact test command, the failing output from before
+  the fix, and the passing output after the fix.
+- Give the subagent a read-only review task. It may inspect the repository,
+  diff, and test results, and may rerun relevant tests, but it must not edit
+  files, commit, push, or make external changes. Wait for it to finish before
+  committing or pushing.
+- Resolve every actionable finding, rerun the relevant tests, and launch a new
+  review subagent against the updated work. Repeat until the reviewer returns a
+  `ready` verdict. Do not ask the review subagent to implement its own findings.
 - The reusable prompts already require review of all copy as
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
-- Compose the reusable prompt and task context through stdin using the command
-  shape below. Run the review before committing so `--uncommitted` covers the
-  complete proposed change.
-- The installed Codex CLI version verified for this workflow
-  (`0.146.0-alpha.3.1`) uses `codex exec review` for a read-only repository
-  review. Its `-p` flag selects a configuration profile, so do not use
-  `codex -p` for review prompts.
-
-```sh
-(
-  codex_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/code-review.md"
-
-  if [ ! -r "$codex_prompt_file" ]; then
-    printf 'Codex review prompt not found: %s\n' "$codex_prompt_file" >&2
-    exit 1
-  fi
-
-  {
-    cat "$codex_prompt_file"
-    cat <<'CODEX_TASK_CONTEXT_EOF'
-
-## Task-specific context
-
-### Original user request (verbatim)
-
-<exact instructions from the user>
-
-### Agent notes
-
-<base branch, intended scope, tests run, red-green evidence when applicable,
-and unresolved concerns>
-CODEX_TASK_CONTEXT_EOF
-  } | codex -a never exec review --uncommitted --ephemeral -
-)
-```
 
 # Designing with Claude
 
