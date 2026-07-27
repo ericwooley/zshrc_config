@@ -353,14 +353,22 @@ This mixes calculation, environment access, client construction, and network I/O
 - Never merge a PR unless I explicitly tell you too. You can and should commit frequently, you may push to update a PR or whatever if the context allows, but do NOT MERGE THINGS, unless I explicitly tell you too.
 - Do not start a CODEX SECURITY SCAN unless i explicitly ask for a codex security scan. Sometimes i ask you to check for security of something. That means i want you to investigate it manually, not a codex security scan.
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
+- If I previously asked you to open a PR and you opened it, treat my later feedback
+  on that work as authorization to update the same open PR. Implement and test the
+  feedback, complete the Claude review process below, resolve its findings, then
+  commit and push the changes to the PR's branch without waiting for a separate
+  request to update or push. Do not open a replacement PR or merge the existing PR
+  unless I explicitly ask.
 - On comments and interactions in gh, prefix your comment with `AI: <whatever comment you want to make>` so I can tell which comments are from you
 - Whenever you are fixing a bug, use red green testing
 - You are typically going to be logged into github as a second user that is not my primary account. A secondary account. You should never make changes or configure settings unless I tell you to. And even then, you probably can't. Tell me what settings to change and I'll do it. If I tell you to explicitly you may have access so check first.
 
 # Reviewing your code
 
-- When you are done and ready to push or create a PR, first have Claude review
-  the code. Use `.codex/prompts/code-review.md`, or
+- When you are done and ready to push, update an existing PR, or create a PR,
+  first have Claude review the code. Follow-up changes based on my feedback to
+  an open PR require a new review before each push. Use
+  `.codex/prompts/code-review.md`, or
   `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
   from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
   working in any repository.
@@ -438,7 +446,7 @@ and unresolved concerns>
 CLAUDE_TASK_CONTEXT_EOF
   } | claude -p --model claude-sonnet-5 \
     "$claude_session_flag" "$claude_session_id" \
-    --permission-mode dontAsk \
+    --permission-mode auto \
     --allowedTools \
       'Read' \
       'Grep' \
@@ -509,7 +517,7 @@ codex -a never exec --ephemeral -m gpt-5.5 -s read-only -
 CLAUDE_PROTOTYPE_CONTEXT_EOF
   } | claude -p --model claude-sonnet-5 \
     "$claude_session_flag" "$claude_session_id" \
-    --permission-mode dontAsk \
+    --permission-mode auto \
     --allowedTools \
       'Read' \
       'Grep' \
