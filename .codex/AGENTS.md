@@ -355,7 +355,7 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - If I previously asked you to open a PR and you opened it, treat my later feedback
   on that work as authorization to update the same open PR. Implement and test the
-  feedback, complete the Claude review process below, resolve its findings, then
+  feedback, complete the Codex review process below, resolve its findings, then
   commit and push the changes to the PR's branch without waiting for a separate
   request to update or push. Do not open a replacement PR or merge the existing PR
   unless I explicitly ask.
@@ -366,15 +366,16 @@ This mixes calculation, environment access, client construction, and network I/O
 # Reviewing your code
 
 - When you are done and ready to push, update an existing PR, or create a PR,
-  first have Claude review the code. Follow-up changes based on my feedback to
-  an open PR require a new review before each push. Use
+  first have Codex review the code. Never use Claude for code review. Follow-up
+  changes based on my feedback to an open PR require a new Codex review before
+  each push. Use
   `.codex/prompts/code-review.md`, or
   `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
   from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
   working in any repository.
 - Append the exact instructions I gave you under `Original user request
   (verbatim)`. Do not paraphrase them. Add only concrete task-specific context
-  that helps Claude inspect the right changes, such as the base branch, intended
+  that helps Codex inspect the right changes, such as the base branch, intended
   scope, tests run, and unresolved concerns. For bug fixes, include the exact
   test command, the failing output from before the fix, and the passing output
   after the fix.
@@ -382,56 +383,26 @@ This mixes calculation, environment access, client construction, and network I/O
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
-- Use exactly one Claude session for the lifespan of each Codex conversation.
-  When the conversation first needs Claude, generate one UUID with
-  `uuidgen | tr '[:upper:]' '[:lower:]'` and remember that exact value. Use
-  `--session-id <uuid>` for the first successful Claude request. Use
-  `--resume <uuid>` for every later Claude request in the same Codex
-  conversation, including when switching between code review and prototype
-  work. Do not generate a second UUID or reuse the UUID in another Codex
-  conversation.
-- A Claude usage or quota failure does not advance this lifecycle. If no Claude
-  request has succeeded yet, keep using `--session-id` when Claude becomes
-  available. If Claude reports that the UUID is already in use, switch to
-  `--resume` with that same UUID instead of generating a new one. If a previous
-  request succeeded, keep using `--resume`. The Codex fallback does not create
-  or resume the Claude session.
 - Compose the reusable prompt and task context through stdin using the command
-  shape below. Add narrowly scoped `--allowedTools` entries for the project's
-  test commands when Claude should rerun them.
-- If Claude explicitly reports that its account is out of usage or quota, do
-  not skip the review. Rerun the identical assembled prompt with GPT-5.5 through
-  the Codex fallback shown below. Use the fallback only for usage or quota
-  exhaustion, not for review findings, permission failures, or other command
-  errors. In the final summary, quote the exact Claude usage or quota error and
-  state that GPT-5.5 performed the fallback review instead of Claude.
+  shape below. Run the review before committing so `--uncommitted` covers the
+  complete proposed change.
 - The installed Codex CLI version verified for this workflow
-  (`0.146.0-alpha.3.1`) uses `codex exec` for non-interactive stdin. Its `-p`
-  flag selects a configuration profile, so do not use `codex -p` for this
-  fallback.
+  (`0.146.0-alpha.3.1`) uses `codex exec review` for a read-only repository
+  review. Its `-p` flag selects a configuration profile, so do not use
+  `codex -p` for review prompts.
 
 ```sh
 (
-  claude_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/code-review.md"
-  claude_session_id="<UUID generated once for this Codex conversation>"
-  claude_session_flag="<--session-id for the first Claude request; --resume afterward>"
+  codex_prompt_file="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}/.codex/prompts/code-review.md"
 
-  case "$claude_session_flag" in
-    --session-id|--resume) ;;
-    *)
-      printf 'Set claude_session_flag to --session-id or --resume\n' >&2
-      exit 1
-      ;;
-  esac
-
-  if [ ! -r "$claude_prompt_file" ]; then
-    printf 'Claude review prompt not found: %s\n' "$claude_prompt_file" >&2
+  if [ ! -r "$codex_prompt_file" ]; then
+    printf 'Codex review prompt not found: %s\n' "$codex_prompt_file" >&2
     exit 1
   fi
 
   {
-    cat "$claude_prompt_file"
-    cat <<'CLAUDE_TASK_CONTEXT_EOF'
+    cat "$codex_prompt_file"
+    cat <<'CODEX_TASK_CONTEXT_EOF'
 
 ## Task-specific context
 
@@ -443,30 +414,28 @@ This mixes calculation, environment access, client construction, and network I/O
 
 <base branch, intended scope, tests run, red-green evidence when applicable,
 and unresolved concerns>
-CLAUDE_TASK_CONTEXT_EOF
-  } | claude -p --model claude-sonnet-5 \
-    "$claude_session_flag" "$claude_session_id" \
-    --permission-mode auto \
-    --allowedTools \
-      'Read' \
-      'Grep' \
-      'Glob' \
-      'Bash(git status *)' \
-      'Bash(git diff *)' \
-      'Bash(git log *)' \
-      'Bash(git show *)' \
-      'Bash(git rev-parse *)' \
-      'Bash(git merge-base *)' \
-      'Bash(git branch --show-current)'
+CODEX_TASK_CONTEXT_EOF
+  } | codex -a never exec review --uncommitted --ephemeral -
 )
 ```
 
-For a Claude usage or quota failure, keep the review prompt assembly unchanged
-and replace the complete `claude ...` pipeline command with:
+# Designing with Claude
 
-```sh
-codex -a never exec --ephemeral -m gpt-5.5 -s read-only -
-```
+- Use Claude only for design and UI prototype work. Never use Claude for code
+  review.
+- Use exactly one Claude session for the lifespan of each Codex conversation.
+  When the conversation first needs Claude for design work, generate one UUID
+  with `uuidgen | tr '[:upper:]' '[:lower:]'` and remember that exact value.
+  Use `--session-id <uuid>` for the first successful Claude request. Use
+  `--resume <uuid>` for every later Claude design request in the same Codex
+  conversation. Do not generate a second UUID or reuse the UUID in another
+  Codex conversation.
+- A Claude usage or quota failure does not advance this lifecycle. If no Claude
+  request has succeeded yet, keep using `--session-id` when Claude becomes
+  available. If Claude reports that the UUID is already in use, switch to
+  `--resume` with that same UUID instead of generating a new one. If a previous
+  request succeeded, keep using `--resume`. The Codex prototype fallback does
+  not create or resume the Claude session.
 
 - When you are doing design tasks, use
   `.codex/prompts/ui-prototypes.md` with the write-scoped pattern below. Include
