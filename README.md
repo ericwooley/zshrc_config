@@ -49,7 +49,8 @@ If that backup already exists, a dated backup name is used instead.
 
 - **zsh**: Antidote-managed plugins, fast completions, flexible aliases, and one-function-per-file helpers.
 - **Starship**: versioned prompt config symlinked into `~/.config/starship.toml`.
-- **Codex instructions**: global `~/.codex/AGENTS.md` symlinked from this repo.
+- **Codex instructions**: global planning, checkpoint, and adversarial-review
+  rules symlinked from this repo into `~/.codex/AGENTS.md`.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
 - **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.
@@ -182,7 +183,7 @@ plugins*.txt                    Antidote plugin lists
 .config/nvim/                   Neovim config
 .config/starship.toml           Starship prompt config
 .codex/AGENTS.md                global Codex instructions
-.codex/prompts/                 reusable Claude review and design prompts
+.codex/prompts/                 reusable adversarial-review and UI design prompts
 .tmux.conf                      tmux config
 .githooks/pre-commit            gitleaks pre-commit hook
 ```

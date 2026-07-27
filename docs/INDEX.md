@@ -34,6 +34,6 @@ scripts/                        executable support scripts
 .config/nvim/                   Neovim config
 .config/starship.toml           Starship prompt config
 .codex/AGENTS.md                global Codex instructions
-.codex/prompts/                 reusable Claude review and design prompts
+.codex/prompts/                 reusable adversarial-review and UI design prompts
 .tmux.conf                      tmux config
 ```

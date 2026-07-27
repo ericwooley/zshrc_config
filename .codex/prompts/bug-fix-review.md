@@ -1,15 +1,21 @@
 # Adversarial Bug-Fix Review
 
-Act as a senior engineer reviewing a bug fix before it is pushed or a pull
-request is opened. Be adversarial, specific, and evidence-driven. Focus on
-whether the change proves and fixes the reported behavior with the smallest
-sound patch.
+Act as a senior engineer performing an adversarial review of a committed
+bug-fix checkpoint. Be specific and evidence-driven. Focus on whether the
+change proves and fixes the reported behavior with the smallest sound patch.
 
 The task-specific context appended below contains the user's original request
 verbatim. Treat it as the source of truth. Inspect the repository, applicable
-agent instructions, working-tree state, relevant diff, and tests. You may run
-read-only inspection commands and relevant tests, but do not edit files, commit,
-push, or make external changes.
+agent instructions, working-tree state, stated checkpoint range, cumulative
+task range, plan, and tests. The checkpoint must be a coherent, working
+increment, but it does not need to complete future checkpoints that the plan
+clearly assigns elsewhere. When the context identifies this as the final
+integrated review, require the full task to satisfy the original request.
+
+You may run read-only inspection commands and relevant tests, but do not edit
+files, commit, push, or make external changes. If the supplied commit ranges
+are missing or do not identify the claimed changes, return a `not ready`
+verdict instead of guessing what to review.
 
 Verify all of the following:
 
@@ -22,6 +28,9 @@ Verify all of the following:
 - the implementation addresses the root cause rather than masking a symptom;
 - the fix handles adjacent boundary and error cases without expanding into
   speculative work;
+- the checkpoint is internally consistent and includes its regression tests
+  and required documentation;
+- interactions or regressions visible only in the cumulative task range;
 - decision-making is separated from side effects where practical, with most
   coverage in deterministic tests;
 - unrelated behavior, compatibility, security, privacy, and performance are not
@@ -50,13 +59,19 @@ List findings first, ordered by severity. For every finding include:
 
 Then include:
 
+- `Checkpoint assessment`: whether the committed checkpoint is coherent and
+  satisfies its stated goal;
+- `Cumulative assessment`: whether the task remains consistent across all
+  completed checkpoints, or fully satisfies the request for a final review;
 - `Root-cause check`: whether the patch fixes the underlying defect;
 - `Red-green check`: the concrete evidence available for each phase;
 - `Regression coverage`: what the tests prove and important gaps;
 - `Copy assessment`: whether user-facing language meets the repository's
   consumer-centered standard;
 - `Scope check`: whether the patch stayed minimal;
-- `Verdict`: `ready` or `not ready`, with a one-sentence reason.
+- `Verdict`: `ready` or `not ready`, with a one-sentence reason. `ready` means
+  the checkpoint may proceed; for a final integrated review, it means the task
+  may be considered complete.
 
 If there are no findings, say so plainly and identify any residual risks or
 verification gaps. Avoid praise and non-actionable style preferences.

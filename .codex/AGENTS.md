@@ -354,39 +354,67 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not start a CODEX SECURITY SCAN unless i explicitly ask for a codex security scan. Sometimes i ask you to check for security of something. That means i want you to investigate it manually, not a codex security scan.
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - If I previously asked you to open a PR and you opened it, treat my later feedback
-  on that work as authorization to update the same open PR. Implement and test the
-  feedback, complete the subagent review process below, resolve its findings, then
-  commit and push the changes to the PR's branch without waiting for a separate
-  request to update or push. Do not open a replacement PR or merge the existing PR
-  unless I explicitly ask.
+  on that work as authorization to update the same open PR. Follow the plan,
+  checkpoint, commit, and subagent review process below, then push the changes to
+  the PR's branch without waiting for a separate request. Do not open a
+  replacement PR or merge the existing PR unless I explicitly ask.
 - On comments and interactions in gh, prefix your comment with `AI: <whatever comment you want to make>` so I can tell which comments are from you
 - Whenever you are fixing a bug, use red green testing
 - You are typically going to be logged into github as a second user that is not my primary account. A secondary account. You should never make changes or configure settings unless I tell you to. And even then, you probably can't. Tell me what settings to change and I'll do it. If I tell you to explicitly you may have access so check first.
 
-# Reviewing your code
+# Planning, checkpoints, and reviewing your code
 
-- When you are done and ready to push, update an existing PR, or create a PR,
-  first launch a dedicated code-review subagent. Do not use Claude or invoke the
-  Codex CLI for code review. Follow-up changes based on my feedback to an open
-  PR require a new subagent review before each push.
+- For every task that changes tracked files, create a working plan before
+  editing. Break the work into outcome-oriented checkpoints that can be
+  implemented, tested, committed, and reviewed as coherent units. Keep the plan
+  current as work progresses. A small task may have one checkpoint; do not
+  invent artificial checkpoints or split implementation from its tests and
+  required documentation.
+- Record the task's starting commit before making changes. At each checkpoint:
+  1. finish the checkpoint's implementation, tests, and required documentation;
+  2. run the relevant validation and inspect the complete diff and repository
+     status;
+  3. stage only the intended files and create a scoped checkpoint commit;
+  4. launch a dedicated code-review subagent to adversarially review both the
+     exact checkpoint commit range and its effect on the cumulative task; and
+  5. wait for a `ready` verdict before beginning the next checkpoint.
+- Do not include unrelated or pre-existing worktree changes in a checkpoint
+  commit. If the requested work cannot be isolated safely, stop and explain the
+  overlap instead of committing someone else's changes.
+- Do not use Claude or invoke the Codex CLI for code review.
 - Tell the review subagent to read and follow
   `.codex/prompts/code-review.md`, or
   `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
   from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
   working in any repository.
 - Include the exact instructions I gave you in the subagent task under
-  `Original user request (verbatim)`. Do not paraphrase them. Add only concrete
-  task-specific context that helps the review subagent inspect the right changes,
-  such as the base branch, intended scope, tests run, and unresolved concerns.
-  For bug fixes, include the exact test command, the failing output from before
-  the fix, and the passing output after the fix.
+  `Original user request (verbatim)`. Do not paraphrase them. Include the
+  current plan and checkpoint, the task-start commit, the exact checkpoint
+  commit range, the cumulative task range, validation performed, and unresolved
+  concerns. For bug fixes, also include the exact test command, the failing
+  output from before the fix, and the passing output after the fix.
 - Give the subagent a read-only review task. It may inspect the repository,
   diff, and test results, and may rerun relevant tests, but it must not edit
-  files, commit, push, or make external changes. Wait for it to finish before
-  committing or pushing.
-- Resolve every actionable finding, rerun the relevant tests, and launch a new
-  review subagent against the updated work. Repeat until the reviewer returns a
-  `ready` verdict. Do not ask the review subagent to implement its own findings.
+  files, commit, push, or make external changes.
+- Resolve every actionable finding yourself, rerun the relevant tests, and
+  create a new scoped fix commit. Launch a fresh review subagent against the
+  original checkpoint base through the new `HEAD`, as well as the cumulative
+  task range. Repeat this fix, commit, and re-review loop until the reviewer
+  returns a `ready` verdict. Do not ask the review subagent to implement its own
+  findings.
+- After every implementation checkpoint is ready, run one final integrated
+  adversarial review over the full task-start-to-`HEAD` range and the original
+  request. Treat final-review fixes as another checkpoint: test them, commit
+  them, and re-review until the integrated verdict is `ready`. The task is not
+  complete until this final review is ready and the relevant validation passes.
+  The last checkpoint review may also serve as the final integrated review when
+  its context explicitly says so and it covers the full task range.
+- Follow-up changes based on my feedback to an open PR use the same plan,
+  checkpoint, commit, and adversarial-review loop. Once the final integrated
+  review is ready, commit and push those changes to the existing PR branch
+  without waiting for a separate push request. Do not push any change that has
+  not passed the review loop, and do not open a replacement PR or merge unless
+  I explicitly ask.
 - The reusable prompts already require review of all copy as
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
