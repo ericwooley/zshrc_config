@@ -399,13 +399,17 @@ This mixes calculation, environment access, client construction, and network I/O
   supporting evidence for credentials, tokens, private keys, customer data, or
   other sensitive literals. If the original request contains any, stop and ask
   me for a redacted request; do not replicate the sensitive request to
-  subagents. Otherwise, include the exact instructions I gave you in the
-  subagent task under `Original user request (verbatim)`. Do not paraphrase
-  them. Include the current plan and checkpoint, the task-start commit, the
-  exact checkpoint commit range, the cumulative task range, validation
-  performed, and unresolved concerns. For bug fixes, also include the exact
-  test command, the failing output from before the fix, and the passing output
-  after the fix.
+  subagents. Sanitize all supporting evidence before every handoff, replacing
+  sensitive values with stable redaction markers while retaining the relevant
+  path, key name, detector, and impact. This includes validation evidence, run
+  instructions, unresolved concerns, and, for bug fixes, the exact test command
+  plus failing and passing output. Otherwise, include the exact instructions I
+  gave you in the subagent task under `Original user request (verbatim)`. Do
+  not paraphrase them. Include the current plan and checkpoint, the task-start
+  commit, the exact checkpoint commit range, the cumulative task range,
+  sanitized validation evidence, and sanitized unresolved concerns. For bug
+  fixes, also include the sanitized exact test command, failing output, and
+  passing output.
 - Give the subagent a review task that is read-only with respect to repository
   source and tracked files, commits, pushes, and production or shared external
   state. It may inspect the repository, run relevant tests, start disposable
@@ -464,9 +468,9 @@ This mixes calculation, environment access, client construction, and network I/O
   `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the absolute paths to the
   subagent; do not assume the current repository contains `.codex/prompts`.
   Give each the exact original request, plan, task-start commit, frozen task
-  range and `HEAD`, validation evidence, relevant run instructions, and
-  unresolved concerns. Tell it which numbered position it occupies in the
-  chosen review order.
+  range and `HEAD`, sanitized validation evidence, sanitized relevant run
+  instructions, and sanitized unresolved concerns. Tell it which numbered
+  position it occupies in the chosen review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
