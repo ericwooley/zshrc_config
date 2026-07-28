@@ -18,10 +18,10 @@ You may run read-only inspection commands and relevant tests, but do not edit
 the source repository, commit, push, change production or shared external
 state, or use real customer data. You may start local test services, write
 temporary files outside the repository, operate a local browser against a
-development environment, and create an isolated disposable VM when those
-actions produce relevant evidence. If the supplied commit ranges are missing
-or do not identify the claimed changes, return a `not ready` verdict instead
-of guessing what to review.
+development environment, and create a disposable VM when those actions produce
+relevant evidence. If the supplied commit ranges are missing or do not identify
+the claimed changes, return a `not ready` verdict instead of guessing what to
+review.
 
 ## Tool and disposable-VM use
 
@@ -38,12 +38,20 @@ source "$review_zsh_config_dir/functions/vmcreate.zsh"
 source "$review_zsh_config_dir/functions/vmrm.zsh"
 ```
 
-Use a VM only when isolation or another operating environment materially
-improves the review. Choose an explicit, unique `codex-review-...` name, first
-verify that it does not already exist, and record it. You may run
-`vmcreate <name> [image]` only for that new review VM. Afterward, run
-`vmrm <name>` only for the exact VM you created. Never reuse, purge, or remove
-a pre-existing VM. If cleanup fails, report the exact remaining VM name.
+Use a VM only when another operating environment or separation from the host
+runtime materially improves the review. `vmcreate` mounts `VM_SHARED_DIR`
+read-write into the guest and defaults it to the persistent
+`$HOME/vms/shared`; a review VM does not provide complete filesystem isolation
+or any network isolation for untrusted code.
+
+Choose and record an explicit, unique `codex-review-...` VM name and first
+verify that it does not already exist. Create and record a new empty temporary
+directory containing no credentials or user data, and pass it explicitly as
+`VM_SHARED_DIR` when running `vmcreate`. You may create only that new review VM.
+Afterward, run `vmrm <name>` only for the exact VM you created. Never reuse,
+purge, or remove a pre-existing VM. Inspect and safely clean up the exact
+temporary shared directory after the review; if either cleanup step fails,
+report the exact remaining VM name or directory.
 
 Review for:
 
@@ -87,6 +95,8 @@ List findings first, ordered by severity. For every finding include:
 
 Then include:
 
+- `Reviewed range`: the exact full commit range actually inspected;
+- `Reviewed HEAD`: the exact full commit identifier actually inspected;
 - `Checkpoint assessment`: whether the committed checkpoint is coherent and
   satisfies its stated goal;
 - `Cumulative assessment`: whether the task remains consistent across all

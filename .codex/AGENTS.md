@@ -385,10 +385,11 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not use Claude or invoke the Codex CLI for code review.
 - Tell the review subagent to read and follow
   `.codex/prompts/code-review.md`, or
-  `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
-  from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
-  working in any repository. The checkpoint reviewer must also read
-  `.codex/prompts/reviewers/senior-engineer.md`.
+  `.codex/prompts/bug-fix-review.md` when fixing a bug. The checkpoint reviewer
+  must also read `.codex/prompts/reviewers/senior-engineer.md`. Resolve both
+  prompt paths from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass their
+  absolute paths to the subagent so they are available while working in any
+  repository.
 - Include the exact instructions I gave you in the subagent task under
   `Original user request (verbatim)`. Do not paraphrase them. Include the
   current plan and checkpoint, the task-start commit, the exact checkpoint
@@ -414,7 +415,7 @@ This mixes calculation, environment access, client construction, and network I/O
 - Once all implementation checkpoints are individually `ready` and you believe
   the feature or request is complete, freeze the task range and run a final
   specialist group review before declaring the task done or pushing it.
-- The first group-review pass must use one fresh, read-only subagent for every
+- Every group-review pass must use one fresh, read-only subagent for every
   specialist role below. Run them sequentially, one at a time, and wait for
   each to finish. Choose and record the order by relevance to the actual risk,
   with the most relevant specialist first. The review lead is always last.
@@ -439,10 +440,13 @@ This mixes calculation, environment access, client construction, and network I/O
   - dependency, API, migration, or cross-component work:
     maintainability/integration first.
 - Every specialist subagent must read the applicable common review prompt and
-  its role prompt. Give each the exact original request, plan, task-start
-  commit, frozen task range and `HEAD`, validation evidence, relevant run
-  instructions, and unresolved concerns. Tell it which numbered position it
-  occupies in the chosen review order.
+  its role prompt. Resolve every common and role prompt from
+  `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the absolute paths to the
+  subagent; do not assume the current repository contains `.codex/prompts`.
+  Give each the exact original request, plan, task-start commit, frozen task
+  range and `HEAD`, validation evidence, relevant run instructions, and
+  unresolved concerns. Tell it which numbered position it occupies in the
+  chosen review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Give the review-lead subagent every specialist report
@@ -459,14 +463,20 @@ This mixes calculation, environment access, client construction, and network I/O
 - The group passes only when the review lead returns `ready` with no unresolved
   actionable findings. Do not use majority vote. Resolve accepted findings
   yourself, rerun relevant validation, and create a scoped fix checkpoint
-  commit. Then freeze the new `HEAD` and repeat the full specialist group,
-  including the review lead, so every verdict covers the same final code.
+  commit. Then freeze the new `HEAD` and repeat the full specialist group with
+  a fresh subagent for every role, including the review lead, so every verdict
+  covers the same final code without carrying conclusions from the earlier
+  pass.
 - You may skip the final specialist group only for a clearly trivial fix or
-  minor request. Record the reason in the plan and final response. The exemption
-  is not available for changes involving authentication, authorization,
-  security or privacy boundaries, persistent data or migrations, dependencies,
-  public APIs, deployment or CI, concurrency, user-facing behavior or copy, or
-  UI interactions. When uncertain, run the group.
+  minor request. Record the concrete low-risk reason and validation evidence in
+  the plan and final response. Treat changes involving authentication,
+  authorization, security or privacy boundaries, persistent data or migrations,
+  dependencies, public APIs, deployment or CI, concurrency, user-facing
+  behavior or copy, or UI interactions as presumptively nontrivial. A genuinely
+  minor localized correction, such as a typo-only label change with no behavior,
+  workflow, state, contract, or accessibility effect, may still use the
+  exemption when that reasoning is documented. Material changes in the listed
+  categories may not skip the group. When uncertain, run the group.
 - Follow-up changes based on my feedback to an open PR use the same plan,
   checkpoint, and group-review process. Once the final group review is `ready`,
   commit and push those changes to the existing PR branch without waiting for a

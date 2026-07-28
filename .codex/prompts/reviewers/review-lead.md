@@ -35,12 +35,15 @@ created for this review. The command is `vmrm`, not `vmremove`.
 
 Return:
 
-1. `Role coverage`: each specialist, its reviewed `HEAD`, and its verdict;
-2. `Accepted findings`: deduplicated and ordered by severity, with source
+1. `Reviewed range` and `Reviewed HEAD`: the exact frozen revision identifiers
+   the review lead inspected;
+2. `Role coverage`: each specialist, its exact reviewed range, reviewed `HEAD`,
+   and verdict; explicitly compare both revision fields across all reports;
+3. `Accepted findings`: deduplicated and ordered by severity, with source
    roles, exact evidence, failure mode, and smallest correction;
-3. `Rejected findings`: the source role and concrete reason each was rejected;
-4. `Verification gaps`: missing tools, environments, or runtime evidence;
-5. `Scope and completion`: whether the original request and plan are fully
+4. `Rejected findings`: the source role and concrete reason each was rejected;
+5. `Verification gaps`: missing tools, environments, or runtime evidence;
+6. `Scope and completion`: whether the original request and plan are fully
    satisfied; and
-6. `Verdict`: `ready` only when every role covered the same final code and no
+7. `Verdict`: `ready` only when every role covered the same final code and no
    accepted actionable finding remains; otherwise `not ready`.
