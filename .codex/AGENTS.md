@@ -396,9 +396,12 @@ This mixes calculation, environment access, client construction, and network I/O
   commit range, the cumulative task range, validation performed, and unresolved
   concerns. For bug fixes, also include the exact test command, the failing
   output from before the fix, and the passing output after the fix.
-- Give the subagent a read-only review task. It may inspect the repository,
-  diff, and test results, and may rerun relevant tests, but it must not edit
-  files, commit, push, or make external changes.
+- Give the subagent a review task that is read-only with respect to repository
+  source and tracked files, commits, pushes, and production or shared external
+  state. It may inspect the repository, run relevant tests, start disposable
+  local services, operate a browser against a development environment, write
+  temporary files outside the repository, and create and clean up a review VM
+  only under the applicable common prompt's safety rules.
 - Resolve every actionable finding yourself, rerun the relevant tests, and
   create a new scoped fix commit. Launch a fresh review subagent against the
   original checkpoint base through the new `HEAD`, as well as the cumulative
@@ -415,10 +418,11 @@ This mixes calculation, environment access, client construction, and network I/O
 - Once all implementation checkpoints are individually `ready` and you believe
   the feature or request is complete, freeze the task range and run a final
   specialist group review before declaring the task done or pushing it.
-- Every group-review pass must use one fresh, read-only subagent for every
-  specialist role below. Run them sequentially, one at a time, and wait for
-  each to finish. Choose and record the order by relevance to the actual risk,
-  with the most relevant specialist first. The review lead is always last.
+- Every group-review pass must use one fresh subagent for every specialist role
+  below, with the same source-repository and shared-state read-only boundary
+  defined above. Run them sequentially, one at a time, and wait for each to
+  finish. Choose and record the order by relevance to the actual risk, with the
+  most relevant specialist first. The review lead is always last.
   - Senior engineer:
     `.codex/prompts/reviewers/senior-engineer.md`
   - Product/project reviewer:
