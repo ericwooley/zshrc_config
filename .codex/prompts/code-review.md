@@ -45,13 +45,15 @@ read-write into the guest and defaults it to the persistent
 or any network isolation for untrusted code.
 
 Choose and record an explicit, unique `codex-review-...` VM name and first
-verify that it does not already exist. Create and record a new empty temporary
-directory containing no credentials or user data, and pass it explicitly as
-`VM_SHARED_DIR` when running `vmcreate`. You may create only that new review VM.
-Afterward, run `vmrm <name>` only for the exact VM you created. Never reuse,
-purge, or remove a pre-existing VM. Inspect and safely clean up the exact
-temporary shared directory after the review; if either cleanup step fails,
-report the exact remaining VM name or directory.
+verify that it does not already exist. Create and record two new empty temporary
+directories: one containing no credentials or user data for `VM_SHARED_DIR`,
+and one for `VM_CLOUD_INIT_ROOT`. Pass both variables explicitly when running
+`vmcreate` so the review does not write to the persistent default shared or
+cloud-init directories. You may create only that new review VM. Afterward, run
+`vmrm <name>` only for the exact VM you created. Never reuse, purge, or remove a
+pre-existing VM. Inspect and safely clean up both exact temporary directories
+after the review; if cleanup fails, report the exact remaining VM name,
+shared-directory path, or cloud-init-directory path.
 
 Review for:
 
