@@ -416,8 +416,13 @@ This mixes calculation, environment access, client construction, and network I/O
 # Final specialist group review
 
 - Once all implementation checkpoints are individually `ready` and you believe
-  the feature or request is complete, freeze the task range and run a final
-  specialist group review before declaring the task done or pushing it.
+  the feature or request is complete, commit every intended task change and
+  require no remaining uncommitted task changes or untracked task artifacts.
+  Record the exact full `HEAD` and repository status, then freeze the task range
+  and status at that revision. A task that started clean must be clean; unrelated
+  pre-existing changes may remain only when their recorded state is unchanged
+  and isolated from the task. Run a final specialist group review before
+  declaring the task done or pushing it.
 - Every group-review pass must use one fresh subagent for every specialist role
   below, with the same source-repository and shared-state read-only boundary
   defined above. Run them sequentially, one at a time, and wait for each to
@@ -471,6 +476,14 @@ This mixes calculation, environment access, client construction, and network I/O
   a fresh subagent for every role, including the review lead, so every verdict
   covers the same final code without carrying conclusions from the earlier
   pass.
+- Immediately after a `ready` lead verdict and before declaring completion or
+  pushing, verify that the current full `HEAD` still equals the frozen reviewed
+  `HEAD` and that the index and worktree status still exactly matches the frozen
+  status. A clean-start task must still be clean. Push only the commits covered
+  by that reviewed revision. If `HEAD` or repository status has drifted, commit
+  or otherwise resolve intentional task changes without disturbing unrelated
+  work, freeze the new revision and status, and rerun the complete group with
+  fresh subagents before delivery.
 - You may skip the final specialist group only for a clearly trivial fix or
   minor request. Record the concrete low-risk reason and validation evidence in
   the plan and final response. Treat changes involving authentication,
@@ -483,10 +496,11 @@ This mixes calculation, environment access, client construction, and network I/O
   categories may not skip the group. When uncertain, run the group.
 - Follow-up changes based on my feedback to an open PR use the same plan,
   checkpoint, and group-review process. Once the final group review is `ready`,
-  commit and push those changes to the existing PR branch without waiting for a
-  separate push request. Do not push any change that has not passed the required
-  review process, and do not open a replacement PR or merge unless I explicitly
-  ask.
+  verify the reviewed `HEAD` and clean repository state as described above,
+  then push only those already-reviewed commits to the existing PR branch
+  without waiting for a separate push request. Do not push any change that has
+  not passed the required review process, and do not open a replacement PR or
+  merge unless I explicitly ask.
 
 # Designing with Claude
 
