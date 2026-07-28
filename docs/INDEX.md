@@ -35,5 +35,6 @@ scripts/                        executable support scripts
 .config/starship.toml           Starship prompt config
 .codex/AGENTS.md                global Codex instructions
 .codex/prompts/                 reusable adversarial-review and UI design prompts
+.codex/prompts/reviewers/       role-specific specialist review prompts
 .tmux.conf                      tmux config
 ```

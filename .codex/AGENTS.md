@@ -355,9 +355,10 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - If I previously asked you to open a PR and you opened it, treat my later feedback
   on that work as authorization to update the same open PR. Follow the plan,
-  checkpoint, commit, and subagent review process below, then push the changes to
-  the PR's branch without waiting for a separate request. Do not open a
-  replacement PR or merge the existing PR unless I explicitly ask.
+  checkpoint, commit, checkpoint-review, and final group-review processes below,
+  then push the changes to the PR's branch without waiting for a separate
+  request. Do not open a replacement PR or merge the existing PR unless I
+  explicitly ask.
 - On comments and interactions in gh, prefix your comment with `AI: <whatever comment you want to make>` so I can tell which comments are from you
 - Whenever you are fixing a bug, use red green testing
 - You are typically going to be logged into github as a second user that is not my primary account. A secondary account. You should never make changes or configure settings unless I tell you to. And even then, you probably can't. Tell me what settings to change and I'll do it. If I tell you to explicitly you may have access so check first.
@@ -386,7 +387,8 @@ This mixes calculation, environment access, client construction, and network I/O
   `.codex/prompts/code-review.md`, or
   `.codex/prompts/bug-fix-review.md` when fixing a bug. Resolve the prompt path
   from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` so it is available while
-  working in any repository.
+  working in any repository. The checkpoint reviewer must also read
+  `.codex/prompts/reviewers/senior-engineer.md`.
 - Include the exact instructions I gave you in the subagent task under
   `Original user request (verbatim)`. Do not paraphrase them. Include the
   current plan and checkpoint, the task-start commit, the exact checkpoint
@@ -402,23 +404,75 @@ This mixes calculation, environment access, client construction, and network I/O
   task range. Repeat this fix, commit, and re-review loop until the reviewer
   returns a `ready` verdict. Do not ask the review subagent to implement its own
   findings.
-- After every implementation checkpoint is ready, run one final integrated
-  adversarial review over the full task-start-to-`HEAD` range and the original
-  request. Treat final-review fixes as another checkpoint: test them, commit
-  them, and re-review until the integrated verdict is `ready`. The task is not
-  complete until this final review is ready and the relevant validation passes.
-  The last checkpoint review may also serve as the final integrated review when
-  its context explicitly says so and it covers the full task range.
-- Follow-up changes based on my feedback to an open PR use the same plan,
-  checkpoint, commit, and adversarial-review loop. Once the final integrated
-  review is ready, commit and push those changes to the existing PR branch
-  without waiting for a separate push request. Do not push any change that has
-  not passed the review loop, and do not open a replacement PR or merge unless
-  I explicitly ask.
 - The reusable prompts already require review of all copy as
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
+
+# Final specialist group review
+
+- Once all implementation checkpoints are individually `ready` and you believe
+  the feature or request is complete, freeze the task range and run a final
+  specialist group review before declaring the task done or pushing it.
+- The first group-review pass must use one fresh, read-only subagent for every
+  specialist role below. Run them sequentially, one at a time, and wait for
+  each to finish. Choose and record the order by relevance to the actual risk,
+  with the most relevant specialist first. The review lead is always last.
+  - Senior engineer:
+    `.codex/prompts/reviewers/senior-engineer.md`
+  - Product/project reviewer:
+    `.codex/prompts/reviewers/product-project.md`
+  - Test/reliability engineer:
+    `.codex/prompts/reviewers/test-reliability.md`
+  - Maintainability/integration engineer:
+    `.codex/prompts/reviewers/maintainability-integration.md`
+  - Security specialist:
+    `.codex/prompts/reviewers/security.md`
+  - Designer/UX reviewer:
+    `.codex/prompts/reviewers/designer-ux.md`
+  - Review lead:
+    `.codex/prompts/reviewers/review-lead.md`
+- Examples of relevance ordering:
+  - authentication or authorization: security first;
+  - user-interface or interaction work: designer/UX first;
+  - test infrastructure or flaky behavior: test/reliability first;
+  - dependency, API, migration, or cross-component work:
+    maintainability/integration first.
+- Every specialist subagent must read the applicable common review prompt and
+  its role prompt. Give each the exact original request, plan, task-start
+  commit, frozen task range and `HEAD`, validation evidence, relevant run
+  instructions, and unresolved concerns. Tell it which numbered position it
+  occupies in the chosen review order.
+- Keep specialist reviews independent: do not give a specialist the earlier
+  specialists' reports, and do not change the code or reviewed `HEAD` between
+  specialist reviews. Give the review-lead subagent every specialist report
+  verbatim, the chosen ordering and rationale, and the same frozen task
+  context.
+- Reviewers must use the relevant tools available to them rather than limiting
+  themselves to a diff when runtime evidence is practical. This may include
+  repository inspection, focused tests, builds, linters, a local application,
+  browser or Chrome control, screenshots, and a disposable Multipass VM. The
+  role prompts define the expected tool use and VM safety rules. A tool or
+  environment limitation must be reported as an explicit verification gap.
+- This is a manual specialist review workflow. Do not start a Codex Security
+  Scan unless I explicitly ask for one.
+- The group passes only when the review lead returns `ready` with no unresolved
+  actionable findings. Do not use majority vote. Resolve accepted findings
+  yourself, rerun relevant validation, and create a scoped fix checkpoint
+  commit. Then freeze the new `HEAD` and repeat the full specialist group,
+  including the review lead, so every verdict covers the same final code.
+- You may skip the final specialist group only for a clearly trivial fix or
+  minor request. Record the reason in the plan and final response. The exemption
+  is not available for changes involving authentication, authorization,
+  security or privacy boundaries, persistent data or migrations, dependencies,
+  public APIs, deployment or CI, concurrency, user-facing behavior or copy, or
+  UI interactions. When uncertain, run the group.
+- Follow-up changes based on my feedback to an open PR use the same plan,
+  checkpoint, and group-review process. Once the final group review is `ready`,
+  commit and push those changes to the existing PR branch without waiting for a
+  separate push request. Do not push any change that has not passed the required
+  review process, and do not open a replacement PR or merge unless I explicitly
+  ask.
 
 # Designing with Claude
 
