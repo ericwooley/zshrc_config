@@ -371,7 +371,9 @@ This mixes calculation, environment access, client construction, and network I/O
   current as work progresses. A small task may have one checkpoint; do not
   invent artificial checkpoints or split implementation from its tests and
   required documentation.
-- Record the task's starting commit before making changes. At each checkpoint:
+- Before making changes, record the task's starting commit and exact index and
+  worktree status, including untracked files. Use that baseline to distinguish
+  unrelated pre-existing changes from task changes. At each checkpoint:
   1. finish the checkpoint's implementation, tests, and required documentation;
   2. run the relevant validation and inspect the complete diff and repository
      status;
@@ -496,11 +498,11 @@ This mixes calculation, environment access, client construction, and network I/O
   categories may not skip the group. When uncertain, run the group.
 - Follow-up changes based on my feedback to an open PR use the same plan,
   checkpoint, and group-review process. Once the final group review is `ready`,
-  verify the reviewed `HEAD` and clean repository state as described above,
-  then push only those already-reviewed commits to the existing PR branch
-  without waiting for a separate push request. Do not push any change that has
-  not passed the required review process, and do not open a replacement PR or
-  merge unless I explicitly ask.
+  verify the reviewed `HEAD` and unchanged frozen repository status as described
+  above, then push only those already-reviewed commits to the existing PR
+  branch without waiting for a separate push request. Do not push any change
+  that has not passed the required review process, and do not open a replacement
+  PR or merge unless I explicitly ask.
 
 # Designing with Claude
 
