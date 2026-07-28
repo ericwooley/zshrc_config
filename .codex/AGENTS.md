@@ -395,12 +395,17 @@ This mixes calculation, environment access, client construction, and network I/O
   prompt paths from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass their
   absolute paths to the subagent so they are available while working in any
   repository.
-- Include the exact instructions I gave you in the subagent task under
-  `Original user request (verbatim)`. Do not paraphrase them. Include the
-  current plan and checkpoint, the task-start commit, the exact checkpoint
-  commit range, the cumulative task range, validation performed, and unresolved
-  concerns. For bug fixes, also include the exact test command, the failing
-  output from before the fix, and the passing output after the fix.
+- Before handing context to any review subagent, check the original request and
+  supporting evidence for credentials, tokens, private keys, customer data, or
+  other sensitive literals. If the original request contains any, stop and ask
+  me for a redacted request; do not replicate the sensitive request to
+  subagents. Otherwise, include the exact instructions I gave you in the
+  subagent task under `Original user request (verbatim)`. Do not paraphrase
+  them. Include the current plan and checkpoint, the task-start commit, the
+  exact checkpoint commit range, the cumulative task range, validation
+  performed, and unresolved concerns. For bug fixes, also include the exact
+  test command, the failing output from before the fix, and the passing output
+  after the fix.
 - Give the subagent a review task that is read-only with respect to repository
   source and tracked files, commits, pushes, and production or shared external
   state. It may inspect the repository, run relevant tests, start disposable
@@ -464,15 +469,21 @@ This mixes calculation, environment access, client construction, and network I/O
   chosen review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
-  specialist reviews. Give the review-lead subagent every specialist report
-  verbatim, the chosen ordering and rationale, and the same frozen task
-  context.
+  specialist reviews. Sanitize every report before handing it to the review
+  lead: replace sensitive values from logs, scanner output, or findings with
+  stable redaction markers while retaining the relevant path, key name,
+  detector, and impact. Give the review-lead subagent every sanitized
+  specialist report verbatim, the chosen ordering and rationale, and the same
+  frozen task context.
 - Reviewers must use the relevant tools available to them rather than limiting
   themselves to a diff when runtime evidence is practical. This may include
   repository inspection, focused tests, builds, linters, a local application,
   browser or Chrome control, screenshots, and a disposable Multipass VM. The
-  role prompts define the expected tool use and VM safety rules. A tool or
-  environment limitation must be reported as an explicit verification gap.
+  common prompt's trust and containment gate applies before any runtime tool
+  use; host credentials, shared state, and personal browser sessions must not
+  be traded for additional evidence. The role prompts define the expected tool
+  use and VM safety rules. A tool or environment limitation must be reported as
+  an explicit verification gap.
 - This is a manual specialist review workflow. Do not start a Codex Security
   Scan unless I explicitly ask for one.
 - The group passes only when the review lead returns `ready` with no unresolved

@@ -29,6 +29,21 @@ Use the tools available to you that fit the assigned role. Prefer direct
 runtime evidence over inference when it is safe and practical. Do not claim a
 tool-backed check that you did not perform.
 
+Before executing any repository-controlled script, test, build, package
+manager, dependency hook, or startup command, inspect what will run and
+classify it as trusted, unknown, or untrusted. Run trusted commands on the host
+only when their side effects fit the read-only boundary above. Run unknown or
+untrusted code only in a credential-free sandbox or disposable VM with
+appropriate network restrictions; a VM by itself is not network containment.
+If suitable containment is unavailable, do not execute the command and report
+the resulting verification gap.
+
+Bind local review services to loopback only. Browser inspection must use an
+isolated review profile without personal sessions, extensions, credentials, or
+customer data. Put all host-side temporary writes beneath one recorded,
+task-specific directory created with `mktemp -d`; inspect and clean up that
+exact directory afterward, or report the remaining path.
+
 The managed zsh configuration provides `vmcreate` and `vmrm`; the removal
 command is `vmrm`, not `vmremove`. In a shell where they are not already loaded:
 
@@ -45,15 +60,16 @@ read-write into the guest and defaults it to the persistent
 or any network isolation for untrusted code.
 
 Choose and record an explicit, unique `codex-review-...` VM name and first
-verify that it does not already exist. Create and record two new empty temporary
-directories: one containing no credentials or user data for `VM_SHARED_DIR`,
-and one for `VM_CLOUD_INIT_ROOT`. Pass both variables explicitly when running
-`vmcreate` so the review does not write to the persistent default shared or
-cloud-init directories. You may create only that new review VM. Afterward, run
-`vmrm <name>` only for the exact VM you created. Never reuse, purge, or remove a
-pre-existing VM. Inspect and safely clean up both exact temporary directories
-after the review; if cleanup fails, report the exact remaining VM name,
-shared-directory path, or cloud-init-directory path.
+verify that it does not already exist. Beneath the recorded task-specific
+temporary root, create two new empty directories: one containing no credentials
+or user data for `VM_SHARED_DIR`, and one for `VM_CLOUD_INIT_ROOT`. Pass both
+variables explicitly when running `vmcreate` so the review does not write to
+the persistent default shared or cloud-init directories. You may create only
+that new review VM. Afterward, run `vmrm <name>` only for the exact VM you
+created. Never reuse, purge, or remove a pre-existing VM. Inspect and safely
+clean up the exact task-specific temporary root after the review; if cleanup
+fails, report the exact remaining VM name, shared-directory path,
+cloud-init-directory path, or task-root path.
 
 Verify all of the following:
 
@@ -84,6 +100,10 @@ evidence. Call out unnecessary abstractions, excessive mocks, broad cleanup, and
 any work beyond the original request. If tool permissions prevent you from
 rerunning a test, say so explicitly in the `Red-green check` and treat any
 supplied output as unverified evidence.
+
+Never reproduce credentials, tokens, private keys, customer data, or other
+sensitive literal values in findings or tool evidence. Use stable redaction
+markers and identify only the relevant path, key name, detector, and impact.
 
 ## Response format
 

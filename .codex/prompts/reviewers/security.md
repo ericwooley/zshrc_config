@@ -29,7 +29,8 @@ runtime probes when relevant and available. For authentication or session
 changes, exercise a local test application with browser or Chrome control when
 practical. Never attack production, shared systems, or real user data. Use a
 disposable VM when potentially risky tooling or isolation materially improves
-the evidence.
+the evidence. Follow the common prompt's execution trust gate and redact every
+sensitive literal from findings and tool evidence.
 
 The common review prompt documents the available `vmcreate` and `vmrm`
 helpers, including how to load them and safely remove only a uniquely named VM
