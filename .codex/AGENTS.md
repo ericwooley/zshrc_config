@@ -427,7 +427,7 @@ This mixes calculation, environment access, client construction, and network I/O
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
 
-# Final specialist group review
+# Final top-three specialist group review
 
 - Once all implementation checkpoints are individually `ready` and you believe
   the feature or request is complete, commit every intended task change and
@@ -438,11 +438,17 @@ This mixes calculation, environment access, client construction, and network I/O
   their content-sensitive state still matches the task-start baseline and is
   isolated from the task. Run a final specialist group review before declaring
   the task done or pushing it.
-- Every group-review pass must use one fresh subagent for every specialist role
-  below, with the same source-repository and shared-state read-only boundary
-  defined above. Run them sequentially, one at a time, and wait for each to
-  finish. Choose and record the order by relevance to the actual risk, with the
-  most relevant specialist first. The review lead is always last.
+- Every group-review pass must select exactly the three most relevant
+  specialist roles from the candidate list below and use one fresh subagent for
+  each selected role, with the same source-repository and shared-state
+  read-only boundary defined above. The review lead is separate and does not
+  count toward the three. Run the selected specialists sequentially, one at a
+  time, and wait for each to finish, then run the review lead last. Choose and
+  record the order by relevance to the actual risk, with the most relevant
+  specialist first. Record why each role was selected and why each of the other
+  three roles was omitted. Do not default to the same trio for every task.
+  Candidate specialist roles:
+
   - Senior engineer:
     `.codex/prompts/reviewers/senior-engineer.md`
   - Product/project reviewer:
@@ -455,30 +461,31 @@ This mixes calculation, environment access, client construction, and network I/O
     `.codex/prompts/reviewers/security.md`
   - Designer/UX reviewer:
     `.codex/prompts/reviewers/designer-ux.md`
-  - Review lead:
-    `.codex/prompts/reviewers/review-lead.md`
+
+  The review lead always uses:
+  `.codex/prompts/reviewers/review-lead.md`
 - Examples of relevance ordering:
   - authentication or authorization: security first;
   - user-interface or interaction work: designer/UX first;
   - test infrastructure or flaky behavior: test/reliability first;
   - dependency, API, migration, or cross-component work:
     maintainability/integration first.
-- Every specialist subagent must read the applicable common review prompt and
-  its role prompt. Resolve every common and role prompt from
+- Every selected specialist subagent must read the applicable common review
+  prompt and its role prompt. Resolve every common and role prompt from
   `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the absolute paths to the
   subagent; do not assume the current repository contains `.codex/prompts`.
   Give each the exact original request, plan, task-start commit, frozen task
   range and `HEAD`, sanitized validation evidence, sanitized relevant run
   instructions, and sanitized unresolved concerns. Tell it which numbered
-  position it occupies in the chosen review order.
+  position it occupies in the selected three-role review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
   lead: replace sensitive values from logs, scanner output, or findings with
   stable redaction markers while retaining the relevant path, key name,
-  detector, and impact. Give the review-lead subagent every sanitized
-  specialist report verbatim, the chosen ordering and rationale, and the same
-  frozen task context.
+  detector, and impact. Give the review-lead subagent all three sanitized
+  specialist reports verbatim, the selection, ordering, and omission rationale,
+  and the same frozen task context.
 - Reviewers must use the relevant tools available to them rather than limiting
   themselves to a diff when runtime evidence is practical. This may include
   repository inspection, focused tests, builds, linters, a local application,
@@ -493,10 +500,11 @@ This mixes calculation, environment access, client construction, and network I/O
 - The group passes only when the review lead returns `ready` with no unresolved
   actionable findings. Do not use majority vote. Resolve accepted findings
   yourself, rerun relevant validation, and create a scoped fix checkpoint
-  commit. Then freeze the new `HEAD` and repeat the full specialist group with
-  a fresh subagent for every role, including the review lead, so every verdict
-  covers the same final code without carrying conclusions from the earlier
-  pass.
+  commit. Then freeze the new `HEAD`, reselect the three most relevant roles for
+  the revised risk profile, and repeat the full top-three specialist group with
+  a fresh subagent for each selected role and a fresh review lead, so every
+  verdict covers the same final code without carrying conclusions from the
+  earlier pass.
 - Immediately after a `ready` lead verdict and before declaring completion or
   pushing, verify that the current full `HEAD` still equals the frozen reviewed
   `HEAD` and that a new content-sensitive index/worktree snapshot exactly
@@ -505,7 +513,7 @@ This mixes calculation, environment access, client construction, and network I/O
   only the commits covered by that reviewed revision. If `HEAD` or repository
   state has drifted, commit or otherwise resolve intentional task changes
   without disturbing unrelated work, freeze the new revision and snapshot, and
-  rerun the complete group with fresh subagents before delivery.
+  rerun the complete top-three group with fresh subagents before delivery.
 - You may skip the final specialist group only for a clearly trivial fix or
   minor request. Record the concrete low-risk reason and validation evidence in
   the plan and final response. Treat changes involving authentication,
