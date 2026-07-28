@@ -371,9 +371,12 @@ This mixes calculation, environment access, client construction, and network I/O
   current as work progresses. A small task may have one checkpoint; do not
   invent artificial checkpoints or split implementation from its tests and
   required documentation.
-- Before making changes, record the task's starting commit and exact index and
-  worktree status, including untracked files. Use that baseline to distinguish
-  unrelated pre-existing changes from task changes. At each checkpoint:
+- Before making changes, record the task's starting commit and a
+  content-sensitive snapshot of the index and worktree, including untracked
+  files. The snapshot must detect content and file-type changes, not only paths
+  and status codes; for example, hash staged and unstaged binary diffs plus
+  untracked path, type, and content evidence. Use that baseline to distinguish
+  and preserve unrelated pre-existing changes. At each checkpoint:
   1. finish the checkpoint's implementation, tests, and required documentation;
   2. run the relevant validation and inspect the complete diff and repository
      status;
@@ -420,11 +423,12 @@ This mixes calculation, environment access, client construction, and network I/O
 - Once all implementation checkpoints are individually `ready` and you believe
   the feature or request is complete, commit every intended task change and
   require no remaining uncommitted task changes or untracked task artifacts.
-  Record the exact full `HEAD` and repository status, then freeze the task range
-  and status at that revision. A task that started clean must be clean; unrelated
-  pre-existing changes may remain only when their recorded state is unchanged
-  and isolated from the task. Run a final specialist group review before
-  declaring the task done or pushing it.
+  Record the exact full `HEAD` and a new content-sensitive repository snapshot,
+  then freeze the task range and snapshot at that revision. A task that started
+  clean must be clean; unrelated pre-existing changes may remain only when
+  their content-sensitive state still matches the task-start baseline and is
+  isolated from the task. Run a final specialist group review before declaring
+  the task done or pushing it.
 - Every group-review pass must use one fresh subagent for every specialist role
   below, with the same source-repository and shared-state read-only boundary
   defined above. Run them sequentially, one at a time, and wait for each to
@@ -480,12 +484,13 @@ This mixes calculation, environment access, client construction, and network I/O
   pass.
 - Immediately after a `ready` lead verdict and before declaring completion or
   pushing, verify that the current full `HEAD` still equals the frozen reviewed
-  `HEAD` and that the index and worktree status still exactly matches the frozen
-  status. A clean-start task must still be clean. Push only the commits covered
-  by that reviewed revision. If `HEAD` or repository status has drifted, commit
-  or otherwise resolve intentional task changes without disturbing unrelated
-  work, freeze the new revision and status, and rerun the complete group with
-  fresh subagents before delivery.
+  `HEAD` and that a new content-sensitive index/worktree snapshot exactly
+  matches the frozen snapshot. A clean-start task must still be clean, and
+  pre-existing dirty content must still match the task-start baseline. Push
+  only the commits covered by that reviewed revision. If `HEAD` or repository
+  state has drifted, commit or otherwise resolve intentional task changes
+  without disturbing unrelated work, freeze the new revision and snapshot, and
+  rerun the complete group with fresh subagents before delivery.
 - You may skip the final specialist group only for a clearly trivial fix or
   minor request. Record the concrete low-risk reason and validation evidence in
   the plan and final response. Treat changes involving authentication,
@@ -498,11 +503,11 @@ This mixes calculation, environment access, client construction, and network I/O
   categories may not skip the group. When uncertain, run the group.
 - Follow-up changes based on my feedback to an open PR use the same plan,
   checkpoint, and group-review process. Once the final group review is `ready`,
-  verify the reviewed `HEAD` and unchanged frozen repository status as described
-  above, then push only those already-reviewed commits to the existing PR
-  branch without waiting for a separate push request. Do not push any change
-  that has not passed the required review process, and do not open a replacement
-  PR or merge unless I explicitly ask.
+  verify the reviewed `HEAD` and unchanged frozen content-sensitive repository
+  snapshot as described above, then push only those already-reviewed commits to
+  the existing PR branch without waiting for a separate push request. Do not
+  push any change that has not passed the required review process, and do not
+  open a replacement PR or merge unless I explicitly ask.
 
 # Designing with Claude
 
