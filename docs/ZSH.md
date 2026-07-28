@@ -384,6 +384,7 @@ Public function:
 
 ```zsh
 zshupdate
+zshupdate --fast
 ```
 
 Purpose:
@@ -391,6 +392,7 @@ Purpose:
 - run `git pull --ff-only` in `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}`
 - refresh managed symlinks for `~/.config/starship.toml` and `~/.codex/AGENTS.md`
 - ask whether to run the updated repo `install.sh`
+- with `--fast`, skip the `install.sh` prompt and installer
 - reload the current shell with `source ~/.zshrc`
 - return an error if the config directory is missing or is not inside a Git repository
 

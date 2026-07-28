@@ -43,10 +43,24 @@ _zshupdate_refresh_managed_links() {
 }
 
 zshupdate() {
-  if (( $# != 0 )); then
-    echo "usage: zshupdate" >&2
-    return 2
-  fi
+  local fast_mode=0
+
+  case "$#" in
+    0)
+      ;;
+    1)
+      if [[ "$1" == "--fast" ]]; then
+        fast_mode=1
+      else
+        echo "usage: zshupdate [--fast]" >&2
+        return 2
+      fi
+      ;;
+    *)
+      echo "usage: zshupdate [--fast]" >&2
+      return 2
+      ;;
+  esac
 
   local config_dir="${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}"
   local zshrc_file="$HOME/.zshrc"
@@ -76,7 +90,8 @@ zshupdate() {
   git -C "$config_dir" pull --ff-only || return
   _zshupdate_refresh_managed_links "$config_dir" || return
 
-  if [[ -x "$config_dir/install.sh" || -r "$config_dir/install.sh" ]]; then
+  if (( ! fast_mode )) &&
+    [[ -x "$config_dir/install.sh" || -r "$config_dir/install.sh" ]]; then
     local answer
     printf "zshupdate: run install.sh now? [y/N] "
     read -r answer
@@ -89,7 +104,7 @@ zshupdate() {
         echo "zshupdate: skipped install.sh"
         ;;
     esac
-  else
+  elif (( ! fast_mode )); then
     echo "zshupdate: install.sh not found at $config_dir/install.sh"
   fi
 
