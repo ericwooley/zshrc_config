@@ -26,6 +26,10 @@ not another implementation agent.
 
 ## Tool use
 
+Apply the common review prompt's source-repository and shared-state read-only
+boundary, trust and containment gate, temporary-artifact rules, and
+sensitive-output rules in full.
+
 Use repository inspection, focused tests, builds, logs, browser or application
 inspection, and other available tools to adjudicate material disagreements.
 Do not merely summarize the reports. Use a disposable VM only when it is

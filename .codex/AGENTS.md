@@ -440,13 +440,14 @@ This mixes calculation, environment access, client construction, and network I/O
   the task done or pushing it.
 - Every group-review pass must select exactly the three most relevant
   specialist roles from the candidate list below and use one fresh subagent for
-  each selected role, with the same source-repository and shared-state
-  read-only boundary defined above. The review lead is separate and does not
-  count toward the three. Run the selected specialists sequentially, one at a
-  time, and wait for each to finish, then run the review lead last. Choose and
-  record the order by relevance to the actual risk, with the most relevant
-  specialist first. Record why each role was selected and why each of the other
-  three roles was omitted. Do not default to the same trio for every task.
+  each selected role. Apply the same source-repository and shared-state
+  read-only boundary defined above to all three selected specialists and the
+  separate review lead. The review lead does not count toward the three. Run
+  the selected specialists sequentially, one at a time, and wait for each to
+  finish, then run the review lead last. Choose and record the order by
+  relevance to the actual risk, with the most relevant specialist first.
+  Record why each role was selected and why each of the other three roles was
+  omitted. Do not default to the same trio for every task.
   Candidate specialist roles:
 
   - Senior engineer:
@@ -471,13 +472,15 @@ This mixes calculation, environment access, client construction, and network I/O
   - dependency, API, migration, or cross-component work:
     maintainability/integration first.
 - Every selected specialist subagent must read the applicable common review
-  prompt and its role prompt. Resolve every common and role prompt from
-  `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the absolute paths to the
-  subagent; do not assume the current repository contains `.codex/prompts`.
-  Give each the exact original request, plan, task-start commit, frozen task
-  range and `HEAD`, sanitized validation evidence, sanitized relevant run
-  instructions, and sanitized unresolved concerns. Tell it which numbered
-  position it occupies in the selected three-role review order.
+  prompt and its role prompt. The separate review-lead subagent must read the
+  same common prompt and the review-lead role prompt. Resolve every common and
+  role prompt from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the
+  applicable absolute paths to each subagent; do not assume the current
+  repository contains `.codex/prompts`. Give each the exact original request,
+  plan, task-start commit, frozen task range and `HEAD`, sanitized validation
+  evidence, sanitized relevant run instructions, and sanitized unresolved
+  concerns. Tell each selected specialist which numbered position it occupies
+  in the selected three-role review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
