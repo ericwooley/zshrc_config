@@ -51,9 +51,10 @@ If that backup already exists, a dated backup name is used instead.
 - **Starship**: versioned prompt config symlinked into `~/.config/starship.toml`.
 - **Codex instructions**: global planning, incremental checkpoint review,
   a relevance-sized group of one to three final specialists, incremental
-  follow-ups, and explicit `LQM`/`MQM`/`HQM` review modes, symlinked from this
-  repo into `~/.codex/AGENTS.md`. New conversations default to final-review-only
-  MQM, and localized documentation retains a narrow no-review fast path.
+  follow-ups, and explicit `AQM`/`LQM`/`MQM`/`HQM` review modes, symlinked from
+  this repo into `~/.codex/AGENTS.md`. New conversations default to AQM, which
+  selects no-review, final-only, or full-review behavior from the task's risk,
+  uncertainty, blast radius, and novelty.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
 - **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.
