@@ -390,8 +390,9 @@ This mixes calculation, environment access, client construction, and network I/O
 - A checkpoint reviewer may inspect current surrounding code, tests, contracts,
   and consumers when needed to understand or validate the checkpoint delta, but
   must not re-review earlier checkpoint diffs or the cumulative task history.
-  The final specialist group is the single full review of all task/session
-  changes.
+  The initial final specialist group is the single full review of all
+  task/session changes; later final follow-ups review only requested corrections
+  since the previous completed final group pass.
 - Do not include unrelated or pre-existing worktree changes in a checkpoint
   commit. If the requested work cannot be isolated safely, stop and explain the
   overlap instead of committing someone else's changes.
@@ -449,7 +450,7 @@ This mixes calculation, environment access, client construction, and network I/O
   remain only when their content-sensitive state still matches the task-start
   baseline and is isolated from the task. Run one final specialist group review
   over all changes in that frozen task/session range before declaring the task
-  done or pushing it.
+  done or pushing it. This initial pass uses `Review mode: final full task`.
 - Every group-review pass must select exactly the three most relevant
   specialist roles from the candidate list below and use one fresh subagent for
   each selected role. Apply the same source-repository and shared-state
@@ -488,11 +489,19 @@ This mixes calculation, environment access, client construction, and network I/O
   same common prompt and the review-lead role prompt. Resolve every common and
   role prompt from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the
   applicable absolute paths to each subagent; do not assume the current
-  repository contains `.codex/prompts`. Give each the exact original request,
-  plan, task-start commit, `Review mode: final full task`, frozen task range and
-  `HEAD`, sanitized validation evidence, sanitized relevant run instructions,
-  and sanitized unresolved concerns. Tell each selected specialist which
-  numbered position it occupies in the selected three-role review order.
+  repository contains `.codex/prompts`. For the initial final pass, give each
+  the exact original request, plan, task-start commit,
+  `Review mode: final full task`, frozen full task/session range and `HEAD`,
+  sanitized validation evidence, sanitized relevant run instructions, and
+  sanitized unresolved concerns. For a later pass, give each the exact original
+  request, plan, previous completed final-review `HEAD`,
+  `Review mode: final follow-up`, exact range from that previous reviewed `HEAD`
+  through the current frozen `HEAD`, sanitized accepted findings and requested
+  corrections from the previous lead, sanitized validation evidence, sanitized
+  relevant run instructions, and sanitized unresolved concerns. Do not give a
+  final follow-up reviewer the full task/session range. Tell each selected
+  specialist which numbered position it occupies in the selected three-role
+  review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
@@ -515,11 +524,18 @@ This mixes calculation, environment access, client construction, and network I/O
 - The group passes only when the review lead returns `ready` with no unresolved
   actionable findings. Do not use majority vote. Resolve accepted findings
   yourself, rerun relevant validation, and create a scoped fix checkpoint
-  commit. Then freeze the new `HEAD`, reselect the three most relevant roles for
-  the revised risk profile, and repeat the full top-three specialist group with
-  a fresh subagent for each selected role and a fresh review lead, so every
-  verdict covers the same final code without carrying conclusions from the
-  earlier pass.
+  commit. After every completed final group pass, record that pass's frozen
+  reviewed `HEAD` as the baseline for the next final follow-up, even when its
+  verdict is `not ready`. Then freeze the new correction `HEAD`, reselect the
+  three most relevant roles for the requested corrections, and run a
+  `final follow-up` group over only the baseline-to-correction range with a
+  fresh subagent for each selected role and a fresh review lead. Give them the
+  previous lead's accepted findings and requested corrections, but do not give
+  specialists one another's conclusions. If another follow-up requests more
+  changes, advance the baseline to that completed follow-up's reviewed `HEAD`
+  and repeat only over the next correction delta. Once the initial full pass
+  has completed, do not re-review the full task/session range for follow-up
+  corrections.
 - Immediately after a `ready` lead verdict and before declaring completion or
   pushing, verify that the current full `HEAD` still equals the frozen reviewed
   `HEAD` and that a new content-sensitive index/worktree snapshot exactly
@@ -528,7 +544,9 @@ This mixes calculation, environment access, client construction, and network I/O
   only the commits covered by that reviewed revision. If `HEAD` or repository
   state has drifted, commit or otherwise resolve intentional task changes
   without disturbing unrelated work, freeze the new revision and snapshot, and
-  rerun the complete top-three group with fresh subagents before delivery.
+  run a `final follow-up` top-three group from the last completed final-review
+  `HEAD` through the new frozen `HEAD` before delivery; do not restart the full
+  task/session review.
 - You may skip the final specialist group only for a clearly trivial fix or
   minor request. Record the concrete low-risk reason and validation evidence in
   the plan and final response. Treat changes involving authentication,

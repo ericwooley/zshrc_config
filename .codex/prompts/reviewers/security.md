@@ -18,7 +18,9 @@ Do not start a Codex Security Scan unless the user explicitly requested one.
 - Look for fail-open behavior, confused-deputy paths, privilege escalation,
   insecure defaults, information disclosure, and abuse cases introduced by the
   supplied review-range changes. In checkpoint mode, do not re-audit earlier
-  checkpoint diffs; in final mode, assess the full frozen task/session range.
+  checkpoint diffs. In `final full task`, assess the full frozen task/session
+  range. In `final follow-up`, assess only the correction delta and its current
+  security/privacy effects.
 - Calibrate severity from a concrete source-to-impact path. Do not report
   generic hardening ideas as findings.
 

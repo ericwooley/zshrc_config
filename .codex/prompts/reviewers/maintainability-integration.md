@@ -17,7 +17,9 @@ risk.
   and rollback or recovery paths where applicable.
 - Inspect interactions between the supplied review-range changes and nearby
   code that consumes changed contracts. In checkpoint mode, treat earlier
-  checkpoints as the reviewed baseline rather than re-auditing their diffs.
+  checkpoints as the reviewed baseline rather than re-auditing their diffs. In
+  `final follow-up`, treat the previous completed final group pass as the
+  reviewed baseline rather than re-auditing earlier final-review ranges.
 
 ## Tool use
 

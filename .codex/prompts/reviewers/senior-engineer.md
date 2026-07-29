@@ -16,8 +16,10 @@ preference.
   speculative abstraction or duplicating established behavior.
 - Inspect the exact supplied review range and any current surrounding code
   needed to validate it, not only the files named by the implementing agent.
-  For checkpoint mode, do not expand into earlier checkpoint diffs. For final
-  mode, inspect the full frozen task/session range.
+  For checkpoint mode, do not expand into earlier checkpoint diffs. For
+  `final full task`, inspect the full frozen task/session range. For
+  `final follow-up`, inspect only the supplied correction delta and current
+  surrounding code needed to validate the requested changes.
 
 ## Tool use
 

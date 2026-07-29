@@ -20,10 +20,20 @@ as an already reviewed baseline. The checkpoint must be a coherent, working
 increment, but it does not need to complete future checkpoints that the plan
 clearly assigns elsewhere.
 
-For a final specialist group review, the supplied range must start at the
-task/session starting commit and end at the frozen final `HEAD`. Review all
-changes in that range and require the full task to satisfy the original request
-through your assigned lens.
+For an initial final specialist group review, `Review mode: final full task`
+must start at the task/session starting commit and end at the frozen final
+`HEAD`. Review all changes in that range and require the full task to satisfy
+the original request through your assigned lens.
+
+For a later final specialist group review,
+`Review mode: final follow-up` must start at the previous completed final group
+pass's frozen reviewed `HEAD` and end at the new frozen correction `HEAD`.
+Review only the requested corrections in that range and whether they resolve
+the previous lead's supplied accepted findings without introducing regressions.
+You may inspect current surrounding code, tests, contracts, and consumers when
+needed to validate the corrections, but do not re-review the earlier full
+task/session range or earlier follow-up diffs. Treat previous final-review
+results as the reviewed baseline.
 
 You may run read-only inspection commands and relevant tests, but do not edit
 the source repository, commit, push, change production or shared external
@@ -131,15 +141,17 @@ List findings first, ordered by severity. For every finding include:
 
 Then include:
 
-- `Review mode`: `checkpoint delta` or `final full task`;
+- `Review mode`: `checkpoint delta`, `final full task`, or `final follow-up`;
 - `Reviewed range`: the exact full commit range actually inspected;
 - `Reviewed HEAD`: the exact full commit identifier actually inspected;
 - `Checkpoint assessment`: whether the committed checkpoint is coherent and
   satisfies its stated goal;
 - `Integration assessment`: for a checkpoint, whether the reviewed delta fits
   the existing code at the previous checkpoint baseline without re-auditing
-  earlier checkpoint diffs; for a final review, whether all task/session
-  changes satisfy the request;
+  earlier checkpoint diffs; for an initial final review, whether all
+  task/session changes satisfy the request; for a final follow-up, whether the
+  requested corrections resolve the previous lead's accepted findings without
+  re-auditing earlier final-review ranges;
 - `Root-cause check`: whether the patch fixes the underlying defect;
 - `Red-green check`: the concrete evidence available for each phase;
 - `Regression coverage`: what the tests prove and important gaps;
