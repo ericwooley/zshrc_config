@@ -18,9 +18,9 @@ risk.
 - Inspect interactions between the supplied review-range changes and nearby
   code that consumes changed contracts. In checkpoint mode, treat earlier
   checkpoints as the reviewed baseline rather than re-auditing their diffs. In
-  `final follow-up`, treat the previous coverage-valid final group pass as the
-  reviewed baseline and assess only the supplied correction or
-  intentional-drift delta rather than re-auditing earlier final-review ranges.
+  `final follow-up`, use the supplied recorded final-review baseline and assess
+  only the correction or intentional-drift delta rather than re-auditing
+  earlier final-review ranges.
 
 ## Tool use
 

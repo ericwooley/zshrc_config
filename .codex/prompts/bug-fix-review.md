@@ -26,18 +26,24 @@ must start at the task/session starting commit and end at the frozen final
 the original request through your assigned lens.
 
 For a later final specialist group review,
-`Review mode: final follow-up` must start at the previous coverage-valid final
-group pass's frozen reviewed `HEAD` and end at the new frozen correction
-`HEAD`. The handoff must identify `Follow-up purpose: requested corrections` or
-`Follow-up purpose: intentional drift changes`. For requested corrections,
-review whether the delta resolves the previous lead's supplied accepted
-findings without introducing regressions. For intentional drift changes,
-review the supplied sanitized description and acceptance criteria for the
-delta independently; prior accepted findings are not required.
+`Review mode: final follow-up` must start at the recorded final-review baseline
+and end at the new frozen `HEAD`. The handoff must identify the
+baseline `HEAD` and provenance plus `Follow-up purpose: requested corrections`
+or `Follow-up purpose: intentional drift changes`. A valid baseline is the
+reviewed `HEAD` of a coverage-valid pass whose findings required repository
+corrections, or a coverage-valid `ready` pass followed by intentional task
+changes. An evidence-only rerun instead retains the prior pass's baseline,
+purpose, and exact range; the intervening coverage-valid result does not create
+an empty-range baseline. For requested corrections, review whether the delta
+resolves the supplied accepted repository findings that established the
+baseline and any later evidence-only requests without introducing regressions.
+For intentional drift changes, review the supplied sanitized description and
+acceptance criteria for the delta independently; prior accepted findings are
+not required.
 You may inspect current surrounding code, tests, contracts, and consumers when
 needed to validate the delta, but do not re-review the earlier full task/session
 range or earlier follow-up diffs. Treat previous coverage-valid final-review
-results as the reviewed baseline.
+results as reviewed context.
 
 You may run read-only inspection commands and relevant tests, but do not edit
 the source repository, commit, push, change production or shared external
@@ -98,7 +104,13 @@ clean up the exact task-specific temporary root after the review; if cleanup
 fails, report the exact remaining VM name, shared-directory path,
 cloud-init-directory path, or task-root path.
 
-Verify all of the following:
+Apply the following checklist within the assigned review boundary. In
+`checkpoint delta` and `final full task`, perform the complete applicable
+bug-fix checks. In `final follow-up`, treat earlier coverage-valid root-cause,
+red-green, regression, and adjacent-case evidence as reviewed. Recheck an item
+only when the supplied correction or intentional-drift delta changes it or the
+stated follow-up purpose depends on it; do not re-review the original bug fix as
+a whole.
 
 - the regression test represents the user's bug at the behavioral boundary
   where it can fail for the right reason;
@@ -149,6 +161,8 @@ Then include:
 - `Review mode`: `checkpoint delta`, `final full task`, or `final follow-up`;
 - `Follow-up purpose`: `requested corrections`, `intentional drift changes`, or
   `not applicable`;
+- `Final-review baseline`: the exact recorded baseline and provenance for a
+  final follow-up, or `not applicable`;
 - `Reviewed range`: the exact full commit range actually inspected;
 - `Reviewed HEAD`: the exact full commit identifier actually inspected;
 - `Checkpoint assessment`: whether the committed checkpoint is coherent and

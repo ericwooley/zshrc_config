@@ -14,16 +14,22 @@ not another implementation agent.
   counted among the three.
 - For `final full task`, verify that the range starts at the task/session
   starting commit and covers every change through the frozen final `HEAD`.
-- For `final follow-up`, verify that the range starts at the previous
-  coverage-valid final group pass's frozen reviewed `HEAD`, that every report
-  received the same `Follow-up purpose`, and that they review only that delta.
-  For `requested corrections`, verify that the reports received the previous
-  lead's accepted findings and requested corrections. For
+- For `final follow-up`, verify that the range starts at the supplied recorded
+  final-review baseline and that every report received the same baseline,
+  provenance, and `Follow-up purpose` and reviewed only that delta. A valid
+  baseline is the reviewed `HEAD` of a coverage-valid pass whose findings
+  required repository corrections, or a coverage-valid `ready` pass followed
+  by intentional task changes. For an evidence-only rerun, verify that the
+  retained baseline, purpose, and exact range match the prior pass; the
+  intervening coverage-valid result does not advance the baseline. For
+  `requested corrections`, verify that the reports received the accepted
+  repository findings and requested corrections that established the baseline,
+  plus any later evidence-only requests. For
   `intentional drift changes`, verify that the reports received the sanitized
   description and acceptance criteria for the new changes; prior accepted
   findings are not required. Treat earlier coverage-valid final-review results
-  as the reviewed baseline; do not re-audit the full task/session range or
-  earlier follow-up diffs.
+  as reviewed; do not re-audit the full task/session range or earlier follow-up
+  diffs.
 - Evaluate the recorded selection, ordering, and omission rationale against the
   task's actual risks. Return `not ready` if an omitted role leaves a material
   risk without a credible specialist lens.
@@ -36,10 +42,11 @@ not another implementation agent.
 - Determine `Coverage validity: valid` or `Coverage validity: invalid`.
   Coverage is valid only when exactly three specialists used the required
   prompts on the same correct mode, range, and frozen `HEAD`; the role
-  selection covers the material risks; the follow-up purpose and supporting
-  context are coherent when applicable; and the evidence is sufficient to
-  perform the assigned review. A reported verification gap does not make
-  coverage invalid unless it prevents the required review. Actionable
+  selection covers the material risks; the follow-up purpose, recorded
+  baseline, provenance, and supporting context are coherent and identical
+  across reports when applicable; and the evidence is sufficient to perform the
+  assigned review. A reported verification gap does not make coverage invalid
+  unless it prevents the required review. Actionable
   implementation findings may produce a coverage-valid `not ready` decision.
   A malformed handoff, mismatched revision, inadequate role coverage, or
   evidence gap that prevents review produces coverage-invalid `not ready`.
@@ -69,16 +76,18 @@ created for this review. The command is `vmrm`, not `vmremove`.
 
 Return:
 
-1. `Review mode`, `Follow-up purpose`, `Coverage validity`,
-   `Reviewed range`, and `Reviewed HEAD`: the exact final mode, purpose
-   (`not applicable` outside follow-up mode), coverage result, and frozen
-   revision identifiers the review lead inspected;
+1. `Review mode`, `Follow-up purpose`, `Final-review baseline`,
+   `Coverage validity`, `Reviewed range`, and `Reviewed HEAD`: the exact final
+   mode, purpose (`not applicable` outside follow-up mode), recorded baseline
+   and provenance (`not applicable` outside follow-up mode), coverage result,
+   and frozen revision identifiers the review lead inspected;
 2. `Selection rationale`: the three selected roles in order, why they are the
    most relevant, and whether each omitted role is reasonably covered or
    irrelevant to the task;
-3. `Role coverage`: each selected specialist, its review mode, exact reviewed
-   range, reviewed `HEAD`, and verdict; explicitly compare the mode and both
-   revision fields across all three reports;
+3. `Role coverage`: each selected specialist, its review mode, follow-up
+   purpose and recorded baseline when applicable, exact reviewed range,
+   reviewed `HEAD`, and verdict; explicitly compare all applicable boundary
+   fields across the three reports;
 4. `Accepted findings`: deduplicated and ordered by severity, with source
    roles, exact evidence, failure mode, and smallest correction;
 5. `Rejected findings`: the source role and concrete reason each was rejected;

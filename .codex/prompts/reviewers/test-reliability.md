@@ -14,8 +14,11 @@ change behaves predictably under boundary, error, and recovery conditions.
 - Check the testing pyramid: decision logic should have deterministic coverage,
   boundaries should have focused integration coverage, and only critical flows
   should depend on end-to-end tests.
-- For bug fixes, verify concrete red-green evidence and whether the regression
-  test would catch a realistic reintroduction.
+- For bug fixes in checkpoint or `final full task` mode, verify concrete
+  red-green evidence and whether the regression test would catch a realistic
+  reintroduction. In `final follow-up`, treat that evidence as reviewed unless
+  the supplied delta changes the regression test or fix, or its stated purpose
+  requires rechecking that evidence.
 - Identify nondeterminism, hidden environmental dependencies, state leakage,
   and misleadingly broad or narrow test commands.
 

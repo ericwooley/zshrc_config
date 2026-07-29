@@ -392,8 +392,8 @@ This mixes calculation, environment access, client construction, and network I/O
   must not re-review earlier checkpoint diffs or the cumulative task history.
   The initial final specialist group is the single full review of all
   task/session changes; later final follow-ups review only the requested
-  correction or intentional-drift delta since the previous coverage-valid
-  final group pass.
+  correction or intentional-drift delta since the recorded final-review
+  baseline.
 - Do not include unrelated or pre-existing worktree changes in a checkpoint
   commit. If the requested work cannot be isolated safely, stop and explain the
   overlap instead of committing someone else's changes.
@@ -495,17 +495,19 @@ This mixes calculation, environment access, client construction, and network I/O
   `Review mode: final full task`, frozen full task/session range and `HEAD`,
   sanitized validation evidence, sanitized relevant run instructions, and
   sanitized unresolved concerns. For a later pass, give each the exact original
-  request, plan, previous coverage-valid final-review `HEAD`,
-  `Review mode: final follow-up`, exact range from that previous reviewed `HEAD`
+  request, plan, the recorded final-review baseline `HEAD` and its provenance,
+  `Review mode: final follow-up`, exact range from that recorded baseline
   through the current frozen `HEAD`, sanitized validation evidence, sanitized
   relevant run instructions, and sanitized unresolved concerns. Also identify
-  one `Follow-up purpose`. For `requested corrections`, include the previous
-  lead's sanitized accepted findings and requested corrections. For
+  one `Follow-up purpose`. For `requested corrections`, include the sanitized
+  accepted repository findings and requested corrections that established the
+  baseline, plus any later evidence-only requests. For
   `intentional drift changes`, include a sanitized description and acceptance
-  criteria for the intentional task changes made after a `ready` verdict. Do
-  not give a final follow-up reviewer the full task/session range. Tell each
-  selected specialist which numbered position it occupies in the selected
-  three-role review order.
+  criteria for the intentional task changes made after a `ready` verdict. For
+  an evidence-only rerun, state that the baseline and exact range are retained
+  from the prior pass. Do not give a final follow-up reviewer the full
+  task/session range. Tell each selected specialist which numbered position it
+  occupies in the selected three-role review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
@@ -529,11 +531,12 @@ This mixes calculation, environment access, client construction, and network I/O
   `Coverage validity: invalid`. Coverage is valid only when the mode, range,
   frozen `HEAD`, exactly three specialist reports, role selection, and
   verification evidence are sufficient to perform the required review. A
-  procedurally invalid pass does not establish or advance a final-review
-  baseline. Correct its handoff or evidence and rerun the same review mode from
-  the same baseline; if repository corrections change the range end, keep the
-  original range start. The initial full-task pass must be coverage-valid
-  before any correction-only follow-up may use it as a baseline.
+  procedurally invalid pass does not establish or advance the recorded
+  final-review baseline. Correct its handoff or evidence and rerun the same
+  review mode from the same recorded baseline; if repository corrections change
+  the range end, keep the original range start. The initial full-task pass must
+  be coverage-valid before any correction-only follow-up may record its
+  reviewed `HEAD` as a baseline.
 - The group passes only when coverage is valid and the review lead returns
   `ready` with no unresolved actionable findings. Do not use majority vote. A
   coverage-valid `ready` verdict terminates the review loop; do not schedule an
@@ -541,25 +544,30 @@ This mixes calculation, environment access, client construction, and network I/O
   revision and repository-snapshot verification.
 - When a coverage-valid lead returns `not ready` with accepted findings that
   require repository corrections, record that pass's frozen reviewed `HEAD` as
-  the next follow-up baseline. Resolve the findings yourself, rerun relevant
-  validation, and create a scoped fix checkpoint commit. Freeze the new
-  correction `HEAD`, reselect the three most relevant roles for the requested
-  corrections, and run `Review mode: final follow-up` with
+  the next final-review baseline. Record that the provenance is a
+  coverage-valid pass whose accepted findings required repository changes.
+  Resolve the findings yourself, rerun relevant validation, and create a scoped
+  fix checkpoint commit. Freeze the new correction `HEAD`, reselect the three
+  most relevant roles for the requested corrections, and run
+  `Review mode: final follow-up` with
   `Follow-up purpose: requested corrections` over only the
   baseline-to-correction range. Use a fresh subagent for each selected role and
   a fresh review lead, give them the previous lead's accepted findings and
   requested corrections, and do not give specialists one another's
   conclusions. If a coverage-valid follow-up requests more repository changes,
-  its reviewed `HEAD` becomes the next follow-up baseline and only the next
-  correction delta is reviewed.
+  its reviewed `HEAD` becomes the next recorded final-review baseline and only
+  the next correction delta is reviewed.
 - When a coverage-valid `not ready` verdict requires only missing evidence or a
-  corrected handoff and no repository change, do not advance the baseline or
-  create an empty delta. Obtain the evidence or repair the handoff and rerun the
-  same review mode and range from the same baseline.
+  corrected handoff and no repository change, do not advance the recorded
+  final-review baseline or create an empty delta. Obtain the evidence or repair
+  the handoff and rerun the same review mode, exact range, and follow-up purpose
+  from the retained baseline. Explicitly tell the reviewers and lead that this
+  is an evidence-only rerun and that the intervening coverage-valid result did
+  not advance the baseline.
 - Once the initial full pass is coverage-valid, do not re-review the full
   task/session range for follow-up corrections. A follow-up verifies its stated
   correction or intentional-drift purpose and regressions in that delta, using
-  earlier coverage-valid final-review results as the reviewed baseline.
+  earlier coverage-valid final-review results as reviewed context.
 - Immediately after a `ready` lead verdict and before declaring completion or
   pushing, verify that the current full `HEAD` still equals the frozen reviewed
   `HEAD` and that a new content-sensitive index/worktree snapshot exactly
@@ -568,12 +576,13 @@ This mixes calculation, environment access, client construction, and network I/O
   only the commits covered by that reviewed revision. If repository state
   drifted but can be restored without changing `HEAD`, restore it and repeat
   the snapshot verification without another group review. If intentional task
-  changes after `ready` require a new commit, freeze the new revision and
-  snapshot, then run `Review mode: final follow-up` with
-  `Follow-up purpose: intentional drift changes` from the last coverage-valid
-  final-review `HEAD` through the new frozen `HEAD`. Give reviewers a sanitized
-  description and acceptance criteria for that delta, and do not restart the
-  full task/session review.
+  changes after `ready` require a new commit, record the ready pass's reviewed
+  `HEAD` as the final-review baseline with `ready intentional-drift` provenance,
+  freeze the new revision and snapshot, then run
+  `Review mode: final follow-up` with
+  `Follow-up purpose: intentional drift changes` from that baseline through the
+  new frozen `HEAD`. Give reviewers a sanitized description and acceptance
+  criteria for that delta, and do not restart the full task/session review.
 - You may skip the final specialist group only for a clearly trivial fix or
   minor request. Record the concrete low-risk reason and validation evidence in
   the plan and final response. Treat changes involving authentication,

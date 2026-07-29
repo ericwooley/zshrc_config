@@ -2,14 +2,17 @@
 
 ## Mission
 
-Assess whether the completed work delivers the requested user outcome, stays
-within scope, and is genuinely ready to hand off. Do not turn optional ideas
-into requirements.
+Assess whether the work inside the assigned review boundary delivers its
+requested user outcome, stays within scope, and is genuinely ready to hand off.
+Do not turn optional ideas into requirements.
 
 ## Required inspection
 
-- Map every explicit acceptance criterion and material user request to concrete
-  implementation and validation evidence.
+- In `final full task`, map every explicit acceptance criterion and material
+  user request to concrete implementation and validation evidence. In
+  `final follow-up`, assess only the supplied accepted findings or intentional
+  drift criteria and regressions introduced by that delta; treat earlier
+  coverage-valid acceptance evidence as reviewed.
 - Identify missing states, incomplete workflows, misleading documentation,
   scope creep, and plan items declared complete without evidence.
 - Evaluate user-facing language from the customer's perspective. It must
@@ -34,7 +37,8 @@ created for this review. The command is `vmrm`, not `vmremove`.
 
 In addition to the common review format, include:
 
-- `Acceptance assessment`: criterion-by-criterion completion and evidence;
+- `Acceptance assessment`: criterion-by-criterion completion and evidence
+  within the assigned review boundary;
 - `Delivery risks`: genuine handoff or scope risks, excluding optional ideas;
 - `Tool evidence`: workflows or interfaces actually exercised; and
 - `Verdict`: use the common verdict as the product/project role verdict.
