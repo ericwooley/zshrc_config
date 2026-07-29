@@ -369,7 +369,13 @@ This mixes calculation, environment access, client construction, and network I/O
   (case-insensitive), `use low quality mode`, `skip all reviews`, or an
   unmistakable equivalent activates it immediately for unfinished and later
   work in the current conversation. While active, do not launch any
-  checkpoint-review subagent, final specialist, or review lead. `HQM`
+  checkpoint-review subagent, final specialist, or review lead. Stop treating
+  any in-flight review as a gate immediately. When control is available,
+  interrupt in-flight review subagents and the lead; if interruption could
+  strand a local service, disposable VM, or temporary artifact, perform or
+  allow only the bounded cleanup required by the review safety rules without
+  waiting for a verdict. Ignore any review report that arrives after LQM
+  activation when deciding whether the task may proceed. `HQM`
   (case-insensitive), `use high quality mode`, `resume normal reviews`, or an
   unmistakable equivalent switches back immediately and restores the normal
   checkpoint and relevance-sized final-review requirements for unfinished and
@@ -415,8 +421,8 @@ This mixes calculation, environment access, client construction, and network I/O
      exemption applies, launch a dedicated code-review subagent to adversarially
      review only the exact previous-checkpoint-to-current-checkpoint commit
      range; and
-  5. when a reviewer was launched, wait for a `ready` verdict before beginning
-     the next checkpoint.
+  5. when a reviewer was launched and LQM remains inactive, wait for a `ready`
+     verdict before beginning the next checkpoint.
 - A checkpoint reviewer may inspect current surrounding code, tests, contracts,
   and consumers when needed to understand or validate the checkpoint delta, but
   must not re-review earlier checkpoint diffs or the cumulative task history.
