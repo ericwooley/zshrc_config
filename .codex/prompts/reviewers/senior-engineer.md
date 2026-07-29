@@ -18,8 +18,8 @@ preference.
   needed to validate it, not only the files named by the implementing agent.
   For checkpoint mode, do not expand into earlier checkpoint diffs. For
   `final full task`, inspect the full frozen task/session range. For
-  `final follow-up`, inspect only the supplied correction delta and current
-  surrounding code needed to validate the requested changes.
+  `final follow-up`, inspect only the supplied correction or intentional-drift
+  delta and current surrounding code needed to validate its stated purpose.
 
 ## Tool use
 

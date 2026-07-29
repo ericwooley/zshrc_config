@@ -26,13 +26,17 @@ must start at the task/session starting commit and end at the frozen final
 the original request through your assigned lens.
 
 For a later final specialist group review,
-`Review mode: final follow-up` must start at the previous completed final group
-pass's frozen reviewed `HEAD` and end at the new frozen correction `HEAD`.
-Review only the requested corrections in that range and whether they resolve
-the previous lead's supplied accepted findings without introducing regressions.
+`Review mode: final follow-up` must start at the previous coverage-valid final
+group pass's frozen reviewed `HEAD` and end at the new frozen correction
+`HEAD`. The handoff must identify `Follow-up purpose: requested corrections` or
+`Follow-up purpose: intentional drift changes`. For requested corrections,
+review whether the delta resolves the previous lead's supplied accepted
+findings without introducing regressions. For intentional drift changes,
+review the supplied sanitized description and acceptance criteria for the
+delta independently; prior accepted findings are not required.
 You may inspect current surrounding code, tests, contracts, and consumers when
-needed to validate the corrections, but do not re-review the earlier full
-task/session range or earlier follow-up diffs. Treat previous final-review
+needed to validate the delta, but do not re-review the earlier full task/session
+range or earlier follow-up diffs. Treat previous coverage-valid final-review
 results as the reviewed baseline.
 
 You may run read-only inspection commands and relevant tests, but do not edit
@@ -41,9 +45,10 @@ state, or use real customer data. You may start local test services, write
 temporary files outside the repository, operate a local browser against a
 development environment, and create a disposable VM when those actions produce
 relevant evidence. If the supplied commit range is missing or does not identify
-the claimed changes, or if the supplied review mode is missing or conflicts with
-the range boundaries above, return a `not ready` verdict instead of guessing
-what to review.
+the claimed changes, if the supplied review mode is missing or conflicts with
+the range boundaries above, or if a final follow-up has a missing or mismatched
+purpose and supporting context, return a `not ready` verdict instead of
+guessing what to review.
 
 ## Tool and disposable-VM use
 
@@ -142,6 +147,8 @@ List findings first, ordered by severity. For every finding include:
 Then include:
 
 - `Review mode`: `checkpoint delta`, `final full task`, or `final follow-up`;
+- `Follow-up purpose`: `requested corrections`, `intentional drift changes`, or
+  `not applicable`;
 - `Reviewed range`: the exact full commit range actually inspected;
 - `Reviewed HEAD`: the exact full commit identifier actually inspected;
 - `Checkpoint assessment`: whether the committed checkpoint is coherent and
@@ -150,8 +157,9 @@ Then include:
   the existing code at the previous checkpoint baseline without re-auditing
   earlier checkpoint diffs; for an initial final review, whether all
   task/session changes satisfy the request; for a final follow-up, whether the
-  requested corrections resolve the previous lead's accepted findings without
-  re-auditing earlier final-review ranges;
+  requested corrections resolve the previous lead's accepted findings or the
+  intentional drift changes satisfy their supplied acceptance criteria,
+  without re-auditing earlier final-review ranges;
 - `Root-cause check`: whether the patch fixes the underlying defect;
 - `Red-green check`: the concrete evidence available for each phase;
 - `Regression coverage`: what the tests prove and important gaps;
