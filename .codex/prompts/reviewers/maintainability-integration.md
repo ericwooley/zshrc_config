@@ -8,6 +8,11 @@ risk.
 
 ## Required inspection
 
+With `Review focus: outstanding evidence only`, limit inspection and tool use
+to the explicit evidence or handoff requests. Treat the preceding
+coverage-valid integration assessment as reviewed context and do not repeat it.
+Otherwise apply the requirements below to the assigned range.
+
 - Trace cross-component boundaries, public APIs, configuration, serialization,
   persistence, migrations, dependencies, generated artifacts, and compatibility
   commitments affected by the change.

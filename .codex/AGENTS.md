@@ -492,22 +492,28 @@ This mixes calculation, environment access, client construction, and network I/O
   applicable absolute paths to each subagent; do not assume the current
   repository contains `.codex/prompts`. For the initial final pass, give each
   the exact original request, plan, task-start commit,
-  `Review mode: final full task`, frozen full task/session range and `HEAD`,
-  sanitized validation evidence, sanitized relevant run instructions, and
-  sanitized unresolved concerns. For a later pass, give each the exact original
-  request, plan, the recorded final-review baseline `HEAD` and its provenance,
-  `Review mode: final follow-up`, exact range from that recorded baseline
-  through the current frozen `HEAD`, sanitized validation evidence, sanitized
-  relevant run instructions, and sanitized unresolved concerns. Also identify
-  one `Follow-up purpose`. For `requested corrections`, include the sanitized
-  accepted repository findings and requested corrections that established the
-  baseline, plus any later evidence-only requests. For
+  `Review mode: final full task`,
+  `Review focus: complete assigned range`, frozen full task/session range and
+  `HEAD`, sanitized validation evidence, sanitized relevant run instructions,
+  and sanitized unresolved concerns. For a standard correction or drift pass,
+  give each the exact original request, plan, the recorded final-review baseline
+  `HEAD` and its provenance, `Review mode: final follow-up`,
+  `Review focus: complete assigned range`, exact range from that recorded
+  baseline through the current frozen `HEAD`, sanitized validation evidence,
+  sanitized relevant run instructions, and sanitized unresolved concerns. Also
+  identify one `Follow-up purpose`. For `requested corrections`, include every
+  unresolved accepted item from the baseline-establishing pass, including
+  repository corrections and contemporaneous evidence or handoff requests,
+  plus any later evidence-only requests. For
   `intentional drift changes`, include a sanitized description and acceptance
-  criteria for the intentional task changes made after a `ready` verdict. For
-  an evidence-only rerun, state that the baseline and exact range are retained
-  from the prior pass. Do not give a final follow-up reviewer the full
-  task/session range. Tell each selected specialist which numbered position it
-  occupies in the selected three-role review order.
+  criteria for the intentional task changes made after a `ready` verdict. For a
+  coverage-valid evidence-only rerun, retain the prior mode, purpose, baseline,
+  exact range, and frozen `HEAD`; give each
+  `Review focus: outstanding evidence only` and the exact outstanding evidence
+  or corrected-handoff requests. State that the preceding code review is
+  reviewed context and must not be repeated. Do not give a standard final
+  follow-up reviewer the full task/session range. Tell each selected specialist
+  which numbered position it occupies in the selected three-role review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
@@ -528,9 +534,9 @@ This mixes calculation, environment access, client construction, and network I/O
 - This is a manual specialist review workflow. Do not start a Codex Security
   Scan unless I explicitly ask for one.
 - The review lead must report `Coverage validity: valid` or
-  `Coverage validity: invalid`. Coverage is valid only when the mode, range,
-  frozen `HEAD`, exactly three specialist reports, role selection, and
-  verification evidence are sufficient to perform the required review. A
+  `Coverage validity: invalid`. Coverage is valid only when the mode, review
+  focus, range, frozen `HEAD`, exactly three specialist reports, role selection,
+  and verification evidence are sufficient to perform the required review. A
   procedurally invalid pass does not establish or advance the recorded
   final-review baseline. Correct its handoff or evidence and rerun the same
   review mode from the same recorded baseline; if repository corrections change
@@ -546,23 +552,31 @@ This mixes calculation, environment access, client construction, and network I/O
   require repository corrections, record that pass's frozen reviewed `HEAD` as
   the next final-review baseline. Record that the provenance is a
   coverage-valid pass whose accepted findings required repository changes.
+  A pass with both repository findings and evidence or handoff requests follows
+  this correction transition while retaining every unresolved evidence and
+  handoff obligation.
   Resolve the findings yourself, rerun relevant validation, and create a scoped
   fix checkpoint commit. Freeze the new correction `HEAD`, reselect the three
   most relevant roles for the requested corrections, and run
   `Review mode: final follow-up` with
   `Follow-up purpose: requested corrections` over only the
   baseline-to-correction range. Use a fresh subagent for each selected role and
-  a fresh review lead, give them the previous lead's accepted findings and
-  requested corrections, and do not give specialists one another's
-  conclusions. If a coverage-valid follow-up requests more repository changes,
-  its reviewed `HEAD` becomes the next recorded final-review baseline and only
-  the next correction delta is reviewed.
+  a fresh review lead, give them every unresolved accepted repository,
+  evidence, and handoff item from the baseline-establishing pass plus any later
+  evidence-only request, and do not give specialists one another's conclusions.
+  If a coverage-valid follow-up requests more repository changes, its reviewed
+  `HEAD` becomes the next recorded final-review baseline and only the next
+  correction delta is reviewed.
 - When a coverage-valid `not ready` verdict requires only missing evidence or a
   corrected handoff and no repository change, do not advance the recorded
   final-review baseline or create an empty delta. Obtain the evidence or repair
-  the handoff and rerun the same review mode, exact range, and follow-up purpose
-  from the retained baseline. Explicitly tell the reviewers and lead that this
-  is an evidence-only rerun and that the intervening coverage-valid result did
+  the handoff, reselect the three roles most relevant to the outstanding
+  evidence, and rerun the same review mode, exact range, frozen `HEAD`, and
+  follow-up purpose from the retained baseline with
+  `Review focus: outstanding evidence only`. Explicitly tell the reviewers and
+  lead to assess only the supplied evidence or handoff requests, treat the prior
+  coverage-valid implementation assessment as reviewed context, and not repeat
+  the feature or correction review. The intervening coverage-valid result does
   not advance the baseline.
 - Once the initial full pass is coverage-valid, do not re-review the full
   task/session range for follow-up corrections. A follow-up verifies its stated
@@ -574,11 +588,17 @@ This mixes calculation, environment access, client construction, and network I/O
   matches the frozen snapshot. A clean-start task must still be clean, and
   pre-existing dirty content must still match the task-start baseline. Push
   only the commits covered by that reviewed revision. If repository state
-  drifted but can be restored without changing `HEAD`, restore it and repeat
-  the snapshot verification without another group review. If intentional task
-  changes after `ready` require a new commit, record the ready pass's reviewed
-  `HEAD` as the final-review baseline with `ready intentional-drift` provenance,
-  freeze the new revision and snapshot, then run
+  drifted while `HEAD` stayed frozen, compare it content-sensitively with the
+  task-start and frozen snapshots and classify ownership before acting. Never
+  overwrite, delete, clean, reset, or otherwise restore unknown, unrelated, or
+  overlapping content. Automatically remove only disposable artifacts proven
+  to be task-owned, using a recoverable operation when practical, then repeat
+  snapshot verification. Preserve and report unrelated or unknown drift; when
+  it is isolated from the task, verify the reviewed commit in an isolated clean
+  worktree, otherwise stop and report the overlap. If intentional task changes
+  after `ready` require a new commit, record the ready pass's reviewed `HEAD` as
+  the final-review baseline with `ready intentional-drift` provenance, freeze
+  the new revision and snapshot, then run
   `Review mode: final follow-up` with
   `Follow-up purpose: intentional drift changes` from that baseline through the
   new frozen `HEAD`. Give reviewers a sanitized description and acceptance

@@ -8,6 +8,11 @@ preference.
 
 ## Required inspection
 
+With `Review focus: outstanding evidence only`, limit inspection and tool use
+to the explicit evidence or handoff requests. Treat the preceding
+coverage-valid engineering assessment as reviewed context and do not repeat it.
+Otherwise apply the requirements below to the assigned range.
+
 - Trace the changed behavior through its callers, dependencies, state
   transitions, error paths, and public boundaries.
 - Check invariants, edge cases, concurrency, resource cleanup, compatibility,
@@ -17,7 +22,8 @@ preference.
 - Inspect the exact supplied review range and any current surrounding code
   needed to validate it, not only the files named by the implementing agent.
   For checkpoint mode, do not expand into earlier checkpoint diffs. For
-  `final full task`, inspect the full frozen task/session range. For
+  `final full task` with `Review focus: complete assigned range`, inspect the
+  full frozen task/session range. For
   `final follow-up`, inspect only the supplied correction or intentional-drift
   delta and current surrounding code needed to validate its stated purpose.
 

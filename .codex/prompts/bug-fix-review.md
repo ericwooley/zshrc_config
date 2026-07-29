@@ -21,11 +21,12 @@ increment, but it does not need to complete future checkpoints that the plan
 clearly assigns elsewhere.
 
 For an initial final specialist group review, `Review mode: final full task`
-must start at the task/session starting commit and end at the frozen final
-`HEAD`. Review all changes in that range and require the full task to satisfy
-the original request through your assigned lens.
+with `Review focus: complete assigned range` must start at the task/session
+starting commit and end at the frozen final `HEAD`. Review all changes in that
+range and require the full task to satisfy the original request through your
+assigned lens.
 
-For a later final specialist group review,
+For a final review after repository corrections or intentional drift,
 `Review mode: final follow-up` must start at the recorded final-review baseline
 and end at the new frozen `HEAD`. The handoff must identify the
 baseline `HEAD` and provenance plus `Follow-up purpose: requested corrections`
@@ -35,8 +36,10 @@ corrections, or a coverage-valid `ready` pass followed by intentional task
 changes. An evidence-only rerun instead retains the prior pass's baseline,
 purpose, and exact range; the intervening coverage-valid result does not create
 an empty-range baseline. For requested corrections, review whether the delta
-resolves the supplied accepted repository findings that established the
-baseline and any later evidence-only requests without introducing regressions.
+resolves every unresolved accepted item from the baseline-establishing pass,
+including repository corrections and contemporaneous evidence or handoff
+requests, plus any later evidence-only requests, without introducing
+regressions.
 For intentional drift changes, review the supplied sanitized description and
 acceptance criteria for the delta independently; prior accepted findings are
 not required.
@@ -45,6 +48,17 @@ needed to validate the delta, but do not re-review the earlier full task/session
 range or earlier follow-up diffs. Treat previous coverage-valid final-review
 results as reviewed context.
 
+A coverage-valid final pass that is `not ready` only because of missing evidence
+or a corrected handoff may be rerun with
+`Review focus: outstanding evidence only`. It must retain the prior review mode,
+purpose, recorded baseline, exact range, and frozen `HEAD`. Assess only the
+explicit outstanding evidence or handoff requests. Treat the preceding
+coverage-valid bug-fix review as reviewed context and do not re-review the
+original bug, correction delta, or unrelated checklist items. A mixed pass with
+repository findings and evidence requests is not evidence-only: it follows the
+repository-correction transition and carries every unresolved evidence request
+into the correction follow-up.
+
 You may run read-only inspection commands and relevant tests, but do not edit
 the source repository, commit, push, change production or shared external
 state, or use real customer data. You may start local test services, write
@@ -52,9 +66,10 @@ temporary files outside the repository, operate a local browser against a
 development environment, and create a disposable VM when those actions produce
 relevant evidence. If the supplied commit range is missing or does not identify
 the claimed changes, if the supplied review mode is missing or conflicts with
-the range boundaries above, or if a final follow-up has a missing or mismatched
-purpose and supporting context, return a `not ready` verdict instead of
-guessing what to review.
+the range boundaries above, if a final group's review focus is missing or
+mismatched, or if a final follow-up's purpose, baseline provenance, or
+supporting context is missing or mismatched, return a `not ready` verdict
+instead of guessing what to review.
 
 ## Tool and disposable-VM use
 
@@ -104,13 +119,16 @@ clean up the exact task-specific temporary root after the review; if cleanup
 fails, report the exact remaining VM name, shared-directory path,
 cloud-init-directory path, or task-root path.
 
-Apply the following checklist within the assigned review boundary. In
-`checkpoint delta` and `final full task`, perform the complete applicable
-bug-fix checks. In `final follow-up`, treat earlier coverage-valid root-cause,
-red-green, regression, and adjacent-case evidence as reviewed. Recheck an item
-only when the supplied correction or intentional-drift delta changes it or the
-stated follow-up purpose depends on it; do not re-review the original bug fix as
-a whole.
+Apply the following checklist within the assigned review boundary. With
+`Review focus: outstanding evidence only`, use only the items needed to
+adjudicate the supplied evidence or handoff requests and do not repeat the
+preceding bug-fix review. Otherwise, in `checkpoint delta` and
+`final full task`, perform the complete applicable bug-fix checks. In
+`final follow-up`, treat earlier coverage-valid root-cause, red-green,
+regression, and adjacent-case evidence as reviewed. Recheck an item only when
+the supplied correction or intentional-drift delta changes it or the stated
+follow-up purpose depends on it; do not re-review the original bug fix as a
+whole.
 
 - the regression test represents the user's bug at the behavioral boundary
   where it can fail for the right reason;
@@ -159,6 +177,8 @@ List findings first, ordered by severity. For every finding include:
 Then include:
 
 - `Review mode`: `checkpoint delta`, `final full task`, or `final follow-up`;
+- `Review focus`: `complete assigned range`, `outstanding evidence only`, or
+  `not applicable` for a checkpoint;
 - `Follow-up purpose`: `requested corrections`, `intentional drift changes`, or
   `not applicable`;
 - `Final-review baseline`: the exact recorded baseline and provenance for a
@@ -171,9 +191,11 @@ Then include:
   the existing code at the previous checkpoint baseline without re-auditing
   earlier checkpoint diffs; for an initial final review, whether all
   task/session changes satisfy the request; for a final follow-up, whether the
-  requested corrections resolve the previous lead's accepted findings or the
-  intentional drift changes satisfy their supplied acceptance criteria,
-  without re-auditing earlier final-review ranges;
+  requested corrections resolve the carried accepted items or the intentional
+  drift changes satisfy their supplied acceptance criteria, without
+  re-auditing earlier final-review ranges; for an evidence-only rerun, whether
+  the explicit outstanding evidence or handoff requests are satisfied without
+  repeating the preceding bug-fix review;
 - `Root-cause check`: whether the patch fixes the underlying defect;
 - `Red-green check`: the concrete evidence available for each phase;
 - `Regression coverage`: what the tests prove and important gaps;

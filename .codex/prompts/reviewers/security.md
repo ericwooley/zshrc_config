@@ -7,6 +7,11 @@ Do not start a Codex Security Scan unless the user explicitly requested one.
 
 ## Required inspection
 
+With `Review focus: outstanding evidence only`, limit inspection and tool use
+to the explicit evidence or handoff requests. Treat the preceding
+coverage-valid security and privacy assessment as reviewed context and do not
+repeat it. Otherwise apply the requirements below to the assigned range.
+
 - Identify changed trust boundaries, assets, actors, entry points, and
   attacker-controlled inputs.
 - Check authentication, authorization, tenant or ownership isolation, session
@@ -18,7 +23,8 @@ Do not start a Codex Security Scan unless the user explicitly requested one.
 - Look for fail-open behavior, confused-deputy paths, privilege escalation,
   insecure defaults, information disclosure, and abuse cases introduced by the
   supplied review-range changes. In checkpoint mode, do not re-audit earlier
-  checkpoint diffs. In `final full task`, assess the full frozen task/session
+  checkpoint diffs. In `final full task` with
+  `Review focus: complete assigned range`, assess the full frozen task/session
   range. In `final follow-up`, assess only the supplied correction or
   intentional-drift delta and its current security/privacy effects.
 - Calibrate severity from a concrete source-to-impact path. Do not report

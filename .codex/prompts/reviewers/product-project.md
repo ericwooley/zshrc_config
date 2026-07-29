@@ -8,8 +8,14 @@ Do not turn optional ideas into requirements.
 
 ## Required inspection
 
-- In `final full task`, map every explicit acceptance criterion and material
-  user request to concrete implementation and validation evidence. In
+With `Review focus: outstanding evidence only`, limit inspection and tool use
+to the explicit evidence or handoff requests. Treat the preceding
+coverage-valid acceptance assessment as reviewed context and do not repeat it.
+Otherwise apply the requirements below to the assigned range.
+
+- In `final full task` with `Review focus: complete assigned range`, map every
+  explicit acceptance criterion and material user request to concrete
+  implementation and validation evidence. In
   `final follow-up`, assess only the supplied accepted findings or intentional
   drift criteria and regressions introduced by that delta; treat earlier
   coverage-valid acceptance evidence as reviewed.

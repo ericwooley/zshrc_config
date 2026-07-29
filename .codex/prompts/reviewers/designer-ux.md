@@ -8,6 +8,11 @@ coherence, and user-facing language.
 
 ## Required inspection
 
+With `Review focus: outstanding evidence only`, limit inspection and tool use
+to the explicit evidence or handoff requests. Treat the preceding
+coverage-valid design and UX assessment as reviewed context and do not repeat
+it. Otherwise apply the requirements below to the assigned range.
+
 - Follow the primary user journey and important loading, empty, error,
   validation, success, disabled, and recovery states affected by the change.
 - Check information hierarchy, affordances, feedback, consistency, keyboard
