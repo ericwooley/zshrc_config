@@ -25,7 +25,7 @@ zshsetup user@example.com
 - stashes remote local changes before updating an existing clone
 - runs `git pull --ff-only` on later runs
 - runs the repo `install.sh` on the remote
-- asks whether to install the remote hourly zshupdate cron job
+- asks whether to install the remote 10-minute zshupdate cron job
 - asks whether to install the remote Neovim stable tarball update cron job
 
 The remote installer then handles dependency prompts, optional timezone setup,

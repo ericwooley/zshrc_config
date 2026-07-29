@@ -1,4 +1,4 @@
-# Install an hourly cron job that updates this zsh config repo.
+# Install a cron job that updates this zsh config repo every 10 minutes.
 zsh_install_hourly_update_cron() {
   if (( $# != 0 )); then
     echo "usage: zsh_install_hourly_update_cron" >&2
@@ -30,7 +30,7 @@ zsh_install_hourly_update_cron() {
   local older_end_marker="# zsh_update_nightly end"
   local older_line_marker="# zsh_update_nightly"
   local log_file='$HOME/.zsh_install_hourly_update_cron.log'
-  local cron_line="0 * * * * $zsh_bin -lc 'git -C \"\${ZSHRC_CONFIG_DIR:-\$HOME/.zshrc_config}\" pull --ff-only' >> \"$log_file\" 2>&1"
+  local cron_line="*/10 * * * * $zsh_bin -lc 'git -C \"\${ZSHRC_CONFIG_DIR:-\$HOME/.zshrc_config}\" pull --ff-only' >> \"$log_file\" 2>&1"
   local tmp_file
   tmp_file="$(mktemp -t zsh_install_hourly_update_cron.XXXXXX)" || return
 
@@ -53,8 +53,8 @@ zsh_install_hourly_update_cron() {
 
   if crontab "$tmp_file"; then
     rm -f "$tmp_file"
-    echo "zsh_install_hourly_update_cron: installed hourly cron update"
-    echo "zsh_install_hourly_update_cron: schedule: minute 00 every hour"
+    echo "zsh_install_hourly_update_cron: installed cron update"
+    echo "zsh_install_hourly_update_cron: schedule: every 10 minutes"
     echo "zsh_install_hourly_update_cron: log: ~/.zsh_install_hourly_update_cron.log"
   else
     local command_status=$?

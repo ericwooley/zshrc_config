@@ -414,10 +414,10 @@ zsh_install_hourly_update_cron
 
 Purpose:
 
-- install a marked hourly cron job for this user
-- run `git -C ~/.zshrc_config pull --ff-only` at minute `00` every hour
+- install a marked cron job for this user that runs every 10 minutes
+- run `git -C ~/.zshrc_config pull --ff-only` at 10-minute intervals
 - write cron output to `~/.zsh_install_hourly_update_cron.log`
-- replace an existing hourly or older nightly zsh update cron entry when rerun
+- replace the existing marked cron or an older nightly zsh update entry when rerun
 
 Example:
 
@@ -572,7 +572,7 @@ Purpose:
 - pull the remote clone on later runs
 - normalize GitHub SSH repo URLs to HTTPS before cloning or pulling
 - run the repo `install.sh` on the remote
-- ask whether to install the hourly zshupdate cron on the remote
+- ask whether to install the 10-minute zshupdate cron on the remote
 - ask whether to install the Neovim stable tarball update cron on the remote
 - use the same installer prompts, backups, and managed symlinks as local installs
 
