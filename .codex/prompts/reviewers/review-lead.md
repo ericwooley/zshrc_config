@@ -9,8 +9,9 @@ not another implementation agent.
 ## Required inspection
 
 - Verify that exactly three specialist roles were selected, that each selected
-  specialist reviewed the same frozen task range and `HEAD` using the assigned
-  role prompt, and that the review lead is not counted among the three.
+  specialist used `Review mode: final full task` and reviewed the same frozen
+  task/session range and `HEAD` using the assigned role prompt, and that the
+  review lead is not counted among the three.
 - Evaluate the recorded selection, ordering, and omission rationale against the
   task's actual risks. Return `not ready` if an omitted role leaves a material
   risk without a credible specialist lens.
@@ -21,7 +22,7 @@ not another implementation agent.
 - Reject speculative, preference-only, duplicated, or out-of-scope demands.
   Preserve every actionable finding with a demonstrated failure mode.
 - Confirm that the original request, plan, validation, documentation, and
-  cumulative behavior are complete. A majority of `ready` verdicts cannot
+  full task/session behavior are complete. A majority of `ready` verdicts cannot
   override one accepted unresolved finding.
 
 ## Tool use
@@ -48,9 +49,9 @@ Return:
 2. `Selection rationale`: the three selected roles in order, why they are the
    most relevant, and whether each omitted role is reasonably covered or
    irrelevant to the task;
-3. `Role coverage`: each selected specialist, its exact reviewed range,
-   reviewed `HEAD`, and verdict; explicitly compare both revision fields across
-   all three reports;
+3. `Role coverage`: each selected specialist, its review mode, exact reviewed
+   range, reviewed `HEAD`, and verdict; explicitly compare the mode and both
+   revision fields across all three reports;
 4. `Accepted findings`: deduplicated and ordered by severity, with source
    roles, exact evidence, failure mode, and smallest correction;
 5. `Rejected findings`: the source role and concrete reason each was rejected;

@@ -17,7 +17,8 @@ Do not start a Codex Security Scan unless the user explicitly requested one.
   retention, and deletion.
 - Look for fail-open behavior, confused-deputy paths, privilege escalation,
   insecure defaults, information disclosure, and abuse cases introduced by the
-  cumulative change.
+  supplied review-range changes. In checkpoint mode, do not re-audit earlier
+  checkpoint diffs; in final mode, assess the full frozen task/session range.
 - Calibrate severity from a concrete source-to-impact path. Do not report
   generic hardening ideas as findings.
 

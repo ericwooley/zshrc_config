@@ -376,14 +376,22 @@ This mixes calculation, environment access, client construction, and network I/O
   files. The snapshot must detect content and file-type changes, not only paths
   and status codes; for example, hash staged and unstaged binary diffs plus
   untracked path, type, and content evidence. Use that baseline to distinguish
-  and preserve unrelated pre-existing changes. At each checkpoint:
+  and preserve unrelated pre-existing changes. Use the task-start commit as the
+  review base for the first checkpoint. After a checkpoint receives a `ready`
+  verdict, advance the review base to that checkpoint's reviewed `HEAD`. At
+  each checkpoint:
   1. finish the checkpoint's implementation, tests, and required documentation;
   2. run the relevant validation and inspect the complete diff and repository
      status;
   3. stage only the intended files and create a scoped checkpoint commit;
-  4. launch a dedicated code-review subagent to adversarially review both the
-     exact checkpoint commit range and its effect on the cumulative task; and
+  4. launch a dedicated code-review subagent to adversarially review only the
+     exact previous-checkpoint-to-current-checkpoint commit range; and
   5. wait for a `ready` verdict before beginning the next checkpoint.
+- A checkpoint reviewer may inspect current surrounding code, tests, contracts,
+  and consumers when needed to understand or validate the checkpoint delta, but
+  must not re-review earlier checkpoint diffs or the cumulative task history.
+  The final specialist group is the single full review of all task/session
+  changes.
 - Do not include unrelated or pre-existing worktree changes in a checkpoint
   commit. If the requested work cannot be isolated safely, stop and explain the
   overlap instead of committing someone else's changes.
@@ -405,11 +413,13 @@ This mixes calculation, environment access, client construction, and network I/O
   instructions, unresolved concerns, and, for bug fixes, the exact test command
   plus failing and passing output. Otherwise, include the exact instructions I
   gave you in the subagent task under `Original user request (verbatim)`. Do
-  not paraphrase them. Include the current plan and checkpoint, the task-start
-  commit, the exact checkpoint commit range, the cumulative task range,
-  sanitized validation evidence, and sanitized unresolved concerns. For bug
-  fixes, also include the sanitized exact test command, failing output, and
-  passing output.
+  not paraphrase them. Include the current plan and checkpoint, the previous
+  `ready` checkpoint commit (or task-start commit for the first checkpoint),
+  `Review mode: checkpoint delta`, the exact
+  previous-checkpoint-to-current-`HEAD` review range, sanitized validation
+  evidence, and sanitized unresolved concerns. Do not give a checkpoint
+  reviewer the cumulative task range. For bug fixes, also include the sanitized
+  exact test command, failing output, and passing output.
 - Give the subagent a review task that is read-only with respect to repository
   source and tracked files, commits, pushes, and production or shared external
   state. It may inspect the repository, run relevant tests, start disposable
@@ -418,10 +428,10 @@ This mixes calculation, environment access, client construction, and network I/O
   only under the applicable common prompt's safety rules.
 - Resolve every actionable finding yourself, rerun the relevant tests, and
   create a new scoped fix commit. Launch a fresh review subagent against the
-  original checkpoint base through the new `HEAD`, as well as the cumulative
-  task range. Repeat this fix, commit, and re-review loop until the reviewer
-  returns a `ready` verdict. Do not ask the review subagent to implement its own
-  findings.
+  same previous-checkpoint base through the new `HEAD`. The checkpoint review
+  base does not advance until the checkpoint is `ready`. Repeat this fix,
+  commit, and re-review loop until the reviewer returns a `ready` verdict. Do
+  not ask the review subagent to implement its own findings.
 - The reusable prompts already require review of all copy as
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
@@ -432,12 +442,14 @@ This mixes calculation, environment access, client construction, and network I/O
 - Once all implementation checkpoints are individually `ready` and you believe
   the feature or request is complete, commit every intended task change and
   require no remaining uncommitted task changes or untracked task artifacts.
-  Record the exact full `HEAD` and a new content-sensitive repository snapshot,
-  then freeze the task range and snapshot at that revision. A task that started
-  clean must be clean; unrelated pre-existing changes may remain only when
-  their content-sensitive state still matches the task-start baseline and is
-  isolated from the task. Run a final specialist group review before declaring
-  the task done or pushing it.
+  Record the exact full `HEAD` and a new content-sensitive repository snapshot.
+  Freeze the full task/session range from the task-start commit through that
+  final `HEAD`; do not use the most recent checkpoint as the final-review base.
+  A task that started clean must be clean; unrelated pre-existing changes may
+  remain only when their content-sensitive state still matches the task-start
+  baseline and is isolated from the task. Run one final specialist group review
+  over all changes in that frozen task/session range before declaring the task
+  done or pushing it.
 - Every group-review pass must select exactly the three most relevant
   specialist roles from the candidate list below and use one fresh subagent for
   each selected role. Apply the same source-repository and shared-state
@@ -477,10 +489,10 @@ This mixes calculation, environment access, client construction, and network I/O
   role prompt from `${ZSHRC_CONFIG_DIR:-$HOME/.zshrc_config}` and pass the
   applicable absolute paths to each subagent; do not assume the current
   repository contains `.codex/prompts`. Give each the exact original request,
-  plan, task-start commit, frozen task range and `HEAD`, sanitized validation
-  evidence, sanitized relevant run instructions, and sanitized unresolved
-  concerns. Tell each selected specialist which numbered position it occupies
-  in the selected three-role review order.
+  plan, task-start commit, `Review mode: final full task`, frozen task range and
+  `HEAD`, sanitized validation evidence, sanitized relevant run instructions,
+  and sanitized unresolved concerns. Tell each selected specialist which
+  numbered position it occupies in the selected three-role review order.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review

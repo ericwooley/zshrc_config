@@ -14,8 +14,10 @@ preference.
   and failure recovery where relevant.
 - Confirm the implementation fits the existing architecture without adding
   speculative abstraction or duplicating established behavior.
-- Inspect the exact checkpoint and cumulative ranges, not only the files named
-  by the implementing agent.
+- Inspect the exact supplied review range and any current surrounding code
+  needed to validate it, not only the files named by the implementing agent.
+  For checkpoint mode, do not expand into earlier checkpoint diffs. For final
+  mode, inspect the full frozen task/session range.
 
 ## Tool use
 

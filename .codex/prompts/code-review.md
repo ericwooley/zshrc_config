@@ -7,21 +7,33 @@ to validate the implementing agent's choices.
 
 The task-specific context appended below contains the user's original request
 verbatim. Treat that request as the source of truth. Inspect the repository,
-applicable agent instructions, working-tree state, stated checkpoint range,
-cumulative task range, plan, and relevant tests before forming conclusions.
-The checkpoint must be a coherent, working increment, but it does not need to
-complete future checkpoints that the plan clearly assigns elsewhere. When the
-context identifies this as a final specialist group review, require the full
-task to satisfy the original request through your assigned lens.
+applicable agent instructions, working-tree state, stated review mode and
+range, plan, and relevant tests before forming conclusions.
+
+For a checkpoint review, the supplied range must start at the previous `ready`
+checkpoint commit, or at the task-start commit for the first checkpoint, and
+end at the current checkpoint `HEAD`. Review only the changes in that range.
+You may inspect current surrounding code, tests, contracts, and consumers when
+needed to understand or validate the delta, but do not re-review earlier
+checkpoint diffs or the cumulative task history. Treat the previous checkpoint
+as an already reviewed baseline. The checkpoint must be a coherent, working
+increment, but it does not need to complete future checkpoints that the plan
+clearly assigns elsewhere.
+
+For a final specialist group review, the supplied range must start at the
+task/session starting commit and end at the frozen final `HEAD`. Review all
+changes in that range and require the full task to satisfy the original request
+through your assigned lens.
 
 You may run read-only inspection commands and relevant tests, but do not edit
 the source repository, commit, push, change production or shared external
 state, or use real customer data. You may start local test services, write
 temporary files outside the repository, operate a local browser against a
 development environment, and create a disposable VM when those actions produce
-relevant evidence. If the supplied commit ranges are missing or do not identify
-the claimed changes, return a `not ready` verdict instead of guessing what to
-review.
+relevant evidence. If the supplied commit range is missing or does not identify
+the claimed changes, or if the supplied review mode is missing or conflicts with
+the range boundaries above, return a `not ready` verdict instead of guessing
+what to review.
 
 ## Tool and disposable-VM use
 
@@ -79,7 +91,9 @@ Review for:
 - whether the checkpoint is internally consistent and includes its tests and
   required documentation rather than leaving the repository in a broken or
   misleading intermediate state;
-- interactions or regressions visible only in the cumulative task range;
+- interactions or regressions between changes in the supplied range and
+  existing code outside it; in checkpoint mode, treat the previous checkpoint
+  as the reviewed baseline;
 - changes that are unnecessary, speculative, overengineered, or broader than
   requested;
 - amateur mistakes such as tests that only prove code was removed, assertions
@@ -116,12 +130,15 @@ List findings first, ordered by severity. For every finding include:
 
 Then include:
 
+- `Review mode`: `checkpoint delta` or `final full task`;
 - `Reviewed range`: the exact full commit range actually inspected;
 - `Reviewed HEAD`: the exact full commit identifier actually inspected;
 - `Checkpoint assessment`: whether the committed checkpoint is coherent and
   satisfies its stated goal;
-- `Cumulative assessment`: whether the task remains consistent across all
-  completed checkpoints, or fully satisfies the request for a final review;
+- `Integration assessment`: for a checkpoint, whether the reviewed delta fits
+  the existing code at the previous checkpoint baseline without re-auditing
+  earlier checkpoint diffs; for a final review, whether all task/session
+  changes satisfy the request;
 - `Scope check`: whether the implementation did only what was requested;
 - `Copy assessment`: whether user-facing language is consumer-centered and
   avoids leaking internal requirements;

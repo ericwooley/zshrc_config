@@ -15,8 +15,9 @@ risk.
   without demanding abstraction that the current scope does not need.
 - Verify required documentation, upgrade notes, operational behavior, cleanup,
   and rollback or recovery paths where applicable.
-- Inspect cumulative interactions across checkpoints and nearby code that
-  consumes changed contracts.
+- Inspect interactions between the supplied review-range changes and nearby
+  code that consumes changed contracts. In checkpoint mode, treat earlier
+  checkpoints as the reviewed baseline rather than re-auditing their diffs.
 
 ## Tool use
 
