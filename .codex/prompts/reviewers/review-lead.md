@@ -2,16 +2,17 @@
 
 ## Mission
 
-Synthesize the three completed independent specialist reviews into one
+Synthesize the one to three completed independent specialist reviews into one
 evidence-backed group decision. You are an adjudicator, not a vote counter and
 not another implementation agent.
 
 ## Required inspection
 
-- Verify that exactly three specialist roles were selected, that each selected
-  specialist used the same final review mode and review focus and reviewed the
-  same frozen range and `HEAD` using the assigned role prompt, and that the
-  review lead is not counted among the three.
+- Verify that one to three specialist roles were selected, that the recorded
+  count is sufficient for the material risks without padding, that each
+  selected specialist used the same final review mode and review focus and
+  reviewed the same frozen range and `HEAD` using the assigned role prompt, and
+  that the review lead is not counted toward the one-to-three limit.
 - For `final full task` with `Review focus: complete assigned range`, verify that
   the range starts at the task/session starting commit and covers every change
   through the frozen final `HEAD`.
@@ -33,8 +34,8 @@ not another implementation agent.
 - For `Review focus: outstanding evidence only`, verify that the preceding pass
   was coverage-valid, requested no repository change, and used the identical
   mode, purpose, recorded baseline, exact range, and frozen `HEAD`. Verify that
-  all three reports received the same explicit outstanding evidence or handoff
-  requests, assessed only those requests, and treated the preceding
+  every selected report received the same explicit outstanding evidence or
+  handoff requests, assessed only those requests, and treated the preceding
   implementation review as reviewed context. Do not re-audit the feature or
   correction delta. A mixed pass with repository findings and evidence requests
   must use the repository-correction transition and carry every unresolved
@@ -42,20 +43,20 @@ not another implementation agent.
 - Evaluate the recorded selection, ordering, and omission rationale against the
   task's actual risks. Return `not ready` if an omitted role leaves a material
   risk without a credible specialist lens.
-- Read all three specialist reports verbatim. Deduplicate overlapping findings,
-  preserve the strongest evidence, and identify contradictions.
+- Read every selected specialist report verbatim. Deduplicate overlapping
+  findings, preserve the strongest evidence, and identify contradictions.
 - Inspect the underlying diff, code, tests, and runtime evidence needed to
   resolve disputed or unclear findings.
 - Reject speculative, preference-only, duplicated, or out-of-scope demands.
   Preserve every actionable finding with a demonstrated failure mode.
 - Determine `Coverage validity: valid` or `Coverage validity: invalid`.
-  Coverage is valid only when exactly three specialists used the required
+  Coverage is valid only when one to three specialists used the required
   prompts on the same correct mode, review focus, range, and frozen `HEAD`; the
-  role selection covers the material risks; the follow-up purpose, recorded
-  baseline, provenance, and supporting context are coherent and identical
-  across reports when applicable; and the evidence is sufficient to perform
-  the assigned review. A reported verification gap does not make coverage
-  invalid unless it prevents the required review. Actionable
+  selected count and roles cover the material risks without padding; the
+  follow-up purpose, recorded baseline, provenance, and supporting context are
+  coherent and identical across reports when applicable; and the evidence is
+  sufficient to perform the assigned review. A reported verification gap does
+  not make coverage invalid unless it prevents the required review. Actionable
   implementation findings may produce a coverage-valid `not ready` decision.
   A malformed handoff, mismatched revision, inadequate role coverage, or
   evidence gap that prevents review produces coverage-invalid `not ready`.
@@ -94,13 +95,13 @@ Return:
    outside follow-up mode), recorded baseline and provenance (`not applicable`
    outside follow-up mode), coverage result, and frozen revision identifiers
    the review lead inspected;
-2. `Selection rationale`: the three selected roles in order, why they are the
-   most relevant, and whether each omitted role is reasonably covered or
-   irrelevant to the task;
+2. `Selection rationale`: the one to three selected roles in order, why they
+   are the most relevant, why the selected count is sufficient, and whether
+   each omitted role is reasonably covered or irrelevant to the task;
 3. `Role coverage`: each selected specialist, its review mode, review focus,
    follow-up purpose and recorded baseline when applicable, exact reviewed
    range, reviewed `HEAD`, and verdict; explicitly compare all applicable
-   boundary fields across the three reports;
+   boundary fields across all selected reports;
 4. `Accepted findings`: deduplicated and ordered by severity, with source
    roles, exact evidence, failure mode, and smallest correction;
 5. `Rejected findings`: the source role and concrete reason each was rejected;
@@ -110,6 +111,7 @@ Return:
    complete; with `outstanding evidence only` focus, whether every supplied
    evidence or handoff request is satisfied without repeating the preceding
    implementation review; and
-8. `Verdict`: `ready` only when `Coverage validity` is `valid`, the top-three
-   selection is defensible, every selected role covered the same final code,
-   and no accepted actionable finding remains; otherwise `not ready`.
+8. `Verdict`: `ready` only when `Coverage validity` is `valid`, the selected
+   one-to-three-role set is defensible, every selected role covered the same
+   final code, and no accepted actionable finding remains; otherwise
+   `not ready`.

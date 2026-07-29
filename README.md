@@ -50,8 +50,10 @@ If that backup already exists, a dated backup name is used instead.
 - **zsh**: Antidote-managed plugins, fast completions, flexible aliases, and one-function-per-file helpers.
 - **Starship**: versioned prompt config symlinked into `~/.config/starship.toml`.
 - **Codex instructions**: global planning, incremental checkpoint review,
-  initial full-session top-three review, and incremental final-follow-up rules
-  symlinked from this repo into `~/.codex/AGENTS.md`.
+  a relevance-sized group of one to three final specialists, incremental
+  follow-ups, and explicit fast paths for localized documentation and low
+  quality mode with `LQM`/`HQM` switching, symlinked from this repo into
+  `~/.codex/AGENTS.md`.
 - **tmux**: mouse support, clipboard-friendly copy mode, current-directory windows/panes, and simple window movement.
 - **Neovim**: lazy.nvim, Telescope, LSP, completion, file tree, statusline, Git signs, LazyGit, formatting, linting, sessions, and which-key. Linux installs use the official stable tarball.
 - **Multipass VMs**: `vmcreate`, `vmconnect`, `vmls`, and `vmrm` create and manage disposable VMs with `~/vms/shared` mounted at `~/shared`.

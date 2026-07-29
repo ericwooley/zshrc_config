@@ -365,6 +365,33 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Planning, checkpoints, and reviewing your code
 
+- Low quality mode is an explicit, conversation-scoped review toggle. `LQM`
+  (case-insensitive), `use low quality mode`, `skip all reviews`, or an
+  unmistakable equivalent activates it immediately for unfinished and later
+  work in the current conversation. While active, do not launch any
+  checkpoint-review subagent, final specialist, or review lead. `HQM`
+  (case-insensitive), `use high quality mode`, `resume normal reviews`, or an
+  unmistakable equivalent switches back immediately and restores the normal
+  checkpoint and relevance-sized final-review requirements for unfinished and
+  later work. Do not retroactively review work already completed and delivered
+  while LQM was active. Do not infer either mode merely from requests to be
+  quick, cheap, or concise, and do not carry the toggle into another
+  conversation. In LQM, still create the working plan and content-sensitive
+  baseline, preserve unrelated work, implement the requested change, run
+  proportionate validation, inspect the complete diff and status, and create
+  scoped commits. LQM does not relax safety rules or authorize merges, pushes,
+  or external changes that the user did not otherwise request. Record LQM use
+  or an HQM switch in the plan and final response when it affects the task.
+- Localized static copy or documentation corrections may skip checkpoint-review
+  subagents, the final specialist group, and the review lead when they do not
+  change runtime behavior, dependencies, security policy, public contracts,
+  deployment, or accessibility. This exemption is for localized corrections,
+  not behavioral workflow or policy changes expressed in documentation. Create
+  the normal plan and content-sensitive baseline, validate the affected
+  artifacts, inspect the complete diff and repository status, and create
+  exactly one scoped commit. Record the concrete exemption reason and
+  validation evidence in the plan and final response. When applicability is
+  uncertain, do not use the exemption.
 - For every task that changes tracked files, create a working plan before
   editing. Break the work into outcome-oriented checkpoints that can be
   implemented, tested, committed, and reviewed as coherent units. Keep the plan
@@ -384,9 +411,12 @@ This mixes calculation, environment access, client construction, and network I/O
   2. run the relevant validation and inspect the complete diff and repository
      status;
   3. stage only the intended files and create a scoped checkpoint commit;
-  4. launch a dedicated code-review subagent to adversarially review only the
-     exact previous-checkpoint-to-current-checkpoint commit range; and
-  5. wait for a `ready` verdict before beginning the next checkpoint.
+  4. unless low quality mode or the localized static-copy/documentation
+     exemption applies, launch a dedicated code-review subagent to adversarially
+     review only the exact previous-checkpoint-to-current-checkpoint commit
+     range; and
+  5. when a reviewer was launched, wait for a `ready` verdict before beginning
+     the next checkpoint.
 - A checkpoint reviewer may inspect current surrounding code, tests, contracts,
   and consumers when needed to understand or validate the checkpoint delta, but
   must not re-review earlier checkpoint diffs or the cumulative task history.
@@ -439,8 +469,11 @@ This mixes calculation, environment access, client construction, and network I/O
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
 
-# Final top-three specialist group review
+# Final relevance-sized specialist group review
 
+- Do not run this section's specialist group or review lead when low quality
+  mode or the localized static-copy/documentation exemption applies. The
+  trivial/minor final-only exemption is defined below.
 - Once all implementation checkpoints are individually `ready` and you believe
   the feature or request is complete, commit every intended task change and
   require no remaining uncommitted task changes or untracked task artifacts.
@@ -452,16 +485,18 @@ This mixes calculation, environment access, client construction, and network I/O
   baseline and is isolated from the task. Run one final specialist group review
   over all changes in that frozen task/session range before declaring the task
   done or pushing it. This initial pass uses `Review mode: final full task`.
-- Every group-review pass must select exactly the three most relevant
-  specialist roles from the candidate list below and use one fresh subagent for
-  each selected role. Apply the same source-repository and shared-state
-  read-only boundary defined above to all three selected specialists and the
-  separate review lead. The review lead does not count toward the three. Run
-  the selected specialists sequentially, one at a time, and wait for each to
-  finish, then run the review lead last. Choose and record the order by
-  relevance to the actual risk, with the most relevant specialist first.
-  Record why each role was selected and why each of the other three roles was
-  omitted. Do not default to the same trio for every task.
+- Every group-review pass must select the one to three most relevant specialist
+  roles from the candidate list below and use one fresh subagent for each
+  selected role. Use only the number needed to cover the material risks; do not
+  add roles merely to reach three. Apply the same source-repository and
+  shared-state read-only boundary defined above to every selected specialist
+  and the separate review lead. The review lead does not count toward the
+  one-to-three limit. Run the selected specialists sequentially, one at a time,
+  and wait for each to finish, then run the review lead last. Choose and record
+  the order by relevance to the actual risk, with the most relevant specialist
+  first. Record why each role was selected, why that count is sufficient, and
+  why every omitted candidate role is unnecessary or covered. Do not default to
+  the same roles or count for every task.
   Candidate specialist roles:
 
   - Senior engineer:
@@ -513,15 +548,16 @@ This mixes calculation, environment access, client construction, and network I/O
   or corrected-handoff requests. State that the preceding code review is
   reviewed context and must not be repeated. Do not give a standard final
   follow-up reviewer the full task/session range. Tell each selected specialist
-  which numbered position it occupies in the selected three-role review order.
+  which numbered position it occupies in the selected review order and how many
+  specialists were selected for that pass.
 - Keep specialist reviews independent: do not give a specialist the earlier
   specialists' reports, and do not change the code or reviewed `HEAD` between
   specialist reviews. Sanitize every report before handing it to the review
   lead: replace sensitive values from logs, scanner output, or findings with
   stable redaction markers while retaining the relevant path, key name,
-  detector, and impact. Give the review-lead subagent all three sanitized
-  specialist reports verbatim, the selection, ordering, and omission rationale,
-  and the same frozen task context.
+  detector, and impact. Give the review-lead subagent every selected
+  specialist's sanitized report verbatim, the selection, count, ordering, and
+  omission rationale, and the same frozen task context.
 - Reviewers must use the relevant tools available to them rather than limiting
   themselves to a diff when runtime evidence is practical. This may include
   repository inspection, focused tests, builds, linters, a local application,
@@ -535,8 +571,9 @@ This mixes calculation, environment access, client construction, and network I/O
   Scan unless I explicitly ask for one.
 - The review lead must report `Coverage validity: valid` or
   `Coverage validity: invalid`. Coverage is valid only when the mode, review
-  focus, range, frozen `HEAD`, exactly three specialist reports, role selection,
-  and verification evidence are sufficient to perform the required review. A
+  focus, range, frozen `HEAD`, one to three specialist reports, role selection,
+  selected count, and verification evidence are sufficient to perform the
+  required review. A
   procedurally invalid pass does not establish or advance the recorded
   final-review baseline. Correct its handoff or evidence and rerun the same
   review mode from the same recorded baseline; if repository corrections change
@@ -556,8 +593,8 @@ This mixes calculation, environment access, client construction, and network I/O
   this correction transition while retaining every unresolved evidence and
   handoff obligation.
   Resolve the findings yourself, rerun relevant validation, and create a scoped
-  fix checkpoint commit. Freeze the new correction `HEAD`, reselect the three
-  most relevant roles for the requested corrections, and run
+  fix checkpoint commit. Freeze the new correction `HEAD`, reselect the one to
+  three most relevant roles for the requested corrections, and run
   `Review mode: final follow-up` with
   `Follow-up purpose: requested corrections` over only the
   baseline-to-correction range. Use a fresh subagent for each selected role and
@@ -570,7 +607,7 @@ This mixes calculation, environment access, client construction, and network I/O
 - When a coverage-valid `not ready` verdict requires only missing evidence or a
   corrected handoff and no repository change, do not advance the recorded
   final-review baseline or create an empty delta. Obtain the evidence or repair
-  the handoff, reselect the three roles most relevant to the outstanding
+  the handoff, reselect the one to three roles most relevant to the outstanding
   evidence, and rerun the same review mode, exact range, frozen `HEAD`, and
   follow-up purpose from the retained baseline with
   `Review focus: outstanding evidence only`. Explicitly tell the reviewers and
@@ -603,23 +640,26 @@ This mixes calculation, environment access, client construction, and network I/O
   `Follow-up purpose: intentional drift changes` from that baseline through the
   new frozen `HEAD`. Give reviewers a sanitized description and acceptance
   criteria for that delta, and do not restart the full task/session review.
-- You may skip the final specialist group only for a clearly trivial fix or
-  minor request. Record the concrete low-risk reason and validation evidence in
-  the plan and final response. Treat changes involving authentication,
-  authorization, security or privacy boundaries, persistent data or migrations,
-  dependencies, public APIs, deployment or CI, concurrency, user-facing
-  behavior or copy, or UI interactions as presumptively nontrivial. A genuinely
-  minor localized correction, such as a typo-only label change with no behavior,
-  workflow, state, contract, or accessibility effect, may still use the
-  exemption when that reasoning is documented. Material changes in the listed
-  categories may not skip the group. When uncertain, run the group.
+- Outside an explicitly invoked low quality mode, skip checkpoint reviewers,
+  the final specialist group, and the review lead together only under the
+  localized static-copy or documentation exemption above. Other clearly
+  trivial or minor requests may skip the final specialist group and review lead
+  only when their concrete low-risk reason and validation evidence are recorded
+  in the plan and final response. Treat
+  changes involving authentication, authorization, security or privacy
+  boundaries, persistent data or migrations, dependencies, public APIs,
+  deployment or CI, concurrency, runtime behavior, workflow policy, state, or
+  UI interactions as presumptively nontrivial. Material changes in these
+  categories may not use the trivial/minor exemption. When uncertain, run a
+  relevance-sized group.
 - Follow-up changes based on my feedback to an open PR use the same plan,
-  checkpoint, and group-review process. Once the final group review is `ready`,
-  verify the reviewed `HEAD` and unchanged frozen content-sensitive repository
-  snapshot as described above, then push only those already-reviewed commits to
-  the existing PR branch without waiting for a separate push request. Do not
-  push any change that has not passed the required review process, and do not
-  open a replacement PR or merge unless I explicitly ask.
+  checkpoint, and currently active review mode or documented exemption. Once
+  the required review returns `ready`, or the LQM/static-documentation skip is
+  complete, verify the committed `HEAD` and unchanged content-sensitive
+  repository snapshot as described above, then push those scoped commits to the
+  existing PR branch without waiting for a separate push request. Push only
+  changes covered by the required review or documented skip. Do not open a
+  replacement PR or merge unless I explicitly ask.
 
 # Designing with Claude
 
