@@ -510,6 +510,35 @@ maybe_install_multipass() {
   fi
 }
 
+install_zsh_update_cron() {
+  cron_helper="$repo_dir/functions/zsh_install_hourly_update_cron.zsh"
+
+  if ! command -v zsh >/dev/null 2>&1; then
+    echo "install.sh: zsh is required to install the config update cron" >&2
+    return 1
+  fi
+
+  if [ ! -r "$cron_helper" ]; then
+    echo "install.sh: missing zsh update cron helper: $cron_helper" >&2
+    return 1
+  fi
+
+  ZSHRC_CONFIG_DIR="$repo_dir" zsh -f -c '
+    source "$ZSHRC_CONFIG_DIR/functions/zsh_install_hourly_update_cron.zsh"
+    zsh_install_hourly_update_cron
+  '
+}
+
+maybe_install_zsh_update_cron() {
+  if confirm "Install the 10-minute zsh config update cron?"; then
+    if ! install_zsh_update_cron; then
+      echo "install.sh: warning: zsh config update cron installation failed" >&2
+    fi
+  else
+    echo "install.sh: skipped 10-minute zsh config update cron"
+  fi
+}
+
 set_default_shell_to_zsh() {
   if ! command -v zsh >/dev/null 2>&1; then
     echo "install.sh: warning: zsh is not installed; cannot set it as the default shell" >&2
@@ -719,6 +748,8 @@ main() {
   else
     echo "install.sh: skipped config install"
   fi
+
+  maybe_install_zsh_update_cron
 }
 
 if [ "${ZSHRC_INSTALL_SOURCE_ONLY:-0}" != "1" ]; then

@@ -572,7 +572,7 @@ Purpose:
 - pull the remote clone on later runs
 - normalize GitHub SSH repo URLs to HTTPS before cloning or pulling
 - run the repo `install.sh` on the remote
-- ask whether to install the 10-minute zshupdate cron on the remote
+- use the shared installer prompt for the 10-minute zshupdate cron
 - ask whether to install the Neovim stable tarball update cron on the remote
 - use the same installer prompts, backups, and managed symlinks as local installs
 

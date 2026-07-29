@@ -37,7 +37,8 @@ curl -fsSL https://raw.githubusercontent.com/ericwooley/zshrc_config/main/bootst
 ```
 
 The bootstrap installer clones this repo directly into `~/.zshrc_config`, then
-runs `install.sh`. If `~/.zshrc_config` already exists, it is moved to:
+runs `install.sh`. The installer asks whether to add the optional 10-minute zsh
+config update cron job. If `~/.zshrc_config` already exists, it is moved to:
 
 ```text
 ~/.zsh_config.bak
@@ -61,7 +62,7 @@ If that backup already exists, a dated backup name is used instead.
 - **AI helpers**: `aiCommit` for short commit messages, `zshpush` for publishing dotfile changes, and `zshow` for asking questions about this setup.
 - **Remote setup**: `zshsetup <host>` clones or updates this repo on an SSH host and runs the same installer there.
 - **TigerVNC helper**: `setup-tight-vnc.sh` configures an XFCE TigerVNC desktop for SSH-tunneled, localhost-only access.
-- **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell; `zsh_install_hourly_update_cron` can check for config updates every 10 minutes; `nvim_install_stable_update_cron` can keep the Linux Neovim tarball current.
+- **Updates**: `zshupdate` pulls the managed config repo and reloads the current shell; `install.sh` offers to run `zsh_install_hourly_update_cron` so config updates can be checked every 10 minutes; `nvim_install_stable_update_cron` can keep the Linux Neovim tarball current.
 - **Timezone setup**: `install.sh` can interactively set the system timezone on macOS and Linux.
 - **Safety**: no Neovim project-open hooks that run repo-local scripts just because a file was opened.
 - **Docs**: quick references and maintenance notes live in [`./docs`](docs/INDEX.md).

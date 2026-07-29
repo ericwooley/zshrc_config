@@ -25,11 +25,11 @@ zshsetup user@example.com
 - stashes remote local changes before updating an existing clone
 - runs `git pull --ff-only` on later runs
 - runs the repo `install.sh` on the remote
-- asks whether to install the remote 10-minute zshupdate cron job
 - asks whether to install the remote Neovim stable tarball update cron job
 
 The remote installer then handles dependency prompts, optional timezone setup,
-backups, and links for zsh, tmux, and Neovim config.
+backups, links for zsh, tmux, and Neovim config, and the optional 10-minute
+zshupdate cron job.
 
 ## Local Function
 
@@ -91,9 +91,9 @@ If an unmanaged path already exists, the installer moves it aside first:
 
 `zshsetup` only auto-prompts for the minimum git bootstrap needed before the repo
 can be cloned. After that, `install.sh` asks before installing dependencies,
-configuring the system timezone, and writing managed config links. When install
-finishes, `zshsetup` asks whether to run `zsh_install_hourly_update_cron` and
-`nvim_install_stable_update_cron` on the remote.
+configuring the system timezone, writing managed config links, and running
+`zsh_install_hourly_update_cron`. When install finishes, `zshsetup` asks whether
+to run `nvim_install_stable_update_cron` on the remote.
 
 Answer `y` to run a step. Anything else skips it.
 
@@ -104,8 +104,7 @@ Answer `y` to run a step. Anything else skips it.
 ```sh
 git -C ~/.zshrc_config stash push -u -m "zshsetup auto-stash <date>" # only when dirty
 git -C ~/.zshrc_config pull --ff-only
-sh ~/.zshrc_config/install.sh
-zsh_install_hourly_update_cron # only when accepted
+sh ~/.zshrc_config/install.sh # includes the optional zsh update cron prompt
 nvim_install_stable_update_cron # only when accepted
 ```
 

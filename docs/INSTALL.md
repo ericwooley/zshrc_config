@@ -32,9 +32,10 @@ From the repo root:
 ```
 
 The installer asks before installing Homebrew and other dependencies,
-configuring the system timezone, and linking config into the home directory.
-If Homebrew setup fails, the installer reports the problem and continues to the
-timezone and config prompts so those steps remain available.
+configuring the system timezone, linking config into the home directory, and
+installing the 10-minute zsh config update cron job. If Homebrew setup fails,
+the installer reports the problem and continues to the timezone, config, and
+cron prompts so those steps remain available.
 
 ## What Gets Installed
 
@@ -160,6 +161,21 @@ Unsupported operating systems get warnings with the tools to install manually.
 When `multipass` is on `PATH`, the `vmcreate`, `vmconnect`, `vmls`, and `vmrm`
 functions can create and manage local VMs with `~/vms/shared` mounted at
 `~/shared` inside each VM.
+
+## Automatic Zsh Config Updates
+
+At the end of each run, the installer asks whether to install the optional
+10-minute zsh config update cron job. Accepting the prompt runs:
+
+```sh
+zsh_install_hourly_update_cron
+```
+
+The helper adds a marked entry to the current user's crontab that runs
+`git pull --ff-only` in `~/.zshrc_config` every 10 minutes. Output is appended
+to `~/.zsh_install_hourly_update_cron.log`. Rerunning the installer replaces
+the existing marked entry instead of adding a duplicate. Declining the prompt
+leaves the current crontab unchanged.
 
 ## Timezone Setup
 
