@@ -365,29 +365,39 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Planning, checkpoints, and reviewing your code
 
-- Low quality mode is an explicit, conversation-scoped review toggle. `LQM`
-  (case-insensitive), `use low quality mode`, `skip all reviews`, or an
-  unmistakable equivalent activates it immediately for unfinished and later
-  work in the current conversation. While active, do not launch any
-  checkpoint-review subagent, final specialist, or review lead. Stop treating
-  any in-flight review as a gate immediately. When control is available,
-  interrupt in-flight review subagents and the lead; if interruption could
-  strand a local service, disposable VM, or temporary artifact, perform or
-  allow only the bounded cleanup required by the review safety rules without
-  waiting for a verdict. Ignore any review report that arrives after LQM
-  activation when deciding whether the task may proceed. `HQM`
-  (case-insensitive), `use high quality mode`, `resume normal reviews`, or an
-  unmistakable equivalent switches back immediately and restores the normal
-  checkpoint and relevance-sized final-review requirements for unfinished and
-  later work. Do not retroactively review work already completed and delivered
-  while LQM was active. Do not infer either mode merely from requests to be
-  quick, cheap, or concise, and do not carry the toggle into another
-  conversation. In LQM, still create the working plan and content-sensitive
-  baseline, preserve unrelated work, implement the requested change, run
-  proportionate validation, inspect the complete diff and status, and create
-  scoped commits. LQM does not relax safety rules or authorize merges, pushes,
-  or external changes that the user did not otherwise request. Record LQM use
-  or an HQM switch in the plan and final response when it affects the task.
+- Review quality is an explicit, conversation-scoped mode and defaults to mid
+  quality mode at the start of every conversation. `MQM` (case-insensitive),
+  `use mid quality mode`, `use medium quality mode`, `final review only`, or an
+  unmistakable equivalent activates mid quality mode immediately for unfinished
+  and later work. In MQM, skip checkpoint-review subagents but run the
+  relevance-sized final specialist group and review lead. If MQM is activated
+  while a checkpoint review is in flight, stop treating that checkpoint review
+  as a gate, interrupt it when control is available, and ignore its later report
+  for task gating. Do not interrupt a final specialist or review lead merely
+  because MQM was activated.
+- `LQM` (case-insensitive), `use low quality mode`, `skip all reviews`, or an
+  unmistakable equivalent activates low quality mode immediately for unfinished
+  and later work. In LQM, do not launch any checkpoint-review subagent, final
+  specialist, or review lead. Stop treating any in-flight review as a gate
+  immediately. When control is available, interrupt in-flight review subagents
+  and the lead; if interruption could strand a local service, disposable VM, or
+  temporary artifact, perform or allow only the bounded cleanup required by the
+  review safety rules without waiting for a verdict. Ignore any review report
+  that arrives after LQM activation when deciding whether the task may proceed.
+- `HQM` (case-insensitive), `use high quality mode`, `use full reviews`,
+  `resume all reviews`, or an unmistakable equivalent activates high quality
+  mode immediately and requires both checkpoint reviews and the
+  relevance-sized final review for unfinished and later work.
+- Mode switches do not retroactively review work already completed and
+  delivered under another mode. Do not infer a switch merely from requests to
+  be quick, cheap, or concise. Do not carry an explicit mode selection into
+  another conversation; each new conversation starts in MQM. In every mode,
+  still create the working plan and content-sensitive baseline, preserve
+  unrelated work, implement the requested change, run proportionate validation,
+  inspect the complete diff and status, and create scoped commits. Review mode
+  does not relax safety rules or authorize merges, pushes, or external changes
+  that the user did not otherwise request. Record the active mode and any switch
+  in the plan and final response when it affects the task.
 - Localized static copy or documentation corrections may skip checkpoint-review
   subagents, the final specialist group, and the review lead when they do not
   change runtime behavior, dependencies, security policy, public contracts,
@@ -417,11 +427,11 @@ This mixes calculation, environment access, client construction, and network I/O
   2. run the relevant validation and inspect the complete diff and repository
      status;
   3. stage only the intended files and create a scoped checkpoint commit;
-  4. unless low quality mode or the localized static-copy/documentation
-     exemption applies, launch a dedicated code-review subagent to adversarially
-     review only the exact previous-checkpoint-to-current-checkpoint commit
-     range; and
-  5. when a reviewer was launched and LQM remains inactive, wait for a `ready`
+  4. only when HQM is active and the localized static-copy/documentation
+     exemption does not apply, launch a dedicated code-review subagent to
+     adversarially review only the exact
+     previous-checkpoint-to-current-checkpoint commit range; and
+  5. when a reviewer was launched and HQM remains active, wait for a `ready`
      verdict before beginning the next checkpoint.
 - A checkpoint reviewer may inspect current surrounding code, tests, contracts,
   and consumers when needed to understand or validate the checkpoint delta, but
@@ -477,12 +487,15 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Final relevance-sized specialist group review
 
-- Do not run this section's specialist group or review lead when low quality
-  mode or the localized static-copy/documentation exemption applies. The
-  trivial/minor final-only exemption is defined below.
-- Once all implementation checkpoints are individually `ready` and you believe
-  the feature or request is complete, commit every intended task change and
-  require no remaining uncommitted task changes or untracked task artifacts.
+- Run this section's specialist group and review lead in MQM and HQM. Do not run
+  them when LQM or the localized static-copy/documentation exemption applies.
+  The trivial/minor final-only exemption is defined below.
+- Once all implementation checkpoints have completed the active mode's
+  requirements and you believe the feature or request is complete, commit every
+  intended task change and require no remaining uncommitted task changes or
+  untracked task artifacts. In HQM, every checkpoint must have a `ready`
+  verdict. In MQM, every checkpoint must be implemented, validated, inspected,
+  and committed but does not receive a checkpoint-review verdict.
   Record the exact full `HEAD` and a new content-sensitive repository snapshot.
   Freeze the full task/session range from the task-start commit through that
   final `HEAD`; do not use the most recent checkpoint as the final-review base.
