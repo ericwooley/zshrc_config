@@ -191,6 +191,7 @@ Function files live in:
 - `mkcd.zsh`
 - `resetmouse.zsh`
 - `tmr.zsh`
+- `tmr_on_ssh.zsh`
 - `killport.zsh`
 - `dstop.zsh`
 - `dclean.zsh`
@@ -226,6 +227,7 @@ Current load order:
 source "$ZSHRC_CONFIG_DIR/functions/mkcd.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/resetmouse.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/tmr_on_ssh.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/killport.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
@@ -238,6 +240,8 @@ source "$ZSHRC_CONFIG_DIR/functions/vmcreate.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/vmconnect.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/vmrm.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshsetup.zsh"
+
+tmr_on_ssh || true
 ```
 
 ### `functions/mkcd.zsh`
@@ -292,15 +296,19 @@ Purpose:
 
 - attach to a tmux session
 - create the session if it does not exist
-- default the session name to the current directory name
-- use `main` if no name can be inferred
+- open an `fzf` picker when no session name is provided
+- select a running session with Up/Down and Enter
+- offer a `Create a new session` choice that prompts for the new name
 - replace `:` with `_` in session names so tmux accepts them
 
 Behavior:
 
 - outside tmux, runs `tmux new-session -A -s <session>`
 - inside tmux, creates the session in the background when needed and switches the current client to it
+- named calls such as `tmr work` skip the picker
+- Ctrl-C closes the picker without attaching to a session
 - returns an error if tmux is not installed
+- returns an error for the interactive flow if `fzf` is not installed
 
 Examples:
 
@@ -309,6 +317,28 @@ tmr
 tmr work
 tmr api
 ```
+
+### `functions/tmr_on_ssh.zsh`
+
+Public function:
+
+```zsh
+tmr_on_ssh
+```
+
+Purpose:
+
+- open the same interactive picker as no-argument `tmr` at the start of an
+  interactive SSH login
+- skip non-interactive shells and shells without `SSH_TTY`
+- skip the prompt when the SSH shell is already inside tmux
+- guard against prompting more than once when the config is sourced again in
+  the same SSH shell
+
+`functions/init.zsh` calls this function automatically after loading all shell
+functions. Detaching from tmux returns to the SSH shell without reopening the
+picker. Canceling the picker or encountering an error also leaves the SSH shell
+available.
 
 ### `functions/killport.zsh`
 

@@ -5,6 +5,7 @@
 source "$ZSHRC_CONFIG_DIR/functions/mkcd.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/resetmouse.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/tmr.zsh"
+source "$ZSHRC_CONFIG_DIR/functions/tmr_on_ssh.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/killport.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dstop.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/dclean.zsh"
@@ -17,3 +18,5 @@ source "$ZSHRC_CONFIG_DIR/functions/vmcreate.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/vmconnect.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/vmrm.zsh"
 source "$ZSHRC_CONFIG_DIR/functions/zshsetup.zsh"
+
+tmr_on_ssh || true
