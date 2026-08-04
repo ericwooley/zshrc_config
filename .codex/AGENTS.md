@@ -47,6 +47,10 @@ If I tell you to interact with jira, use the acli cli tool. Only interact with j
 
 These principles apply across languages. The exact syntax and patterns differ between Go, TypeScript, Python, Rust, Java, Ruby, and other languages, but the goal is the same: keep important behavior easy to test, easy to reason about, and separate from external side effects.
 
+FQM is the only exception to the test requirements in this section. In FQM,
+keep the design guidance, but do not create, update, or run tests unless the
+user explicitly requests a specific test.
+
 ## Core Principle
 
 Keep as much logic as possible in pure functions, small classes, or deterministic modules.
@@ -403,20 +407,38 @@ This mixes calculation, environment access, client construction, and network I/O
   temporary tests after the current behavior passes its regression tests. Keep
   only tests that protect the current behavior against future bugs. Do not keep
   tests whose only purpose is to prove that old code, old behavior, or an old
-  implementation detail is absent.
+  implementation detail is absent. This rule does not apply in FQM.
 - You are typically going to be logged into github as a second user that is not my primary account. A secondary account. You should never make changes or configure settings unless I tell you to. And even then, you probably can't. Tell me what settings to change and I'll do it. If I tell you to explicitly you may have access so check first.
 
 # Planning, checkpoints, and reviewing your code
 
 - Review quality is an explicit, conversation-scoped mode with no default. The
-  user must explicitly select LQM, MQM, or HQM for each new conversation. If the
-  user has not selected a mode, ask them to choose one before doing any task
-  work. Do not infer a mode from the task's risk, scope, urgency, or wording,
-  and do not reuse a selection from another conversation. The only automatic
-  mode transition is for open PR work: when the agent opens a PR or begins or
-  resumes work on an existing open PR, switch to MQM unless the user explicitly
-  selects LQM or HQM for that work. Record the transition in the plan and final
-  response.
+  user must explicitly select FQM, LQM, MQM, or HQM for each new conversation.
+  If the user has not selected a mode, ask them to choose one before doing any
+  task work. Do not infer a mode from the task's risk, scope, urgency, or
+  wording, and do not reuse a selection from another conversation. The only
+  automatic mode transition is for open PR work: when the agent opens a PR or
+  begins or resumes work on an existing open PR, switch to MQM unless the user
+  explicitly selects FQM, LQM, or HQM for that work. Record the transition in
+  the plan and final response.
+- `FQM` (case-insensitive), `use fast quality mode`, `use yolo mode`,
+  `debug in production mode`, or an unmistakable equivalent explicitly
+  activates fast quality mode immediately for unfinished and later work. Use
+  FQM for small scripts, direct experiments, and urgent debug changes. Make the
+  smallest direct change that satisfies the request. Do not create a formal
+  plan, checkpoints, or a content-sensitive baseline. Do not create, update, or
+  run tests. Do not run linters, formatters, builds, or optional validation.
+  Run only a check that the user explicitly requests or a higher-priority safety
+  rule requires. Do not launch review agents. Stop treating all reviews and
+  checks as gates. Interrupt review agents and running checks when control is
+  available. Allow only bounded cleanup when interruption could leave a local
+  service or temporary artifact. Inspect the relevant files before the edit.
+  Inspect the intended diff and repository status after the edit. Create scoped
+  commits when the task requires commits. State that normal verification was
+  skipped. List each user-requested or required check that ran. FQM does not
+  permit unsafe, destructive, unauthorized, or out-of-scope work. Preserve
+  unrelated work and secrets. FQM does not authorize a push, deployment,
+  release, merge, or external write.
 - `MQM` (case-insensitive), `use mid quality mode`, `use medium quality mode`,
   or an unmistakable equivalent explicitly activates mid quality mode
   immediately for unfinished and later work. Before implementation in effective
@@ -454,34 +476,36 @@ This mixes calculation, environment access, client construction, and network I/O
   both checkpoint reviews and the relevance-sized final review.
 - Mode switches do not retroactively review work already completed and
   delivered under another mode. Do not infer a switch merely from requests to
-  be quick, cheap, or concise. An explicit LQM, MQM, or HQM selection remains
-  active until the user explicitly selects another mode, the open-PR MQM
-  transition applies, or the conversation ends. In every mode, still create the
-  working plan and content-sensitive baseline, preserve unrelated work,
-  implement the requested change, run proportionate validation, inspect the
-  complete diff and status, and create scoped commits. Review mode does not
-  relax safety rules or authorize merges, pushes, or external changes that the
-  user did not otherwise request. Record the active explicit mode and any
-  switch in the plan and final response when it affects the task.
-- Localized static copy or documentation corrections may skip checkpoint-review
-  subagents, the final specialist group, and the review lead when they do not
-  change runtime behavior, dependencies, security policy, public contracts,
-  deployment, or accessibility. This exemption is for localized corrections,
-  not behavioral workflow or policy changes expressed in documentation. Create
-  the normal plan and content-sensitive baseline, validate the affected
-  artifacts, inspect the complete diff and repository status, and create
-  exactly one scoped commit. Record the concrete exemption reason and
-  validation evidence in the plan and final response. When applicability is
-  uncertain, do not use the exemption.
-- For every task that changes tracked files, create a working plan before
-  editing. Break the work into outcome-oriented checkpoints that can be
-  implemented, tested, committed, and reviewed as coherent units. Keep the plan
-  current as work progresses. In MQM, reason about dependencies, integration
-  order, validation, and natural review boundaries and record the intended
-  checkpoint sequence before starting implementation. A small task may have one
-  checkpoint; do not invent artificial checkpoints or split implementation from
-  its tests and required documentation.
-- Before making changes, record the task's starting commit and a
+  be quick, cheap, or concise. An explicit FQM, LQM, MQM, or HQM selection
+  remains active until the user explicitly selects another mode, the open-PR
+  MQM transition applies, or the conversation ends. FQM skips the formal plan,
+  content-sensitive baseline, tests, validation, and review workflows. In LQM,
+  MQM, and HQM, still create the working plan and content-sensitive baseline,
+  preserve unrelated work, implement the requested change, run proportionate
+  validation, inspect the complete diff and status, and create scoped commits.
+  In FQM, preserve unrelated work, inspect the intended diff and status, and
+  create scoped commits. Review mode does not relax safety rules or authorize
+  merges, pushes, or external changes that the user did not otherwise request.
+  Record the active mode in each required plan and final response.
+- Outside FQM, localized static copy or documentation corrections may skip
+  checkpoint-review subagents, the final specialist group, and the review lead
+  when they do not change runtime behavior, dependencies, security policy,
+  public contracts, deployment, or accessibility. This exemption is for
+  localized corrections, not behavioral workflow or policy changes expressed
+  in documentation. Create the normal plan and content-sensitive baseline,
+  validate the affected artifacts, inspect the complete diff and repository
+  status, and create exactly one scoped commit. Record the concrete exemption
+  reason and validation evidence in the plan and final response. When
+  applicability is uncertain, do not use the exemption.
+- Outside FQM, for every task that changes tracked files, create a working plan
+  before editing. Break the work into outcome-oriented checkpoints that can be
+  implemented, tested, committed, and reviewed as coherent units. Keep the
+  plan current as work progresses. In MQM, reason about dependencies,
+  integration order, validation, and natural review boundaries and record the
+  intended checkpoint sequence before starting implementation. A small task may
+  have one checkpoint. Do not invent artificial checkpoints or split
+  implementation from its tests and required documentation.
+- Outside FQM, before making changes, record the task's starting commit and a
   content-sensitive snapshot of the index and worktree, including untracked
   files. The snapshot must detect content and file-type changes, not only paths
   and status codes; for example, hash staged and unstaged binary diffs plus
@@ -555,11 +579,12 @@ This mixes calculation, environment access, client construction, and network I/O
 # Final relevance-sized specialist group review
 
 - Run this section's specialist group and review lead when the effective mode is
-  MQM or HQM. Do not run them when the effective mode is LQM or the localized
-  static-copy/documentation exemption applies. The trivial/minor final-only
-  exemption is defined below. In effective MQM, the initial final specialist
-  group supplies the last planned checkpoint's review gate and counts toward the
-  mode's approximate two-checkpoint minor or three-checkpoint major target.
+  MQM or HQM. Do not run them when the effective mode is FQM or LQM, or when the
+  localized static-copy/documentation exemption applies. The trivial/minor
+  final-only exemption is defined below. In effective MQM, the initial final
+  specialist group supplies the last planned checkpoint's review gate and
+  counts toward the mode's approximate two-checkpoint minor or three-checkpoint
+  major target.
 - Once all implementation checkpoints have completed the effective mode's
   requirements and you believe the feature or request is complete, commit every
   intended task change and require no remaining uncommitted task changes or
@@ -731,12 +756,12 @@ This mixes calculation, environment access, client construction, and network I/O
   `Follow-up purpose: intentional drift changes` from that baseline through the
   new frozen `HEAD`. Give reviewers a sanitized description and acceptance
   criteria for that delta, and do not restart the full task/session review.
-- Outside an effective LQM selection, skip checkpoint reviewers, the final
-  specialist group, and the review lead together only under the localized
-  static-copy or documentation exemption above. Other clearly trivial or minor
-  requests may skip the final specialist group and review lead only when their
-  concrete low-risk reason and validation evidence are recorded in the plan and
-  final response. Treat
+- In effective FQM or LQM, skip checkpoint reviewers, the final specialist
+  group, and the review lead. Outside these modes, skip all three together only
+  under the localized static-copy or documentation exemption above. Other
+  clearly trivial or minor requests may skip the final specialist group and
+  review lead only when their concrete low-risk reason and validation evidence
+  are recorded in the plan and final response. Treat
   changes involving authentication, authorization, security or privacy
   boundaries, persistent data or migrations, dependencies, public APIs,
   deployment or CI, concurrency, runtime behavior, workflow policy, state, or
@@ -745,13 +770,14 @@ This mixes calculation, environment access, client construction, and network I/O
   relevance-sized group.
 - Follow-up changes based on my feedback or PR reviewer feedback on an open PR
   use the same plan and checkpoint process with MQM, unless I explicitly select
-  LQM or HQM for that work. Once the required review returns `ready`, or the
-  effective-LQM/static-documentation skip is complete, verify the committed
-  `HEAD` and unchanged content-sensitive repository snapshot as described
-  above, then push those scoped commits to the existing PR branch without
-  waiting for a separate push request. Push only changes covered by the
-  required review or documented skip. Do not open a replacement PR or merge
-  unless I explicitly ask.
+  FQM, LQM, or HQM for that work. In FQM, skip plans, tests, validation,
+  reviews, and frozen-snapshot verification. Inspect the intended diff and
+  status, create a scoped commit, and push it to the existing PR branch. Outside
+  FQM, wait for the required `ready` review or documented skip. Verify the
+  committed `HEAD` and unchanged content-sensitive repository snapshot. Then
+  push the scoped commits to the existing PR branch without a separate request.
+  Push only changes covered by the required review or documented skip. Do not
+  open a replacement PR or merge unless I explicitly ask.
 
 # Designing with Claude
 
