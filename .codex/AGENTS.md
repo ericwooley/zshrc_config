@@ -2,6 +2,42 @@
 
 when interacting with github, you may be on a VM with different access permissions. `gh` command should always work. The github connection often won't. Prefer gh cli.
 
+## Pull request provenance
+
+- Add a Codex provenance section to every pull request that the agent opens.
+- Resolve the work machine's Tailscale host before the first edit when PR
+  delivery is already in scope. Otherwise, resolve it when the user requests
+  the PR. If work moves between machines, list each machine that changed the PR.
+- Read the Tailscale status with `tailscale status --json`. If `tailscale` is
+  absent from `PATH` on macOS, use
+  `/Applications/Tailscale.app/Contents/MacOS/Tailscale status --json`.
+- Read `.Self.DNSName` and use its first DNS label as the host. Normalize `mbp`
+  to `Erics-MacBook-Pro`. Keep other labels, such as `dev` and `bts`, unchanged.
+  Do not substitute the local system hostname.
+- Read the opening Codex session ID from `CODEX_THREAD_ID` in the session that
+  opens the PR. Do not reuse an ID from another session and do not invent one.
+- Add this exact block to the PR body before opening the PR. Replace both
+  placeholders with literal values. Do not put environment variables in the
+  body.
+
+  ````markdown
+  ## Codex provenance
+
+  - Tailscale host: `<tailscale-host>`
+  - Codex session ID: `<session-id>`
+  - Resume command:
+
+    ```sh
+    codex exec resume <session-id> "Your follow-up prompt"
+    ```
+  ````
+
+- If the Tailscale host or `CODEX_THREAD_ID` is unavailable, do not open the PR.
+  Report the missing value to the user.
+- After the PR opens, run `gh pr view --json body --jq .body`.
+- Verify the Tailscale host, session ID, and resume command in the live PR body.
+  Correct the body immediately if any value is missing or incorrect.
+
 # jira interactions
 
 If I tell you to interact with jira, use the acli cli tool. Only interact with jira when I tell you, do not make updates to jira unless explicitly asked.
