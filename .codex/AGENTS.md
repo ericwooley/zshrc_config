@@ -369,7 +369,11 @@ This mixes calculation, environment access, client construction, and network I/O
   user must explicitly select LQM, MQM, or HQM for each new conversation. If the
   user has not selected a mode, ask them to choose one before doing any task
   work. Do not infer a mode from the task's risk, scope, urgency, or wording,
-  and do not reuse a selection from another conversation.
+  and do not reuse a selection from another conversation. The only automatic
+  mode transition is for open PR work: when the agent opens a PR or begins or
+  resumes work on an existing open PR, switch to MQM unless the user explicitly
+  selects LQM or HQM for that work. Record the transition in the plan and final
+  response.
 - `MQM` (case-insensitive), `use mid quality mode`, `use medium quality mode`,
   `final review only`, or an unmistakable equivalent explicitly activates mid
   quality mode immediately for unfinished and later work. In effective MQM,
@@ -396,14 +400,14 @@ This mixes calculation, environment access, client construction, and network I/O
 - Mode switches do not retroactively review work already completed and
   delivered under another mode. Do not infer a switch merely from requests to
   be quick, cheap, or concise. An explicit LQM, MQM, or HQM selection remains
-  active until the user explicitly selects another mode or the conversation
-  ends. In every mode, still create the working plan and content-sensitive
-  baseline, preserve unrelated work, implement the requested change, run
-  proportionate validation, inspect the complete diff and status, and create
-  scoped commits. Review mode does not relax safety rules or authorize merges,
-  pushes, or external changes that the user did not otherwise request. Record
-  the active explicit mode and any switch in the plan and final response when
-  it affects the task.
+  active until the user explicitly selects another mode, the open-PR MQM
+  transition applies, or the conversation ends. In every mode, still create the
+  working plan and content-sensitive baseline, preserve unrelated work,
+  implement the requested change, run proportionate validation, inspect the
+  complete diff and status, and create scoped commits. Review mode does not
+  relax safety rules or authorize merges, pushes, or external changes that the
+  user did not otherwise request. Record the active explicit mode and any
+  switch in the plan and final response when it affects the task.
 - Localized static copy or documentation corrections may skip checkpoint-review
   subagents, the final specialist group, and the review lead when they do not
   change runtime behavior, dependencies, security policy, public contracts,
@@ -679,14 +683,15 @@ This mixes calculation, environment access, client construction, and network I/O
   UI interactions as presumptively nontrivial. Material changes in these
   categories may not use the trivial/minor exemption. When uncertain, run a
   relevance-sized group.
-- Follow-up changes based on my feedback to an open PR use the same plan,
-  checkpoint, and currently effective review mode or documented exemption. Once
-  the required review returns `ready`, or the effective-LQM/static-documentation
-  skip is complete, verify the committed `HEAD` and unchanged content-sensitive
-  repository snapshot as described above, then push those scoped commits to the
-  existing PR branch without waiting for a separate push request. Push only
-  changes covered by the required review or documented skip. Do not open a
-  replacement PR or merge unless I explicitly ask.
+- Follow-up changes based on my feedback or PR reviewer feedback on an open PR
+  use the same plan and checkpoint process with MQM, unless I explicitly select
+  LQM or HQM for that work. Once the required review returns `ready`, or the
+  effective-LQM/static-documentation skip is complete, verify the committed
+  `HEAD` and unchanged content-sensitive repository snapshot as described
+  above, then push those scoped commits to the existing PR branch without
+  waiting for a separate push request. Push only changes covered by the
+  required review or documented skip. Do not open a replacement PR or merge
+  unless I explicitly ask.
 
 # Designing with Claude
 
