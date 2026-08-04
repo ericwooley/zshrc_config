@@ -792,3 +792,10 @@ keep all requested writes there.
 ```sh
 codex -a never exec --ephemeral -C "$prototype_dir" -m gpt-5.5 -s workspace-write -
 ```
+
+
+## Github Interactions
+
+When I ask you to handle review feedback, you should reply or mark it resolved if it's clearly resolved. If the feedback is mistaken, you can have a back and forth with the reviewer on the comment thread. 
+
+When you push after replying to feedback, you should leave a comment explaining the update, and reply to, or mark all comments resolved. Make sure you start all comments with `ai:`
