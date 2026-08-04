@@ -375,14 +375,26 @@ This mixes calculation, environment access, client construction, and network I/O
   selects LQM or HQM for that work. Record the transition in the plan and final
   response.
 - `MQM` (case-insensitive), `use mid quality mode`, `use medium quality mode`,
-  `final review only`, or an unmistakable equivalent explicitly activates mid
-  quality mode immediately for unfinished and later work. In effective MQM,
-  skip checkpoint-review subagents but run the relevance-sized final specialist
-  group and review lead. If the effective mode becomes MQM while a checkpoint
-  review is in flight, stop treating that checkpoint review as a gate, interrupt
-  it when control is available, and ignore its later report for task gating. Do
-  not interrupt a final specialist or review lead merely because the effective
-  mode becomes MQM.
+  or an unmistakable equivalent explicitly activates mid quality mode
+  immediately for unfinished and later work. Before implementation in effective
+  MQM, classify the planned work as minor or major using its scope, blast
+  radius, cross-component reach, uncertainty, and validation burden. Record the
+  classification and its rationale, then plan and record approximately two
+  coherent checkpoints for a minor feature or equivalent-sized change and three
+  for a major feature or equivalent-sized change. Unless a documented review
+  exemption applies, each checkpoint must end in a review gate. Name each
+  checkpoint's outcome and place every review gate before starting
+  implementation. The final specialist group and review lead supply the last
+  checkpoint's review gate; each earlier checkpoint uses a checkpoint-review
+  subagent. These counts are planning targets, not quotas: do not split coherent
+  work to reach them, and add or remove a checkpoint only when the task's
+  natural boundaries, changed scope, or review findings require it. Record the
+  reason for a deviation and replan before continuing. If the effective mode
+  becomes MQM while a checkpoint review is in flight, retain that review as a
+  gate only when it matches the new MQM plan; otherwise stop treating it as a
+  gate, interrupt it when control is available, and ignore its later report for
+  task gating. Do not interrupt a retained checkpoint reviewer, final
+  specialist, or review lead merely because the effective mode becomes MQM.
 - `LQM` (case-insensitive), `use low quality mode`, `skip all reviews`, or an
   unmistakable equivalent explicitly activates low quality mode immediately for
   unfinished and later work. In effective LQM, do not launch any
@@ -421,9 +433,11 @@ This mixes calculation, environment access, client construction, and network I/O
 - For every task that changes tracked files, create a working plan before
   editing. Break the work into outcome-oriented checkpoints that can be
   implemented, tested, committed, and reviewed as coherent units. Keep the plan
-  current as work progresses. A small task may have one checkpoint; do not
-  invent artificial checkpoints or split implementation from its tests and
-  required documentation.
+  current as work progresses. In MQM, reason about dependencies, integration
+  order, validation, and natural review boundaries and record the intended
+  checkpoint sequence before starting implementation. A small task may have one
+  checkpoint; do not invent artificial checkpoints or split implementation from
+  its tests and required documentation.
 - Before making changes, record the task's starting commit and a
   content-sensitive snapshot of the index and worktree, including untracked
   files. The snapshot must detect content and file-type changes, not only paths
@@ -437,12 +451,12 @@ This mixes calculation, environment access, client construction, and network I/O
   2. run the relevant validation and inspect the complete diff and repository
      status;
   3. stage only the intended files and create a scoped checkpoint commit;
-  4. only when the effective mode is HQM and the localized
-     static-copy/documentation exemption does not apply, launch a dedicated
-     code-review subagent to adversarially review only the exact
+  4. when the localized static-copy/documentation exemption does not apply,
+     launch a dedicated code-review subagent for every HQM checkpoint and each
+     MQM intermediate planned review gate to adversarially review only the exact
      previous-checkpoint-to-current-checkpoint commit range; and
-  5. when a reviewer was launched and the effective mode remains HQM, wait for
-     a `ready` verdict before beginning the next checkpoint.
+  5. when a reviewer was launched and the effective mode still requires that
+     gate, wait for a `ready` verdict before beginning the next checkpoint.
 - A checkpoint reviewer may inspect current surrounding code, tests, contracts,
   and consumers when needed to understand or validate the checkpoint delta, but
   must not re-review earlier checkpoint diffs or the cumulative task history.
@@ -500,14 +514,17 @@ This mixes calculation, environment access, client construction, and network I/O
 - Run this section's specialist group and review lead when the effective mode is
   MQM or HQM. Do not run them when the effective mode is LQM or the localized
   static-copy/documentation exemption applies. The trivial/minor final-only
-  exemption is defined below.
+  exemption is defined below. In effective MQM, the initial final specialist
+  group supplies the last planned checkpoint's review gate and counts toward the
+  mode's approximate two-checkpoint minor or three-checkpoint major target.
 - Once all implementation checkpoints have completed the effective mode's
   requirements and you believe the feature or request is complete, commit every
   intended task change and require no remaining uncommitted task changes or
   untracked task artifacts. In effective HQM, every checkpoint must have a
-  `ready` verdict. In effective MQM, every checkpoint must be implemented,
-  validated, inspected, and committed but does not receive a checkpoint-review
-  verdict.
+  `ready` verdict. In effective MQM, every planned intermediate review gate must
+  have a `ready` checkpoint-review verdict, and the final checkpoint must be
+  implemented, validated, inspected, and committed before the final specialist
+  group supplies the last planned gate.
   Record the exact full `HEAD` and a new content-sensitive repository snapshot.
   Freeze the full task/session range from the task-start commit through that
   final `HEAD`; do not use the most recent checkpoint as the final-review base.
