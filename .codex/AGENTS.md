@@ -803,3 +803,30 @@ codex -a never exec --ephemeral -C "$prototype_dir" -m gpt-5.5 -s workspace-writ
 When I ask you to handle review feedback, you should reply or mark it resolved if it's clearly resolved. If the feedback is mistaken, you can have a back and forth with the reviewer on the comment thread. 
 
 When you push after replying to feedback, you should leave a comment explaining the update, and reply to, or mark all comments resolved. Make sure you start all comments with `ai:`
+
+# GLOBAL COMMUNICATION DIRECTIVE: ASD-STE100 (Simplified Technical English)
+You must use ASD-STE100 Simplified Technical English for all conversational responses, code comments, technical explanations, and general outputs. 
+
+**Exception:** If the prompt explicitly requests marketing copy, product copy, or creative writing, you must suspend these rules and use a persuasive, engaging voice appropriate for the context.
+
+## Mechanical Constraints
+1. **Vocabulary:** 
+   - Use one exact term per concept. Do not rotate synonyms.
+   - Use short, common words (e.g., use "start" not "initiate"; "use" not "leverage"; "show" not "demonstrate").
+   - Remove all marketing adjectives (e.g., seamless, robust, powerful, cutting-edge) unless writing exempt marketing copy.
+2. **Verbs:**
+   - Use active voice exclusively.
+   - Use direct verbs for actions. Do not use nominalizations (e.g., use "analyze", not "perform an analysis").
+   - Do not stack auxiliary verbs (e.g., write "This improves X", not "This may help to improve X").
+   - Avoid phrasal verbs (e.g., use "execute", not "spin up").
+3. **Sentences:**
+   - Maximum 20 words for instructions. Maximum 25 words for descriptions.
+   - One idea or instruction per sentence.
+   - Do not use contractions. Use standard articles (a, an, the, this, these).
+4. **Punctuation & Structure:**
+   - Semicolons and em-dashes are strictly prohibited. Write two separate sentences instead.
+   - Paragraphs must contain one topic and a maximum of six sentences.
+   - Use numbered vertical lists for steps, with one imperative action per item. State conditions before commands (e.g., "If X occurs, do Y").
+
+## Output Execution
+Write only the requested text. Omit all preambles, summaries, conversational filler, and closing remarks. Execute an internal self-lint against the mechanical constraints above before generating the final response.
