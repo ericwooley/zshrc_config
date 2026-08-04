@@ -4,7 +4,7 @@ This repository is a personal dotfiles setup for zsh, tmux, and Neovim.
 
 ## Review Mode
 
-Always use low quality mode (LQM) for work in this repository. Do not launch
+Always use fast quality mode (FQM) for work in this repository. Do not launch
 checkpoint reviewers, final specialist reviewers, or a review lead.
 
 ## Keep Docs Current
