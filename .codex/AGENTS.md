@@ -365,28 +365,11 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Planning, checkpoints, and reviewing your code
 
-- Review quality is an explicit, conversation-scoped mode and defaults to auto
-  quality mode at the start of every conversation. `AQM` (case-insensitive),
-  `use auto quality mode`, `choose the review mode automatically`, or an
-  unmistakable equivalent activates auto quality mode immediately for
-  unfinished and later work. Before editing each task in AQM, assess its
-  material risk, blast radius, uncertainty, and novelty; select effective LQM,
-  MQM, or HQM; and record the selection with a concrete rationale in the plan.
-  Use the lowest mode that covers the demonstrated risks, but choose the higher
-  mode when the classification is uncertain. Reassess when scope or evidence
-  changes and escalate immediately when risk increases. Do not downgrade merely
-  to save time or tokens.
-- In AQM, select effective LQM for a localized website or product-copy update,
-  documentation correction, or similarly mechanical change only when it does
-  not alter runtime behavior, state, dependencies, security or privacy policy,
-  public contracts, deployment, or accessibility. Select effective MQM for a
-  standard localized bug fix when the cause is clear and reproduced, the
-  solution follows established patterns, the blast radius is contained, and no
-  HQM risk below is present. Select effective HQM for a new feature or for work
-  involving authentication, authorization, security, privacy, system integrity,
-  persistent data or migrations, dependencies, public APIs, deployment or CI,
-  concurrency, cross-component architecture, an ambiguous cause, or potentially
-  large user impact.
+- Review quality is an explicit, conversation-scoped mode with no default. The
+  user must explicitly select LQM, MQM, or HQM for each new conversation. If the
+  user has not selected a mode, ask them to choose one before doing any task
+  work. Do not infer a mode from the task's risk, scope, urgency, or wording,
+  and do not reuse a selection from another conversation.
 - `MQM` (case-insensitive), `use mid quality mode`, `use medium quality mode`,
   `final review only`, or an unmistakable equivalent explicitly activates mid
   quality mode immediately for unfinished and later work. In effective MQM,
@@ -412,16 +395,15 @@ This mixes calculation, environment access, client construction, and network I/O
   both checkpoint reviews and the relevance-sized final review.
 - Mode switches do not retroactively review work already completed and
   delivered under another mode. Do not infer a switch merely from requests to
-  be quick, cheap, or concise. An explicit LQM, MQM, or HQM selection overrides
-  AQM until the user explicitly reactivates AQM or the conversation ends. Do not
-  carry an explicit mode selection into another conversation; each new
-  conversation starts in AQM. In every mode, still create the working plan and
-  content-sensitive baseline, preserve unrelated work, implement the requested
-  change, run proportionate validation, inspect the complete diff and status,
-  and create scoped commits. Review mode does not relax safety rules or
-  authorize merges, pushes, or external changes that the user did not otherwise
-  request. Record AQM's effective selection, the active explicit mode, and any
-  switch in the plan and final response when it affects the task.
+  be quick, cheap, or concise. An explicit LQM, MQM, or HQM selection remains
+  active until the user explicitly selects another mode or the conversation
+  ends. In every mode, still create the working plan and content-sensitive
+  baseline, preserve unrelated work, implement the requested change, run
+  proportionate validation, inspect the complete diff and status, and create
+  scoped commits. Review mode does not relax safety rules or authorize merges,
+  pushes, or external changes that the user did not otherwise request. Record
+  the active explicit mode and any switch in the plan and final response when
+  it affects the task.
 - Localized static copy or documentation corrections may skip checkpoint-review
   subagents, the final specialist group, and the review lead when they do not
   change runtime behavior, dependencies, security policy, public contracts,
@@ -512,9 +494,9 @@ This mixes calculation, environment access, client construction, and network I/O
 # Final relevance-sized specialist group review
 
 - Run this section's specialist group and review lead when the effective mode is
-  MQM or HQM, whether selected by AQM or explicitly. Do not run them when the
-  effective mode is LQM or the localized static-copy/documentation exemption
-  applies. The trivial/minor final-only exemption is defined below.
+  MQM or HQM. Do not run them when the effective mode is LQM or the localized
+  static-copy/documentation exemption applies. The trivial/minor final-only
+  exemption is defined below.
 - Once all implementation checkpoints have completed the effective mode's
   requirements and you believe the feature or request is complete, commit every
   intended task change and require no remaining uncommitted task changes or
