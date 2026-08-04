@@ -396,7 +396,14 @@ This mixes calculation, environment access, client construction, and network I/O
   request. Do not open a replacement PR or merge the existing PR unless I
   explicitly ask.
 - On comments and interactions in gh, prefix your comment with `AI: <whatever comment you want to make>` so I can tell which comments are from you
-- Whenever you are fixing a bug, use red green testing
+- Whenever you fix a bug, use red-green testing. Add a regression test for the
+  required current behavior. Verify that the test fails before the fix and
+  passes after the fix. You can use temporary diagnostic tests to confirm the
+  removal of old code or behavior while you implement the fix. Remove these
+  temporary tests after the current behavior passes its regression tests. Keep
+  only tests that protect the current behavior against future bugs. Do not keep
+  tests whose only purpose is to prove that old code, old behavior, or an old
+  implementation detail is absent.
 - You are typically going to be logged into github as a second user that is not my primary account. A secondary account. You should never make changes or configure settings unless I tell you to. And even then, you probably can't. Tell me what settings to change and I'll do it. If I tell you to explicitly you may have access so check first.
 
 # Planning, checkpoints, and reviewing your code
