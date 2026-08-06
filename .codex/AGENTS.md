@@ -395,7 +395,7 @@ This mixes calculation, environment access, client construction, and network I/O
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
 - If I previously asked you to open a PR and you opened it, treat my later feedback
   on that work as authorization to update the same open PR. Follow the plan,
-  checkpoint, commit, checkpoint-review, and final group-review processes below,
+  checkpoint, commit, and applicable review process below,
   then push the changes to the PR's branch without waiting for a separate
   request. Do not open a replacement PR or merge the existing PR unless I
   explicitly ask.
@@ -446,23 +446,18 @@ This mixes calculation, environment access, client construction, and network I/O
   radius, cross-component reach, uncertainty, and validation burden. Record the
   classification and its rationale, then plan and record approximately two
   coherent checkpoints for a minor feature or equivalent-sized change and three
-  for a major feature or equivalent-sized change. Unless a documented review
-  exemption applies, each checkpoint must end in a review gate. Name each
-  checkpoint's outcome and place every review gate before starting
-  implementation. The final specialist group and review lead supply the last
-  checkpoint's review gate; each earlier checkpoint uses a checkpoint-review
-  subagent. These counts are planning targets, not quotas: do not split coherent
-  work to reach them, and add or remove a checkpoint only when the task's
-  natural boundaries, changed scope, or review findings require it. Record the
-  reason for a deviation and replan before continuing. If the effective mode
-  becomes MQM while a checkpoint review is in flight, retain that review as a
-  gate only when it matches the new MQM plan; otherwise stop treating it as a
-  gate, interrupt it when control is available, and ignore its later report for
-  task gating. Do not interrupt a retained checkpoint reviewer, final
-  specialist, or review lead merely because the effective mode becomes MQM.
+  for a major feature or equivalent-sized change. These counts are planning
+  targets, not quotas. Do not split coherent work to reach them. Add or remove a
+  checkpoint only when natural boundaries, changed scope, or review findings
+  require it. Record the reason for a deviation and replan before continuing.
+  MQM uses exactly one review subagent for the complete task. Do not launch
+  checkpoint reviewers, a specialist group, or a review lead. Launch the single
+  reviewer after all planned checkpoints are implemented, validated, inspected,
+  and committed. Reuse the same reviewer for correction or evidence follow-ups.
+  Do not launch a fresh reviewer during the same MQM task.
 - `LQM` (case-insensitive), `use low quality mode`, `skip all reviews`, or an
   unmistakable equivalent explicitly activates low quality mode immediately for
-  unfinished and later work. In effective LQM, do not launch any
+  unfinished and later work. In effective LQM, do not launch an MQM reviewer,
   checkpoint-review subagent, final specialist, or review lead. Stop treating
   any in-flight review as a gate immediately. When control is available,
   interrupt in-flight review subagents and the lead; if interruption could
@@ -488,7 +483,8 @@ This mixes calculation, environment access, client construction, and network I/O
   merges, pushes, or external changes that the user did not otherwise request.
   Record the active mode in each required plan and final response.
 - Outside FQM, localized static copy or documentation corrections may skip
-  checkpoint-review subagents, the final specialist group, and the review lead
+  the MQM reviewer, checkpoint-review subagents, the final specialist group, and
+  the review lead
   when they do not change runtime behavior, dependencies, security policy,
   public contracts, deployment, or accessibility. This exemption is for
   localized corrections, not behavioral workflow or policy changes expressed
@@ -501,7 +497,7 @@ This mixes calculation, environment access, client construction, and network I/O
   before editing. Break the work into outcome-oriented checkpoints that can be
   implemented, tested, committed, and reviewed as coherent units. Keep the
   plan current as work progresses. In MQM, reason about dependencies,
-  integration order, validation, and natural review boundaries and record the
+  integration order, validation, and natural checkpoint boundaries. Record the
   intended checkpoint sequence before starting implementation. A small task may
   have one checkpoint. Do not invent artificial checkpoints or split
   implementation from its tests and required documentation.
@@ -511,26 +507,25 @@ This mixes calculation, environment access, client construction, and network I/O
   and status codes; for example, hash staged and unstaged binary diffs plus
   untracked path, type, and content evidence. Use that baseline to distinguish
   and preserve unrelated pre-existing changes. Use the task-start commit as the
-  review base for the first checkpoint. After a checkpoint receives a `ready`
-  verdict, advance the review base to that checkpoint's reviewed `HEAD`. At
-  each checkpoint:
+  review base for the first HQM checkpoint. After an HQM checkpoint receives a
+  `ready` verdict, advance the review base to that checkpoint's reviewed `HEAD`.
+  At each checkpoint:
   1. finish the checkpoint's implementation, tests, and required documentation;
   2. run the relevant validation and inspect the complete diff and repository
      status;
   3. stage only the intended files and create a scoped checkpoint commit;
-  4. when the localized static-copy/documentation exemption does not apply,
-     launch a dedicated code-review subagent for every HQM checkpoint and each
-     MQM intermediate planned review gate to adversarially review only the exact
-     previous-checkpoint-to-current-checkpoint commit range; and
+  4. in HQM, when the localized static-copy/documentation exemption does not
+     apply, launch a dedicated code-review subagent to adversarially review only
+     the exact previous-checkpoint-to-current-checkpoint commit range; and
   5. when a reviewer was launched and the effective mode still requires that
      gate, wait for a `ready` verdict before beginning the next checkpoint.
 - A checkpoint reviewer may inspect current surrounding code, tests, contracts,
   and consumers when needed to understand or validate the checkpoint delta, but
   must not re-review earlier checkpoint diffs or the cumulative task history.
-  The initial final specialist group is the single full review of all
-  task/session changes; later final follow-ups review only the requested
-  correction or intentional-drift delta since the recorded final-review
-  baseline.
+  In MQM, the single reviewer reviews all task changes after the last checkpoint.
+  In HQM, the initial final specialist group reviews all task changes. Later HQM
+  final follow-ups review only the requested correction or intentional-drift
+  delta since the recorded final-review baseline.
 - Do not include unrelated or pre-existing worktree changes in a checkpoint
   commit. If the requested work cannot be isolated safely, stop and explain the
   overlap instead of committing someone else's changes.
@@ -552,9 +547,9 @@ This mixes calculation, environment access, client construction, and network I/O
   instructions, unresolved concerns, and, for bug fixes, the exact test command
   plus failing and passing output. Otherwise, include the exact instructions I
   gave you in the subagent task under `Original user request (verbatim)`. Do
-  not paraphrase them. Include the current plan and checkpoint, the previous
-  `ready` checkpoint commit (or task-start commit for the first checkpoint),
-  `Review mode: checkpoint delta`, the exact
+  not paraphrase them. For a checkpoint review, include the current plan and
+  checkpoint, the previous `ready` checkpoint commit, or the task-start commit
+  for the first checkpoint. Include `Review mode: checkpoint delta`, the exact
   previous-checkpoint-to-current-`HEAD` review range, sanitized validation
   evidence, and sanitized unresolved concerns. Do not give a checkpoint
   reviewer the cumulative task range. For bug fixes, also include the sanitized
@@ -565,34 +560,51 @@ This mixes calculation, environment access, client construction, and network I/O
   local services, operate a browser against a development environment, write
   temporary files outside the repository, and create and clean up a review VM
   only under the applicable common prompt's safety rules.
-- Resolve every actionable finding yourself, rerun the relevant tests, and
-  create a new scoped fix commit. Launch a fresh review subagent against the
-  same previous-checkpoint base through the new `HEAD`. The checkpoint review
-  base does not advance until the checkpoint is `ready`. Repeat this fix,
-  commit, and re-review loop until the reviewer returns a `ready` verdict. Do
-  not ask the review subagent to implement its own findings.
+- For an HQM checkpoint review, resolve every actionable finding yourself.
+  Rerun the relevant tests and create a new scoped fix commit. Launch a fresh
+  review subagent against the same previous-checkpoint base through the new
+  `HEAD`. The checkpoint review base does not advance until the checkpoint is
+  `ready`. Repeat this fix, commit, and review loop until the reviewer returns a
+  `ready` verdict. Do not ask the review subagent to implement its own findings.
 - The reusable prompts already require review of all copy as
   customer/consumer-centric language that does not leak business logic or
   technical requirements and does not describe what the product does not do.
   Write copy this way yourself; do not rely on the review to catch it.
 
-# Final relevance-sized specialist group review
+# MQM single-agent review and HQM specialist group review
+
+- In MQM, launch exactly one review subagent after all planned checkpoints are
+  implemented, validated, inspected, and committed. Freeze the full task range
+  and the repository snapshot before the review. Select the one most relevant
+  specialist role from the candidate list below. Record why that role covers the
+  task's material risks. The reviewer must read the applicable common review
+  prompt and the selected role prompt.
+- Give the MQM reviewer the exact original request, plan, task-start commit,
+  `Review mode: MQM final single-agent`, frozen full task range and `HEAD`,
+  sanitized validation evidence, sanitized run instructions, and sanitized
+  unresolved concerns. Apply the same read-only, containment, and sensitive-data
+  rules that apply to HQM reviewers.
+- The MQM reviewer must report `Coverage validity: valid` or
+  `Coverage validity: invalid` and `ready` or `not ready`. MQM passes only when
+  coverage is valid and the reviewer returns `ready` with no unresolved
+  actionable findings.
+- If the MQM reviewer finds an actionable issue, resolve it yourself. Rerun the
+  relevant validation and create a scoped correction commit. Send a follow-up
+  task to the same reviewer. Give the reviewer only the correction range and all
+  unresolved findings or evidence requests. Repeat with the same reviewer until
+  it returns a coverage-valid `ready` verdict. Do not launch another reviewer.
+- Do not run the specialist group or review lead in MQM. Run the remaining
+  specialist group workflow only in HQM.
 
 - Run this section's specialist group and review lead when the effective mode is
-  MQM or HQM. Do not run them when the effective mode is FQM or LQM, or when the
+  HQM. Do not run them when the effective mode is FQM, LQM, or MQM, or when the
   localized static-copy/documentation exemption applies. The trivial/minor
-  final-only exemption is defined below. In effective MQM, the initial final
-  specialist group supplies the last planned checkpoint's review gate and
-  counts toward the mode's approximate two-checkpoint minor or three-checkpoint
-  major target.
+  final-only exemption is defined below.
 - Once all implementation checkpoints have completed the effective mode's
   requirements and you believe the feature or request is complete, commit every
   intended task change and require no remaining uncommitted task changes or
   untracked task artifacts. In effective HQM, every checkpoint must have a
-  `ready` verdict. In effective MQM, every planned intermediate review gate must
-  have a `ready` checkpoint-review verdict, and the final checkpoint must be
-  implemented, validated, inspected, and committed before the final specialist
-  group supplies the last planned gate.
+  `ready` verdict.
   Record the exact full `HEAD` and a new content-sensitive repository snapshot.
   Freeze the full task/session range from the task-start commit through that
   final `HEAD`; do not use the most recent checkpoint as the final-review base.
@@ -735,7 +747,7 @@ This mixes calculation, environment access, client construction, and network I/O
   task/session range for follow-up corrections. A follow-up verifies its stated
   correction or intentional-drift purpose and regressions in that delta, using
   earlier coverage-valid final-review results as reviewed context.
-- Immediately after a `ready` lead verdict and before declaring completion or
+- Immediately after the required `ready` verdict and before declaring completion or
   pushing, verify that the current full `HEAD` still equals the frozen reviewed
   `HEAD` and that a new content-sensitive index/worktree snapshot exactly
   matches the frozen snapshot. A clean-start task must still be clean, and
@@ -756,12 +768,13 @@ This mixes calculation, environment access, client construction, and network I/O
   `Follow-up purpose: intentional drift changes` from that baseline through the
   new frozen `HEAD`. Give reviewers a sanitized description and acceptance
   criteria for that delta, and do not restart the full task/session review.
-- In effective FQM or LQM, skip checkpoint reviewers, the final specialist
-  group, and the review lead. Outside these modes, skip all three together only
-  under the localized static-copy or documentation exemption above. Other
-  clearly trivial or minor requests may skip the final specialist group and
-  review lead only when their concrete low-risk reason and validation evidence
-  are recorded in the plan and final response. Treat
+- In effective FQM or LQM, skip all review agents. In effective MQM, use only
+  the single MQM reviewer. Outside these modes, skip the HQM checkpoint
+  reviewers, final specialist group, and review lead together only under the
+  localized static-copy or documentation exemption above. Other clearly trivial
+  or minor HQM requests may skip the final specialist group and review lead only
+  when their concrete low-risk reason and validation evidence are recorded in
+  the plan and final response. Treat
   changes involving authentication, authorization, security or privacy
   boundaries, persistent data or migrations, dependencies, public APIs,
   deployment or CI, concurrency, runtime behavior, workflow policy, state, or
