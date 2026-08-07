@@ -23,6 +23,13 @@ If a change affects users, assume the docs need to change.
 
 - Do not commit secrets, tokens, private keys, `.env` files, machine-local overrides, or generated caches.
 - If an installer reports that an application is open, wait a few seconds and check again before reporting a blocker.
+- For WoW add-on installs, keep WoW open unless the user asks to close it.
+- Validate the source before changing installed add-on files.
+- Copy the source into a staging directory on the target filesystem.
+- Move the current add-on into a timestamped backup.
+- Rename the complete staging directory into the target path.
+- Verify that the installed tree matches the validated source.
+- Tell the user to use `/reload` only after installation succeeds.
 - Keep `~/.zshrc_local` out of the repo.
 - Keep generated completion files ignored.
 - Before publishing or after sensitive edits, run `gitleaks git` and `gitleaks dir` when available.
