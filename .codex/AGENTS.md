@@ -421,6 +421,12 @@ This mixes calculation, environment access, client construction, and network I/O
   begins or resumes work on an existing open PR, switch to MQM unless the user
   explicitly selects FQM, LQM, or HQM for that work. Record the transition in
   the plan and final response.
+- Changes limited to development configuration files automatically use FQM.
+  Examples include ESLint, TypeScript, formatter, test-runner, and editor
+  configuration files. Do not create, update, or run tests for these changes.
+  Manually verify that the affected tool reads the configuration and applies
+  the intended settings. This exception does not include CI, deployment,
+  runtime, security, or production configuration.
 - `FQM` (case-insensitive), `use fast quality mode`, `use yolo mode`,
   `debug in production mode`, or an unmistakable equivalent explicitly
   activates fast quality mode immediately for unfinished and later work. Use
