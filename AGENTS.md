@@ -22,6 +22,7 @@ If a change affects users, assume the docs need to change.
 ## Safety Rules
 
 - Do not commit secrets, tokens, private keys, `.env` files, machine-local overrides, or generated caches.
+- If an installer reports that an application is open, wait a few seconds and check again before reporting a blocker.
 - Keep `~/.zshrc_local` out of the repo.
 - Keep generated completion files ignored.
 - Before publishing or after sensitive edits, run `gitleaks git` and `gitleaks dir` when available.
