@@ -388,6 +388,16 @@ This mixes calculation, environment access, client construction, and network I/O
 - Add regression tests for bugs before or alongside fixes.
 - If test setup becomes complex, consider whether the production code has too many responsibilities.
 
+# Feature and Bug Research
+
+- Before work starts on a feature or bug, search the repository for applicable
+  architecture decision records and documentation.
+- Read the applicable records and documentation before planning or changing
+  code.
+- Use the documented behavior and decisions as requirements for the work.
+- If the documentation conflicts with the request or current code, report the
+  conflict before implementation.
+
 # Important Rules
 
 - Never merge a PR unless I explicitly tell you too. You can and should commit frequently, you may push to update a PR or whatever if the context allows, but do NOT MERGE THINGS, unless I explicitly tell you too.
