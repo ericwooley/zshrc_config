@@ -30,8 +30,9 @@ tmr() {
       sessions=()
     fi
 
-    choices=()
+    choices=("Default")
     for existing in "${sessions[@]}"; do
+      [[ "$existing" == "default" ]] && continue
       choices+=("Attach: $existing")
     done
     choices+=("Create a new session")
@@ -53,7 +54,9 @@ tmr() {
       return "$picker_status"
     fi
 
-    if [[ "$selected" == "Create a new session" ]]; then
+    if [[ "$selected" == "Default" ]]; then
+      session="default"
+    elif [[ "$selected" == "Create a new session" ]]; then
       if ! IFS= read -r "session?New tmux session name: "; then
         return 1
       fi

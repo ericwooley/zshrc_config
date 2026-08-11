@@ -297,6 +297,7 @@ Purpose:
 - attach to a tmux session
 - create the session if it does not exist
 - open an `fzf` picker when no session name is provided
+- always offer a `Default` choice that attaches to or creates the `default` session
 - select a running session with Up/Down and Enter
 - offer a `Create a new session` choice that prompts for the new name
 - replace `:` with `_` in session names so tmux accepts them
@@ -306,6 +307,7 @@ Behavior:
 - outside tmux, runs `tmux new-session -A -s <session>`
 - inside tmux, creates the session in the background when needed and switches the current client to it
 - named calls such as `tmr work` skip the picker
+- the `Default` choice reuses the `default` session or creates it when necessary
 - Ctrl-C closes the picker without attaching to a session
 - returns an error if tmux is not installed
 - returns an error for the interactive flow if `fzf` is not installed
