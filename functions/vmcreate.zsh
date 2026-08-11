@@ -65,8 +65,8 @@ vmcreate() {
   local name="$1"
   local image="${2:-${VM_IMAGE:-lts}}"
   local vm_user="${VM_USER:-$USER}"
-  local cpus="${VM_CPUS:-2}"
-  local memory="${VM_MEMORY:-4G}"
+  local cpus="${VM_CPUS:-}"
+  local memory="${VM_MEMORY:-}"
   local disk="${VM_DISK:-20G}"
   local host_shared="${VM_SHARED_DIR:-$HOME/vms/shared}"
   local cloud_init_root="${VM_CLOUD_INIT_ROOT:-$HOME/vms/cloud-init}"
@@ -92,6 +92,34 @@ vmcreate() {
   if multipass info "$name" >/dev/null 2>&1; then
     vm_exists=1
     echo "vmcreate: VM already exists; continuing setup: $name"
+  fi
+
+  if (( ! vm_exists )); then
+    if [[ -z "$cpus" ]]; then
+      read -r "cpus?vmcreate: vCPUs [2]: " || {
+        echo "vmcreate: canceled while reading vCPUs" >&2
+        return 1
+      }
+      cpus="${cpus:-2}"
+    fi
+    if [[ ! "$cpus" =~ '^[1-9][0-9]*$' ]]; then
+      echo "vmcreate: vCPUs must be a positive whole number" >&2
+      return 1
+    fi
+
+    if [[ -z "$memory" ]]; then
+      local memory_gb
+      read -r "memory_gb?vmcreate: RAM in GB [4]: " || {
+        echo "vmcreate: canceled while reading RAM" >&2
+        return 1
+      }
+      memory_gb="${memory_gb:-4}"
+      if [[ ! "$memory_gb" =~ '^[1-9][0-9]*$' ]]; then
+        echo "vmcreate: RAM must be a positive whole number of GB" >&2
+        return 1
+      fi
+      memory="${memory_gb}G"
+    fi
   fi
 
   mkdir -p "$host_shared" "$cloud_init_root"
@@ -176,6 +204,30 @@ vmcreate() {
   echo "vmcreate: waiting for cloud-init"
   multipass exec "$name" -- cloud-init status --wait || return
 
+  local sudoers_file="/etc/sudoers.d/90-vmcreate-$vm_user"
+  local sudoers_rule="$vm_user ALL=(ALL) NOPASSWD:ALL"
+  echo "vmcreate: configuring passwordless sudo for $vm_user"
+  multipass exec "$name" -- sudo sh -c '
+    set -eu
+    rule="$1"
+    sudoers_file="$2"
+    printf "%s\n" "$rule" > "$sudoers_file"
+    chmod 0440 "$sudoers_file"
+    visudo -cf "$sudoers_file" >/dev/null
+  ' sh "$sudoers_rule" "$sudoers_file" || return
+  multipass exec "$name" -- sudo -n -u "$vm_user" sudo -n true || return
+
+  echo "vmcreate: disabling IPv6"
+  multipass exec "$name" -- sudo sh -c '
+    set -eu
+    sysctl_file=/etc/sysctl.d/99-vmcreate-disable-ipv6.conf
+    printf "%s\n" \
+      "net.ipv6.conf.all.disable_ipv6 = 1" \
+      "net.ipv6.conf.default.disable_ipv6 = 1" \
+      > "$sysctl_file"
+    sysctl -p "$sysctl_file" >/dev/null
+  ' || return
+
   if multipass info "$name" 2>/dev/null | grep -F -- "/home/$vm_user" | grep -Fv -- "/home/$vm_user/shared" >/dev/null 2>&1; then
     echo "vmcreate: removing old home mount at /home/$vm_user"
     multipass umount "$name:/home/$vm_user" || return
@@ -221,7 +273,7 @@ vmcreate() {
   _vmcreate_run_with_heartbeat \
     "installing zsh setup inside $name (${install_wait_seconds}s max)" \
     "$install_wait_seconds" \
-    multipass exec "$name" -- sudo -H -u "$vm_user" sh -lc 'printf "y\nn\nn\ny\n" | sh "$HOME/.zshrc_config/install.sh"' || return
+    multipass exec "$name" -- sudo -H -u "$vm_user" sh -lc 'printf "y\nn\nn\ny\n" | NONINTERACTIVE=1 sh "$HOME/.zshrc_config/install.sh"' || return
 
   echo "vmcreate: ready"
   echo "vmcreate: connect with: vmconnect $name"

@@ -510,11 +510,15 @@ vmcreate <name> [image]
 Purpose:
 
 - create a Multipass VM from the requested image, defaulting to `lts`
+- ask for the vCPU count and RAM in GB before a new VM launch
+- use `VM_CPUS` and `VM_MEMORY` without prompts when these variables are set
 - print that Multipass needs to be installed first when it is missing
 - create a shared host directory at `~/vms/shared`
 - collect the pinned public SSH key plus public keys from `~/.ssh/*.pub`
 - write a cloud-init file under `~/vms/cloud-init/<name>.yaml`
 - create the configured user, defaulting to `$USER`
+- configure and verify passwordless `sudo` for the configured user on each setup run
+- disable IPv6 now and after VM restarts
 - install `zsh`, `git`, `curl`, `sudo`, `htop`, and certificates during cloud-init
 - clone this dotfiles repo into `~/.zshrc_config` inside the VM
 - continue setup when the VM already exists, which helps after a partial launch
@@ -522,7 +526,7 @@ Purpose:
 - show heartbeat output while silent Multipass mount and install steps run
 - remove the older `/home/<user>` mount when rerunning against a VM from the previous layout
 - mount `~/vms/shared` to `~/shared` in the VM
-- run the normal `install.sh` inside the VM
+- run `install.sh` inside the VM with Homebrew password prompts disabled
 
 Useful environment overrides:
 
