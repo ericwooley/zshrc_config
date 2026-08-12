@@ -374,6 +374,15 @@ func Checkout(cart Cart) (PaymentResult, error) {
 
 This mixes calculation, environment access, client construction, and network I/O. It is harder to test and easier to break.
 
+## React Component Use
+
+- Use components for almost all React user interface elements.
+- Before you start a view or page, inspect the available components.
+- Use an available component instead of writing the same user interface element by hand.
+- Make form inputs reusable components in almost all cases.
+- Look for repeated user interface elements that can use a shared component.
+- Keep layout `div` elements inline unless the layout is common and reusable.
+
 ## General Guidelines
 
 - Keep functions small enough that their behavior can be named and tested clearly.
