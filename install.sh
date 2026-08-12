@@ -396,6 +396,16 @@ install_fastai() {
   brew install ericwooley/apps/fastai
 }
 
+install_proc_man() {
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "install.sh: warning: skipped proc-man install because Homebrew is unavailable" >&2
+    return 0
+  fi
+
+  echo "install.sh: installing proc-man with Homebrew"
+  brew install --cask ericwooley/apps/proc-man
+}
+
 install_antidote() {
   if [ -r "$HOME/.antidote/antidote.zsh" ]; then
     return 0
@@ -605,20 +615,21 @@ install_deps() {
     else
       prepare_homebrew_dependencies || :
       echo "install.sh: unsupported Linux package manager for automatic dependency install" >&2
-      echo "install.sh: install zsh git curl go tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI multipass manually" >&2
+      echo "install.sh: install zsh git curl go tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI proc-man multipass manually" >&2
       if ! install_neovim_linux_tarball; then
         echo "install.sh: warning: Neovim tarball install failed; install Neovim manually" >&2
       fi
     fi
   else
     echo "install.sh: unsupported OS for automatic dependency install" >&2
-    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI multipass manually" >&2
+    echo "install.sh: install zsh git curl go nvim tmux fzf ripgrep lsof zoxide eza starship glow lazygit fastAI proc-man multipass manually" >&2
   fi
 
   install_zoxide
   install_starship
   install_n
   install_fastai
+  install_proc_man
   install_antidote
   set_default_shell_to_zsh
   maybe_install_multipass

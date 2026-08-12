@@ -88,7 +88,7 @@ makes `brew` available to the current process and future managed zsh sessions.
 On macOS, Homebrew installs:
 
 ```text
-antidote eza fastAI fzf git glow go lazygit lsof multipass neovim ripgrep starship tmux zoxide zsh
+antidote eza fastAI fzf git glow go lazygit lsof multipass neovim proc-man ripgrep starship tmux zoxide zsh
 ```
 
 On Ubuntu/Debian, the installer continues to use apt for stable dependencies
@@ -100,8 +100,8 @@ bash build-essential ca-certificates curl file fzf git golang-go gpg gzip lsof p
 
 It also handles Neovim from the official stable Linux tarball, eza, zoxide,
 starship, Go 1.24.x when the packaged Go is too old, `glow` and `lazygit` into
-`~/.local/bin` when they are missing, `fastAI` from Homebrew, `n`, Node LTS, and
-Antidote.
+`~/.local/bin` when they are missing, `fastAI` and `proc-man` from Homebrew,
+`n`, Node LTS, and Antidote.
 
 After dependency installation, the installer sets the current user's default
 login shell to `zsh` with `chsh` when it is not already set. Log out and back in
@@ -152,6 +152,13 @@ That installs a marked root cron job that reruns the tarball installer daily.
 
 ```sh
 brew install ericwooley/apps/fastai
+```
+
+[`proc-man`](https://github.com/ericwooley/proc-man) is installed from its
+Homebrew cask:
+
+```sh
+brew install --cask ericwooley/apps/proc-man
 ```
 
 On other Linux distributions, the installer still installs Homebrew when its
