@@ -450,15 +450,23 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Planning, checkpoints, and reviewing your code
 
+- Quality modes apply only to work that creates or changes a project artifact.
+  This work includes code, documentation, configuration, tests, commits, and
+  pull request changes.
+- Quality modes do not apply to answering questions, reading or searching code,
+  research, diagnosis, or read-only code review.
+- Start read-only tasks without asking the user to select a quality mode.
+- If a read-only task later requires a project change, ask for a quality mode
+  before making that change unless an automatic mode rule applies.
 - Review quality is an explicit, conversation-scoped mode with no default. The
   user must explicitly select FQM, LQM, MQM, or HQM for each new conversation.
-  If the user has not selected a mode, ask them to choose one before doing any
-  task work. Do not infer a mode from the task's risk, scope, urgency, or
-  wording, and do not reuse a selection from another conversation. The only
-  automatic mode transition is for open PR work: when the agent opens a PR or
-  begins or resumes work on an existing open PR, switch to MQM unless the user
-  explicitly selects FQM, LQM, or HQM for that work. Record the transition in
-  the plan and final response.
+  If the user has not selected a mode, ask them to choose one before creating
+  or changing a project artifact. Do not infer a mode from the task's risk,
+  scope, urgency, or wording. Do not reuse a selection from another
+  conversation. The only automatic mode transition is for open PR work. When
+  the agent opens a PR or begins or resumes work on an existing open PR, switch
+  to MQM unless the user explicitly selects FQM, LQM, or HQM for that work.
+  Record the transition in the plan and final response.
 - Changes limited to development configuration files automatically use FQM.
   Examples include ESLint, TypeScript, formatter, test-runner, and editor
   configuration files. Do not create, update, or run tests for these changes.
