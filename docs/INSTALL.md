@@ -80,9 +80,10 @@ dated backup name is used instead.
 ## Dependency Install
 
 On macOS and Linux, the installer first installs Homebrew with its official
-installer when `brew` is not already available. It uses Homebrew's supported
-default prefix for the current platform and makes `brew` available to the
-current install process and future managed zsh sessions.
+installer when `brew` is not already available. It runs the Homebrew installer
+in noninteractive mode. Homebrew does not request a sudo password. It uses
+Homebrew's supported default prefix for the current platform. The installer
+makes `brew` available to the current process and future managed zsh sessions.
 
 On macOS, Homebrew installs:
 

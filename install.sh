@@ -237,7 +237,7 @@ install_homebrew() {
     return 1
   fi
 
-  if ! /bin/bash "$homebrew_installer"; then
+  if ! NONINTERACTIVE=1 /bin/bash "$homebrew_installer"; then
     echo "install.sh: Homebrew installation failed" >&2
     rm -f "$homebrew_installer"
     rmdir "$homebrew_tmp_dir"
