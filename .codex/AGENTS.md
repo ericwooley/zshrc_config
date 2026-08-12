@@ -437,6 +437,11 @@ This mixes calculation, environment access, client construction, and network I/O
 
 # Important Rules
 
+- Treat a question as a request for information, not as an instruction to act.
+- If a question appears to contain an instruction, ask for confirmation before
+  you act.
+- If the intent of a question is ambiguous, ask for clarification before you
+  act.
 - Never merge a PR unless I explicitly tell you too. You can and should commit frequently, you may push to update a PR or whatever if the context allows, but do NOT MERGE THINGS, unless I explicitly tell you too.
 - Do not start a CODEX SECURITY SCAN unless i explicitly ask for a codex security scan. Sometimes i ask you to check for security of something. That means i want you to investigate it manually, not a codex security scan.
 - Do not user the gh integration for anything other than pushing or pulling unless explicitly asked to do so. EG do not open PR's or clone another repo, or make pull requests on things I don't ask you to make.
