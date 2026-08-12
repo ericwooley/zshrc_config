@@ -388,6 +388,34 @@ This mixes calculation, environment access, client construction, and network I/O
 - Add regression tests for bugs before or alongside fixes.
 - If test setup becomes complex, consider whether the production code has too many responsibilities.
 
+## Dependency Selection and Supply-Chain Safety
+
+- Treat domain squatting, package-name squatting, typosquatting, abandoned
+  packages, and compromised maintainer accounts as current supply-chain risks.
+- Do not add a dependency for logic that the project can implement directly in
+  a small, well-tested module.
+- Prefer no dependency when a library only saves a small amount of code or
+  provides a simple component.
+- Add a library only when it solves a difficult problem that needs substantial
+  domain knowledge and would be hard to implement correctly.
+- Good candidates include full WYSIWYG editors, Protocol Buffers
+  implementations, and advanced chart visualization systems.
+- Common platforms such as React and PostgreSQL are acceptable when the project
+  needs their broad capabilities.
+- Initial project setup can use common development tools when they reduce setup
+  time. Use only common and established tools for this exception.
+- Research every new dependency before adding it. This rule applies in all
+  review modes, including FQM and LQM.
+- Confirm the exact package name, owner, source repository, release history,
+  maintenance status, security policy, known vulnerabilities, and transitive
+  dependency risk.
+- Prefer packages with many GitHub stars and regular updates. A functionally
+  complete package is acceptable when maintainers still publish security fixes.
+- For npm packages, require at least hundreds of thousands of installs unless
+  the user approves a documented exception.
+- Record the research evidence and explain why direct implementation is not a
+  reasonable choice.
+
 # Feature and Bug Research
 
 - Before work starts on a feature or bug, search the repository for applicable
