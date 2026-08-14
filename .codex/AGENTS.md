@@ -890,14 +890,17 @@ You must use ASD-STE100 Simplified Technical English for all conversational resp
 
 ## Output Execution
 Write only the requested text. Omit all preambles, summaries, conversational filler, and closing remarks. Execute an internal self-lint against the mechanical constraints above before generating the final response.
+
+
+
 ## proc-man process management
 
-Use proc-man as the process registry for this repository.
-Associate each process with its working directory.
-Register long-running commands as services.
-Register one-shot commands as tasks.
+Use proc-man to manage long-running services for this repository.
+Associate each registered service with its working directory.
+Register only long-running commands as services.
+Run one-shot commands directly without registration.
 Add tags that identify the project, component, and purpose.
-Declare each HTTP or TCP port that the command uses.
+Declare each HTTP or TCP port that the service uses.
 
 ### Start the proc-man daemon
 
@@ -911,7 +914,7 @@ The command installs and starts the current user service.
 
 ### Find registered processes
 
-List processes for the current directory before you register or start a process:
+List processes for the current directory before you register or start a service:
 
 ```sh
 proc-man process list --directory "$PWD"
@@ -919,7 +922,7 @@ proc-man process list --directory "$PWD"
 
 Use the process ID from this list for status, lifecycle, and log commands.
 
-### Register a service
+### Register a long-running service
 
 ```sh
 proc-man process register \
@@ -934,28 +937,36 @@ proc-man process register \
 
 Omit the port flag when the process has no port.
 
-### Register a task
+### Run a one-shot command
 
 ```sh
-proc-man process register \
-  --label "<label>" \
-  --kind task \
-  --cwd "$PWD" \
-  --tag "project:<project>" \
-  -- <command> [args...]
+proc-man run -- <command> [args...]
 ```
 
-### Manage processes and logs
+The command uses the directory that invoked proc-man.
+It does not register a process.
+The proc-man daemon must be running.
+Each command stores one audit record with its directory, exact arguments, timestamps, output, and exit code.
+The CLI streams stdout and stderr from the audit log while the command runs.
+The command receives the caller environment but does not receive stdin.
+Do not put secrets in command arguments because the audit record retains them.
 
-Use start, stop, and restart for services.
-Use run for tasks.
+Find audit records for the current directory:
+
+```sh
+proc-man run list --directory "$PWD"
+proc-man run logs RUN_ID
+```
+
+### Manage registered services and logs
+
+Use start, stop, and restart for registered services.
 
 ```sh
 proc-man process status PROCESS_ID
 proc-man process start PROCESS_ID
 proc-man process stop PROCESS_ID
 proc-man process restart PROCESS_ID
-proc-man process run PROCESS_ID
 proc-man process logs PROCESS_ID
 proc-man run list --process PROCESS_ID
 proc-man run logs RUN_ID
